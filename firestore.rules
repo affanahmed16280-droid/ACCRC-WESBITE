@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Events: Public read, authenticated write
+    match /events/{eventId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null;
+    }
+    
+    // News: Public read, authenticated write
+    match /news/{newsId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null;
+    }
+    
+    // Registrations: Public create only, authenticated read/update/delete
+    match /registrations/{regId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+    
+    // Applications: Public create only, authenticated read/update/delete
+    match /applications/{appId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+    
+    // Config: Public read (for portal status), authenticated write
+    match /config/{configId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}
