@@ -58,13 +58,18 @@ export default function AdminNews() {
     setIsFormOpen(false);
   };
 
+  const toDatetimeLocal = (date: Date) => {
+    if (!date) return '';
+    return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  };
+
   const handleEdit = (post: FirestoreNews) => {
     setFormData({
       title: post.title,
       excerpt: post.excerpt,
       body: post.body,
       imageUrl: post.imageUrl || '',
-      publishedAt: post.publishedAt
+      publishedAt: toDatetimeLocal(post.publishedAt)
     });
     setEditingId(post.id);
     setIsFormOpen(true);
@@ -86,10 +91,15 @@ export default function AdminNews() {
     setFormLoading(true);
     
     try {
+      const payload = {
+        ...formData,
+        publishedAt: new Date(formData.publishedAt)
+      };
+
       if (editingId) {
-        await updateNewsPost(editingId, formData);
+        await updateNewsPost(editingId, payload);
       } else {
-        await createNewsPost(formData);
+        await createNewsPost(payload);
       }
       await fetchNews();
       resetForm();
@@ -111,7 +121,7 @@ export default function AdminNews() {
 
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-sans font-bold">Manage News</h1>
-          <Button onClick={() => setIsFormOpen(!isFormOpen)} variant={isFormOpen ? 'outline' : 'primary'}>
+          <Button onClick={() => setIsFormOpen(!isFormOpen)} variant={isFormOpen ? 'secondary' : 'primary'}>
             {isFormOpen ? 'Cancel' : <><Plus className="w-4 h-4 mr-2" /> Create New Post</>}
           </Button>
         </div>
@@ -187,10 +197,10 @@ export default function AdminNews() {
                     <p className="text-sm text-primary line-clamp-2">{post.excerpt}</p>
                   </div>
                   <div className="flex items-center space-x-2 shrink-0">
-                    <Button variant="outline" size="sm" onClick={() => handleEdit(post)}>
+                    <Button variant="secondary" size="sm" onClick={() => handleEdit(post)}>
                       <Edit2 className="w-4 h-4 mr-1" /> Edit
                     </Button>
-                    <Button variant="outline" size="sm" className="text-danger border-danger/50 hover:bg-danger/10" onClick={() => handleDelete(post.id)}>
+                    <Button variant="secondary" size="sm" className="text-danger border-danger/50 hover:bg-danger/10" onClick={() => handleDelete(post.id)}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>

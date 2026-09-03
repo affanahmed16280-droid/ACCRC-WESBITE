@@ -26,9 +26,9 @@ export function ApplicationForm({ type, roles, onSuccess }: ApplicationFormProps
       email: formData.get('email') as string,
       idNumber: formData.get('idNumber') as string,
       section: formData.get('section') as string,
-      role: formData.get('role') as string,
-      experience: formData.get('experience') as string,
-      vision: formData.get('vision') as string,
+      roleApplyingFor: formData.get('role') as string,
+      pastExperience: formData.get('experience') as string,
+      visionStatement: formData.get('vision') as string,
       status: 'pending',
       submittedAt: new Date(),
     };
@@ -88,12 +88,13 @@ export function ApplicationForm({ type, roles, onSuccess }: ApplicationFormProps
 
       <div>
         <label htmlFor="role" className="block text-body-sm text-text-secondary mb-2">Role Applying For</label>
-        <Select id="role" name="role" required>
-          <option value="">Select a role...</option>
-          {roles.map(role => (
-            <option key={role} value={role}>{role}</option>
-          ))}
-        </Select>
+        <Select 
+          id="role" 
+          name="role" 
+          required 
+          placeholder="Select a role..."
+          options={roles.map(role => ({ value: role, label: role }))}
+        />
       </div>
 
       <div>

@@ -63,7 +63,7 @@ export default function AdminDashboard() {
             <h1 className="text-3xl font-sans font-bold">Admin Dashboard</h1>
             <p className="text-secondary font-mono mt-1">Manage ACCRC portal contents</p>
           </div>
-          <Button variant="outline" onClick={handleSignOut} className="border-border">
+          <Button variant="secondary" onClick={handleSignOut} className="border-border">
             <LogOut className="w-4 h-4 mr-2" /> Sign Out
           </Button>
         </div>

@@ -23,7 +23,7 @@ export function Hero() {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+      transition: { duration: 0.6, ease: "easeOut" as const },
     },
   };
 
@@ -59,11 +59,11 @@ export function Hero() {
         </motion.p>
         
         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4">
-          <Button asChild variant="primary" size="lg">
-            <Link href="/membership/">Become a Member</Link>
+          <Button href="/membership/" variant="primary" size="lg">
+            Become a Member
           </Button>
-          <Button asChild variant="secondary" size="lg">
-            <Link href="/events/">View Events</Link>
+          <Button href="/events/" variant="secondary" size="lg">
+            View Events
           </Button>
         </motion.div>
       </motion.div>

@@ -4,11 +4,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { SectionReveal } from '@/components/ui/SectionReveal';
-import { getLatestNews } from '@/lib/firestore';
-import type { ACCRCNews } from '@/types';
+import { getLatestNews, type FirestoreNews } from '@/lib/firestore';
 
 export function NewsPreview() {
-  const [news, setNews] = useState<ACCRCNews[]>([]);
+  const [news, setNews] = useState<FirestoreNews[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,9 +43,9 @@ export function NewsPreview() {
             ) : news.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {news.map((item) => (
-                  <Card key={item.id} hoverable className="flex flex-col h-full bg-primary">
+                  <Card key={item.id} hover={true} className="flex flex-col h-full bg-primary">
                     <div className="font-mono text-mono-sm text-text-tertiary mb-3">
-                      {item.date.toDate().toLocaleDateString('en-US', {
+                      {item.publishedAt.toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric'

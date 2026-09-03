@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 
 export function EventRegistrationForm({ eventId, eventName }: { eventId: string, eventName: string }) {
   const [formData, setFormData] = useState({ 
-    name: '', email: '', phone: '', class: '', roll: '', interest: '', motivation: '' 
+    name: '', email: '', phone: '', classSection: '', rollNumber: '', areaOfInterest: '', motivation: '' 
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -52,17 +52,22 @@ export function EventRegistrationForm({ eventId, eventName }: { eventId: string,
       <Input required type="tel" placeholder="Phone Number" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
       
       <div className="grid grid-cols-2 gap-4">
-        <Input required placeholder="Class/Section" value={formData.class} onChange={e => setFormData({...formData, class: e.target.value})} />
-        <Input required placeholder="Roll Number" value={formData.roll} onChange={e => setFormData({...formData, roll: e.target.value})} />
+        <Input required placeholder="Class/Section" value={formData.classSection} onChange={e => setFormData({...formData, classSection: e.target.value})} />
+        <Input required placeholder="Roll Number" value={formData.rollNumber} onChange={e => setFormData({...formData, rollNumber: e.target.value})} />
       </div>
 
-      <Select required value={formData.interest} onChange={(e: any) => setFormData({...formData, interest: e.target.value})}>
-        <option value="" disabled>Area of Interest</option>
-        <option value="Mechanical">Mechanical</option>
-        <option value="Electronics">Electronics</option>
-        <option value="Programming">Programming</option>
-        <option value="Design">Design</option>
-      </Select>
+      <Select 
+        required 
+        value={formData.areaOfInterest} 
+        onChange={(e: any) => setFormData({...formData, areaOfInterest: e.target.value})}
+        placeholder="Area of Interest"
+        options={[
+          { value: "Mechanical", label: "Mechanical" },
+          { value: "Electronics", label: "Electronics" },
+          { value: "Programming", label: "Programming" },
+          { value: "Design", label: "Design" }
+        ]}
+      />
 
       <Textarea required placeholder="Motivation (Why do you want to join?)" rows={4} value={formData.motivation} onChange={e => setFormData({...formData, motivation: e.target.value})} />
       

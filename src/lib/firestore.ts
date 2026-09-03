@@ -53,6 +53,7 @@ export interface Registration {
   rollNumber: string;
   areaOfInterest: string;
   motivation: string;
+  bloodGroup?: string;
   createdAt?: Date;
 }
 

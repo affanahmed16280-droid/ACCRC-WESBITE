@@ -18,7 +18,7 @@ export function Input({ label, error, hint, className = "", id, ...props }: Inpu
       )}
       <input
         id={inputId}
-        className={`bg-secondary border border-border text-text-primary rounded px-4 py-3 text-body-md transition-all duration-200 placeholder:text-text-tertiary focus:border-accent focus:shadow-[0_0_0_3px_rgba(10,132,255,0.12)] focus:outline-none ${
+        className={`bg-secondary border border-border text-text-primary rounded px-5 py-4 text-lg transition-all duration-200 placeholder:text-text-tertiary focus:border-accent focus:shadow-[0_0_0_3px_rgba(10,132,255,0.12)] focus:outline-none ${
           error ? "border-danger focus:border-danger focus:shadow-[0_0_0_3px_rgba(230,57,70,0.12)]" : ""
         } ${className}`}
         {...props}
@@ -47,7 +47,7 @@ export function Textarea({ label, error, hint, className = "", id, ...props }: T
       )}
       <textarea
         id={inputId}
-        className={`bg-secondary border border-border text-text-primary rounded px-4 py-3 text-body-md transition-all duration-200 placeholder:text-text-tertiary focus:border-accent focus:shadow-[0_0_0_3px_rgba(10,132,255,0.12)] focus:outline-none resize-y min-h-[100px] ${
+        className={`bg-secondary border border-border text-text-primary rounded px-5 py-4 text-lg transition-all duration-200 placeholder:text-text-tertiary focus:border-accent focus:shadow-[0_0_0_3px_rgba(10,132,255,0.12)] focus:outline-none resize-y min-h-[120px] ${
           error ? "border-danger focus:border-danger focus:shadow-[0_0_0_3px_rgba(230,57,70,0.12)]" : ""
         } ${className}`}
         {...props}
@@ -77,7 +77,7 @@ export function Select({ label, error, options, placeholder, className = "", id,
       )}
       <select
         id={inputId}
-        className={`bg-secondary border border-border text-text-primary rounded px-4 py-3 text-body-md transition-all duration-200 focus:border-accent focus:shadow-[0_0_0_3px_rgba(10,132,255,0.12)] focus:outline-none appearance-none cursor-pointer ${
+        className={`bg-secondary border border-border text-text-primary rounded px-5 py-4 text-lg transition-all duration-200 focus:border-accent focus:shadow-[0_0_0_3px_rgba(10,132,255,0.12)] focus:outline-none appearance-none cursor-pointer ${
           error ? "border-danger" : ""
         } ${className}`}
         {...props}

@@ -11,7 +11,7 @@ interface NewsCardProps {
 
 export function NewsCard({ news }: NewsCardProps) {
   // Assuming news.date is a Firebase Timestamp or Date, we format it.
-  const dateStr = news.date?.toDate ? news.date.toDate().toLocaleDateString() : new Date(news.date).toLocaleDateString();
+  const dateStr = news.publishedAt?.toLocaleDateString() || '';
 
   return (
     <Link href={`/news/detail/?id=${news.id}`} className="block h-full">

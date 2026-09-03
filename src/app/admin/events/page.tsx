@@ -81,14 +81,19 @@ export default function AdminEvents() {
     setIsFormOpen(false);
   };
 
+  const toDatetimeLocal = (date: Date) => {
+    if (!date) return '';
+    return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  };
+
   const handleEdit = (event: FirestoreEvent) => {
     setFormData({
       name: event.name,
       description: event.description,
-      date: event.date,
+      date: toDatetimeLocal(event.date),
       location: event.location,
-      registrationOpensAt: event.registrationOpensAt || '',
-      registrationClosesAt: event.registrationClosesAt || '',
+      registrationOpensAt: event.registrationOpensAt ? toDatetimeLocal(event.registrationOpensAt) : '',
+      registrationClosesAt: event.registrationClosesAt ? toDatetimeLocal(event.registrationClosesAt) : '',
       imageUrl: event.imageUrl || ''
     });
     setEditingId(event.id);
@@ -111,10 +116,17 @@ export default function AdminEvents() {
     setFormLoading(true);
     
     try {
+      const payload = {
+        ...formData,
+        date: new Date(formData.date),
+        registrationOpensAt: new Date(formData.registrationOpensAt),
+        registrationClosesAt: new Date(formData.registrationClosesAt)
+      };
+
       if (editingId) {
-        await updateEvent(editingId, formData);
+        await updateEvent(editingId, payload);
       } else {
-        await createEvent(formData);
+        await createEvent(payload);
       }
       await fetchEvents();
       resetForm();
@@ -136,7 +148,7 @@ export default function AdminEvents() {
 
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-sans font-bold">Manage Events</h1>
-          <Button onClick={() => setIsFormOpen(!isFormOpen)} variant={isFormOpen ? 'outline' : 'primary'}>
+          <Button onClick={() => setIsFormOpen(!isFormOpen)} variant={isFormOpen ? 'secondary' : 'primary'}>
             {isFormOpen ? 'Cancel' : <><Plus className="w-4 h-4 mr-2" /> Create New Event</>}
           </Button>
         </div>
@@ -211,7 +223,7 @@ export default function AdminEvents() {
               </div>
             ) : (
               events.map((event) => {
-                const statusInfo = getEventStatus(event);
+                const statusInfo = getEventStatus(event.registrationOpensAt, event.registrationClosesAt);
                 const isExpanded = expandedEventId === event.id;
                 const eventRegs = registrations[event.id] || [];
 
@@ -226,14 +238,14 @@ export default function AdminEvents() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Button variant="outline" size="sm" onClick={() => loadRegistrations(event.id)}>
+                        <Button variant="secondary" size="sm" onClick={() => loadRegistrations(event.id)}>
                           {isExpanded ? <ChevronUp className="w-4 h-4 mr-1" /> : <ChevronDown className="w-4 h-4 mr-1" />}
                           {isExpanded ? 'Hide Regs' : 'View Regs'}
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => handleEdit(event)}>
+                        <Button variant="secondary" size="sm" onClick={() => handleEdit(event)}>
                           <Edit2 className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="sm" className="text-danger border-danger/50 hover:bg-danger/10" onClick={() => handleDelete(event.id)}>
+                        <Button variant="secondary" size="sm" className="text-danger border-danger/50 hover:bg-danger/10" onClick={() => handleDelete(event.id)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -260,7 +272,7 @@ export default function AdminEvents() {
                                   <tr key={reg.id} className="border-b border-border/50 hover:bg-secondary/50 font-mono text-xs">
                                     <td className="px-4 py-2 text-primary">{reg.name}</td>
                                     <td className="px-4 py-2 text-secondary">{reg.email}</td>
-                                    <td className="px-4 py-2 text-secondary">{reg.classInfo || '-'} / {reg.section || '-'}</td>
+                                    <td className="px-4 py-2 text-secondary">{reg.classSection || '-'}</td>
                                     <td className="px-4 py-2 text-tertiary">
                                       {reg.createdAt ? new Date(reg.createdAt).toLocaleDateString() : 'N/A'}
                                     </td>

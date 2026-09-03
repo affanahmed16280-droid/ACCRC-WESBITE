@@ -55,7 +55,7 @@ function NewsDetailContent() {
     );
   }
 
-  const dateStr = post.date?.toDate ? post.date.toDate().toLocaleDateString() : new Date(post.date).toLocaleDateString();
+  const dateStr = post.publishedAt?.toLocaleDateString() || '';
 
   return (
     <div className="max-w-[720px] mx-auto">
@@ -82,7 +82,7 @@ function NewsDetailContent() {
       )}
       
       <div className="text-body-lg text-text-secondary mt-6 whitespace-pre-wrap">
-        {post.content}
+        {post.body}
       </div>
     </div>
   );

@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { subscribeToEvents } from '@/lib/firestore';
 import { getEventStatus, formatCountdown } from '@/lib/utils';
-import type { ACCRCEvent } from '@/types';
+import type { FirestoreEvent } from '@/lib/firestore';
 
 export function StatusStrip() {
-  const [nextEvent, setNextEvent] = useState<ACCRCEvent | null>(null);
+  const [nextEvent, setNextEvent] = useState<FirestoreEvent | null>(null);
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState<string>('');
   const [statusLabel, setStatusLabel] = useState<string>('');
@@ -19,8 +19,8 @@ export function StatusStrip() {
       unsubscribe = subscribeToEvents((events) => {
         const now = new Date();
         const futureEvents = events
-          .filter(e => e.date.toDate() >= now || getEventStatus(e).status === 'open')
-          .sort((a, b) => a.date.toDate().getTime() - b.date.toDate().getTime());
+          .filter(e => e.date >= now || getEventStatus(e.registrationOpensAt, e.registrationClosesAt).status === 'open')
+          .sort((a, b) => a.date.getTime() - b.date.getTime());
         
         if (futureEvents.length > 0) {
           setNextEvent(futureEvents[0]);
@@ -41,7 +41,7 @@ export function StatusStrip() {
     if (!nextEvent) return;
 
     const updateStatus = () => {
-      const statusObj = getEventStatus(nextEvent);
+      const statusObj = getEventStatus(nextEvent.registrationOpensAt, nextEvent.registrationClosesAt);
       setStatusLabel(statusObj.label);
       if (statusObj.timeRemaining !== undefined) {
         setCountdown(formatCountdown(statusObj.timeRemaining));
@@ -74,12 +74,13 @@ export function StatusStrip() {
           <>
             <div className="flex items-center gap-3">
               <span className="font-mono text-mono-sm text-text-tertiary uppercase tracking-wider">NEXT EVENT</span>
-              <span className="font-bold text-primary">{nextEvent.title}</span>
+              <span className="font-bold text-primary">{nextEvent.name}</span>
             </div>
             <div className="flex items-center gap-3 font-mono text-mono-sm">
-              <Badge variant={statusLabel === 'UPCOMING' ? 'warning' : statusLabel === 'OPEN' ? 'success' : 'neutral'}>
-                {statusLabel}
-              </Badge>
+              <Badge 
+                status={statusLabel === 'UPCOMING' ? 'upcoming' : statusLabel === 'REGISTRATION OPEN' ? 'open' : 'closed'} 
+                label={statusLabel} 
+              />
               {countdown && (
                 <span className="text-accent min-w-[120px] text-right">
                   T-MINUS {countdown}

@@ -44,12 +44,12 @@ export default function PortalPage() {
     // Reset success state after a while or leave it
   };
 
-  const isSubExecOpen = config?.subExecutiveOpen ?? false;
-  const isExecOpen = config?.executiveOpen ?? false;
+  const isSubExecOpen = config?.subExecOpen ?? false;
+  const isExecOpen = config?.execOpen ?? false;
 
   const currentRoles = activeTab === 'sub-executive' 
-    ? (config?.subExecutiveRoles?.length ? config.subExecutiveRoles : DEFAULT_SUB_EXEC_ROLES)
-    : (config?.executiveRoles?.length ? config.executiveRoles : DEFAULT_EXEC_ROLES);
+    ? (config?.subExecRoles?.length ? config.subExecRoles : DEFAULT_SUB_EXEC_ROLES)
+    : (config?.execRoles?.length ? config.execRoles : DEFAULT_EXEC_ROLES);
     
   const isOpen = activeTab === 'sub-executive' ? isSubExecOpen : isExecOpen;
 

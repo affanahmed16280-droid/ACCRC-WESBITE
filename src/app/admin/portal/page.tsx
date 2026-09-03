@@ -43,15 +43,12 @@ export default function AdminPortal() {
     }
   }
 
-  const handleConfigChange = async (section: 'subExecutive' | 'executive', field: 'isOpen', value: boolean) => {
+  const handleConfigChange = async (section: 'subExecOpen' | 'execOpen', value: boolean) => {
     if (!config) return;
     
     const newConfig = {
       ...config,
-      [section]: {
-        ...config[section],
-        [field]: value
-      }
+      [section]: value
     };
     
     setConfig(newConfig);
@@ -64,27 +61,24 @@ export default function AdminPortal() {
     }
   };
 
-  const addRole = async (section: 'subExecutive' | 'executive') => {
+  const addRole = async (section: 'subExecRoles' | 'execRoles') => {
     if (!config) return;
     
-    const roleToAdd = section === 'subExecutive' ? newSubExecRole.trim() : newExecRole.trim();
+    const roleToAdd = section === 'subExecRoles' ? newSubExecRole.trim() : newExecRole.trim();
     if (!roleToAdd) return;
     
-    if (config[section].roles.includes(roleToAdd)) {
+    if (config[section].includes(roleToAdd)) {
       alert('Role already exists');
       return;
     }
     
     const newConfig = {
       ...config,
-      [section]: {
-        ...config[section],
-        roles: [...config[section].roles, roleToAdd]
-      }
+      [section]: [...config[section], roleToAdd]
     };
     
     setConfig(newConfig);
-    if (section === 'subExecutive') setNewSubExecRole('');
+    if (section === 'subExecRoles') setNewSubExecRole('');
     else setNewExecRole('');
     
     try {
@@ -95,15 +89,12 @@ export default function AdminPortal() {
     }
   };
 
-  const removeRole = async (section: 'subExecutive' | 'executive', roleToRemove: string) => {
+  const removeRole = async (section: 'subExecRoles' | 'execRoles', roleToRemove: string) => {
     if (!config) return;
     
     const newConfig = {
       ...config,
-      [section]: {
-        ...config[section],
-        roles: config[section].roles.filter(r => r !== roleToRemove)
-      }
+      [section]: config[section].filter(r => r !== roleToRemove)
     };
     
     setConfig(newConfig);
@@ -151,14 +142,14 @@ export default function AdminPortal() {
                       <input 
                         type="checkbox" 
                         className="sr-only" 
-                        checked={config.subExecutive.isOpen} 
-                        onChange={(e) => handleConfigChange('subExecutive', 'isOpen', e.target.checked)} 
+                        checked={config.subExecOpen} 
+                        onChange={(e) => handleConfigChange('subExecOpen', e.target.checked)} 
                       />
-                      <div className={`block w-10 h-6 rounded-full transition-colors ${config.subExecutive.isOpen ? 'bg-success' : 'bg-border'}`}></div>
-                      <div className={`dot absolute left-1 top-1 bg-primary w-4 h-4 rounded-full transition-transform ${config.subExecutive.isOpen ? 'transform translate-x-4' : ''}`}></div>
+                      <div className={`block w-10 h-6 rounded-full transition-colors ${config.subExecOpen ? 'bg-success' : 'bg-border'}`}></div>
+                      <div className={`dot absolute left-1 top-1 bg-primary w-4 h-4 rounded-full transition-transform ${config.subExecOpen ? 'transform translate-x-4' : ''}`}></div>
                     </div>
                     <span className="ml-3 font-mono text-sm uppercase text-secondary">
-                      {config.subExecutive.isOpen ? 'Open' : 'Closed'}
+                      {config.subExecOpen ? 'Open' : 'Closed'}
                     </span>
                   </label>
                 </div>
@@ -166,10 +157,10 @@ export default function AdminPortal() {
                 <div className="mb-4">
                   <h3 className="font-mono text-sm uppercase text-secondary mb-3">Available Roles</h3>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {config.subExecutive.roles.map(role => (
+                    {config.subExecRoles.map(role => (
                       <div key={role} className="bg-primary border border-border px-3 py-1 flex items-center text-sm">
                         <span>{role}</span>
-                        <button onClick={() => removeRole('subExecutive', role)} className="ml-2 text-secondary hover:text-danger">
+                        <button onClick={() => removeRole('subExecRoles', role)} className="ml-2 text-secondary hover:text-danger">
                           <X className="w-3 h-3" />
                         </button>
                       </div>
@@ -181,9 +172,9 @@ export default function AdminPortal() {
                       onChange={(e) => setNewSubExecRole(e.target.value)} 
                       placeholder="Add new role..." 
                       className="flex-1"
-                      onKeyDown={(e) => e.key === 'Enter' && addRole('subExecutive')}
+                      onKeyDown={(e) => e.key === 'Enter' && addRole('subExecRoles')}
                     />
-                    <Button onClick={() => addRole('subExecutive')} variant="outline">Add</Button>
+                    <Button onClick={() => addRole('subExecRoles')} variant="secondary">Add</Button>
                   </div>
                 </div>
               </div>
@@ -197,14 +188,14 @@ export default function AdminPortal() {
                       <input 
                         type="checkbox" 
                         className="sr-only" 
-                        checked={config.executive.isOpen} 
-                        onChange={(e) => handleConfigChange('executive', 'isOpen', e.target.checked)} 
+                        checked={config.execOpen} 
+                        onChange={(e) => handleConfigChange('execOpen', e.target.checked)} 
                       />
-                      <div className={`block w-10 h-6 rounded-full transition-colors ${config.executive.isOpen ? 'bg-success' : 'bg-border'}`}></div>
-                      <div className={`dot absolute left-1 top-1 bg-primary w-4 h-4 rounded-full transition-transform ${config.executive.isOpen ? 'transform translate-x-4' : ''}`}></div>
+                      <div className={`block w-10 h-6 rounded-full transition-colors ${config.execOpen ? 'bg-success' : 'bg-border'}`}></div>
+                      <div className={`dot absolute left-1 top-1 bg-primary w-4 h-4 rounded-full transition-transform ${config.execOpen ? 'transform translate-x-4' : ''}`}></div>
                     </div>
                     <span className="ml-3 font-mono text-sm uppercase text-secondary">
-                      {config.executive.isOpen ? 'Open' : 'Closed'}
+                      {config.execOpen ? 'Open' : 'Closed'}
                     </span>
                   </label>
                 </div>
@@ -212,10 +203,10 @@ export default function AdminPortal() {
                 <div className="mb-4">
                   <h3 className="font-mono text-sm uppercase text-secondary mb-3">Available Roles</h3>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {config.executive.roles.map(role => (
+                    {config.execRoles.map(role => (
                       <div key={role} className="bg-primary border border-border px-3 py-1 flex items-center text-sm">
                         <span>{role}</span>
-                        <button onClick={() => removeRole('executive', role)} className="ml-2 text-secondary hover:text-danger">
+                        <button onClick={() => removeRole('execRoles', role)} className="ml-2 text-secondary hover:text-danger">
                           <X className="w-3 h-3" />
                         </button>
                       </div>
@@ -227,9 +218,9 @@ export default function AdminPortal() {
                       onChange={(e) => setNewExecRole(e.target.value)} 
                       placeholder="Add new role..." 
                       className="flex-1"
-                      onKeyDown={(e) => e.key === 'Enter' && addRole('executive')}
+                      onKeyDown={(e) => e.key === 'Enter' && addRole('execRoles')}
                     />
-                    <Button onClick={() => addRole('executive')} variant="outline">Add</Button>
+                    <Button onClick={() => addRole('execRoles')} variant="secondary">Add</Button>
                   </div>
                 </div>
               </div>
@@ -279,22 +270,20 @@ export default function AdminPortal() {
                             <React.Fragment key={app.id}>
                               <tr className="border-b border-border hover:bg-primary/50">
                                 <td className="px-4 py-3">
-                                  <div className="font-bold">{app.name}</div>
-                                  <div className="text-secondary text-xs">{app.email}</div>
-                                  <div className="text-secondary text-xs">{app.phone}</div>
+                                  <div className="font-bold">{app.email}</div>
                                 </td>
                                 <td className="px-4 py-3 font-mono text-secondary">
-                                  {app.studentId}<br/>{app.classInfo} / {app.section}
+                                  {app.idNumber}<br/>{app.section}
                                 </td>
-                                <td className="px-4 py-3 text-accent font-bold">{app.role}</td>
+                                <td className="px-4 py-3 text-accent font-bold">{app.roleApplyingFor}</td>
                                 <td className="px-4 py-3 text-tertiary font-mono text-xs">
-                                  {new Date(app.createdAt).toLocaleDateString()}
+                                  {app.createdAt ? new Date(app.createdAt).toLocaleDateString() : 'N/A'}
                                 </td>
                                 <td className="px-4 py-3">
                                   <Button 
-                                    variant="outline" 
+                                    variant="secondary" 
                                     size="sm" 
-                                    onClick={() => setExpandedAppId(expandedAppId === app.id ? null : app.id)}
+                                    onClick={() => setExpandedAppId(expandedAppId === app.id ? null : (app.id || null))}
                                   >
                                     {expandedAppId === app.id ? 'Hide Details' : 'View Details'}
                                   </Button>
@@ -307,13 +296,13 @@ export default function AdminPortal() {
                                       <div>
                                         <h4 className="font-mono text-xs uppercase text-secondary mb-2">Experience</h4>
                                         <div className="bg-secondary p-3 border border-border whitespace-pre-wrap text-sm">
-                                          {app.experience}
+                                          {app.pastExperience}
                                         </div>
                                       </div>
                                       <div>
                                         <h4 className="font-mono text-xs uppercase text-secondary mb-2">Vision Statement</h4>
                                         <div className="bg-secondary p-3 border border-border whitespace-pre-wrap text-sm">
-                                          {app.vision}
+                                          {app.visionStatement}
                                         </div>
                                       </div>
                                     </div>
@@ -349,7 +338,7 @@ export default function AdminPortal() {
                               <td className="px-4 py-3 font-bold">{mem.name}</td>
                               <td className="px-4 py-3 text-secondary">{mem.email}</td>
                               <td className="px-4 py-3 font-mono text-secondary">{mem.phone}</td>
-                              <td className="px-4 py-3 text-secondary">{mem.classInfo} / {mem.section}</td>
+                              <td className="px-4 py-3 text-secondary">{mem.classSection}</td>
                               <td className="px-4 py-3 text-danger">{mem.bloodGroup || 'N/A'}</td>
                             </tr>
                           ))}

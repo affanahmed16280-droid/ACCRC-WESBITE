@@ -11,7 +11,7 @@ import Link from 'next/link';
 export function MembershipForm() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({ 
-    name: '', email: '', phone: '', class: '', roll: '', interest: '', motivation: '' 
+    name: '', email: '', phone: '', classSection: '', rollNumber: '', areaOfInterest: '', motivation: '' 
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -19,7 +19,7 @@ export function MembershipForm() {
   const handleNext = () => {
     // Basic client validation
     if (step === 1 && (!formData.name || !formData.email || !formData.phone)) return;
-    if (step === 2 && (!formData.class || !formData.roll || !formData.interest)) return;
+    if (step === 2 && (!formData.classSection || !formData.rollNumber || !formData.areaOfInterest)) return;
     setStep(s => Math.min(s + 1, 3));
   };
 
@@ -98,16 +98,21 @@ export function MembershipForm() {
           {step === 2 && (
             <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <Input required placeholder="Class/Section" value={formData.class} onChange={e => setFormData({...formData, class: e.target.value})} />
-                <Input required placeholder="Roll Number" value={formData.roll} onChange={e => setFormData({...formData, roll: e.target.value})} />
+                <Input required placeholder="Class/Section" value={formData.classSection} onChange={e => setFormData({...formData, classSection: e.target.value})} />
+                <Input required placeholder="Roll Number" value={formData.rollNumber} onChange={e => setFormData({...formData, rollNumber: e.target.value})} />
               </div>
-              <Select required value={formData.interest} onChange={(e: any) => setFormData({...formData, interest: e.target.value})}>
-                <option value="" disabled>Primary Area of Interest</option>
-                <option value="Mechanical">Mechanical</option>
-                <option value="Electronics">Electronics</option>
-                <option value="Programming">Programming</option>
-                <option value="Design">Design</option>
-              </Select>
+              <Select 
+                required 
+                value={formData.areaOfInterest} 
+                onChange={(e: any) => setFormData({...formData, areaOfInterest: e.target.value})}
+                placeholder="Primary Area of Interest"
+                options={[
+                  { value: "Mechanical", label: "Mechanical" },
+                  { value: "Electronics", label: "Electronics" },
+                  { value: "Programming", label: "Programming" },
+                  { value: "Design", label: "Design" }
+                ]}
+              />
             </motion.div>
           )}
 
