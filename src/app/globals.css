@@ -51,6 +51,14 @@ button, a, input, select, textarea {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   TYPOGRAPHY - INCREASED FONT SIZES
+   ═══════════════════════════════════════════════════════════ */
+p {
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════════════════
    NAVIGATION
    ═══════════════════════════════════════════════════════════ */
 .nav {
@@ -233,8 +241,8 @@ h1 em, h2 span {
 
 .hero-copy {
   color: #b3b3b3;
-  font-size: 15px;
-  line-height: 1.65;
+  font-size: 18px;
+  line-height: 1.7;
   max-width: 430px;
 }
 
@@ -392,7 +400,7 @@ h1 em, h2 span {
 
 .mission-body p {
   color: #aaa;
-  font-size: 15px;
+  font-size: 17px;
   line-height: 1.7;
   max-width: 330px;
 }
@@ -446,6 +454,7 @@ h1 em, h2 span {
 
 .event-info p {
   margin: 0;
+  font-size: 16px;
 }
 
 .event-date {
@@ -520,7 +529,7 @@ h1 em, h2 span {
 
 .news-card p {
   max-width: 330px;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.6;
 }
 
@@ -545,6 +554,7 @@ h1 em, h2 span {
   max-width: 360px;
   margin-top: 30px;
   line-height: 1.7;
+  font-size: 17px;
 }
 
 .portal-note {
@@ -558,6 +568,7 @@ h1 em, h2 span {
 
 .portal-note p {
   margin: 0 0 8px;
+  font-size: 16px;
 }
 
 .portal-note .muted {
@@ -605,6 +616,7 @@ h1 em, h2 span {
   border-radius: 0;
   padding: 10px 0;
   resize: vertical;
+  font-size: 16px;
 }
 
 .member-form input:focus,
@@ -640,6 +652,344 @@ h1 em, h2 span {
 .confirmation p {
   margin: 0;
   line-height: 1.5;
+  font-size: 16px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ADMIN DASHBOARD
+   ═══════════════════════════════════════════════════════════ */
+.admin-dashboard {
+  min-height: 100vh;
+  padding: 40px 20px;
+  background: #061416;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #292929;
+}
+
+.admin-header h1 {
+  font-size: 32px;
+  margin: 0;
+}
+
+.admin-header p {
+  color: #666;
+  font-size: 13px;
+  margin: 8px 0 0;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #c72c2c;
+  color: white;
+  border: 1px solid #c72c2c;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.logout-button:hover {
+  background: #a01f1f;
+}
+
+.admin-nav {
+  display: flex;
+  gap: 0;
+  margin-bottom: 40px;
+  border-bottom: 1px solid #292929;
+}
+
+.tab-button {
+  padding: 12px 24px;
+  background: transparent;
+  color: #929292;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  transition: all 0.3s;
+}
+
+.tab-button.active {
+  color: #27e0d2;
+  border-bottom-color: #27e0d2;
+}
+
+.tab-button:hover {
+  color: #27e0d2;
+}
+
+.admin-content {
+  max-width: 1200px;
+}
+
+.admin-section {
+  background: #0b2225;
+  border: 1px solid #292929;
+  padding: 30px;
+  border-radius: 4px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #061416;
+  border: 1px solid #292929;
+  border-radius: 4px;
+}
+
+.admin-form input,
+.admin-form select,
+.admin-form textarea {
+  padding: 12px;
+  background: #111;
+  color: #e8fffb;
+  border: 1px solid #333;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.admin-form input:focus,
+.admin-form select:focus,
+.admin-form textarea:focus {
+  border-color: #27e0d2;
+  outline: none;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #929292;
+  cursor: pointer;
+}
+
+.checkbox-label input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.form-actions button {
+  flex: 1;
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.event-item {
+  padding: 16px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.event-item:hover {
+  background: #1a3a3f;
+}
+
+.event-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 8px;
+}
+
+.event-item-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.event-item-status {
+  display: flex;
+  gap: 8px;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+}
+
+.status-badge.published {
+  background: #1b5e56;
+  color: #27e0d2;
+}
+
+.status-badge.draft {
+  background: #3d2d1a;
+  color: #c9a661;
+}
+
+.event-item-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #333;
+}
+
+.icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  color: #27e0d2;
+  border: 1px solid #333;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icon-button:hover {
+  background: #27e0d2;
+  color: #061416;
+}
+
+.icon-button.delete {
+  color: #ff6b6b;
+  border-color: #ff6b6b;
+}
+
+.icon-button.delete:hover {
+  background: #ff6b6b;
+  color: white;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ADMIN LOGIN
+   ═══════════════════════════════════════════════════════════ */
+.admin-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: #061416;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 40px;
+  background: #0b2225;
+  border: 1px solid #292929;
+  border-radius: 8px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-icon {
+  color: #27e0d2;
+  margin-bottom: 16px;
+}
+
+.login-header h1 {
+  font-size: 28px;
+  margin: 0 0 8px;
+}
+
+.login-header p {
+  color: #666;
+  font-size: 12px;
+  margin: 0;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-form label span {
+  color: #27e0d2;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+}
+
+.login-form input {
+  padding: 12px;
+  background: #111;
+  color: #e8fffb;
+  border: 1px solid #333;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.login-form input:focus {
+  border-color: #27e0d2;
+  outline: none;
+}
+
+.login-form button {
+  padding: 12px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.login-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-message {
+  padding: 12px;
+  background: #3d2222;
+  color: #ff6b6b;
+  border: 1px solid #665555;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -839,6 +1189,12 @@ footer {
   .footer-bottom {
     flex-direction: column;
     gap: 12px;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
   }
 }
 
