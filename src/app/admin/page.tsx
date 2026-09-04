@@ -1,134 +1,282 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-import AdminGuard from '@/components/admin/AdminGuard';
-import { getEvents, getRegistrations, getNewsPosts, getApplications } from '@/lib/firestore';
-import { Button } from '@/components/ui/Button';
-import { Calendar, Users, FileText, Briefcase, LogOut, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { LogOut, Plus, Edit2, Trash2, Eye, EyeOff } from 'lucide-react';
+import AdminLogin from '@/components/AdminLogin';
+import { Event, News, getAllEvents, addEvent, updateEvent, deleteEvent, getPublishedNews, addNews, updateNews } from '@/lib/eventsDb';
 
 export default function AdminDashboard() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [counts, setCounts] = useState({
-    events: 0,
-    registrations: 0,
-    news: 0,
-    applications: 0
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [activeTab, setActiveTab] = useState('events');
+  const [events, setEvents] = useState<Event[]>([]);
+  const [news, setNews] = useState<News[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [showForm, setShowForm] = useState(false);
+
+  const [formData, setFormData] = useState({
+    tag: '',
+    title: '',
+    venue: '',
+    date: '',
+    status: 'DRAFT' as const,
+    published: false,
+    description: '',
   });
 
   useEffect(() => {
-    async function fetchDashboardData() {
-      try {
-        const [events, regs, news, apps] = await Promise.all([
-          getEvents(),
-          getRegistrations(),
-          getNewsPosts(),
-          getApplications()
-        ]);
-        
-        setCounts({
-          events: events.length,
-          registrations: regs.length,
-          news: news.length,
-          applications: apps.length
-        });
-      } catch (err: any) {
-        console.error('Error fetching dashboard data:', err);
-        setError(err.message || 'Failed to load dashboard data');
-      } finally {
-        setLoading(false);
-      }
+    if (isLoggedIn) {
+      loadEvents();
     }
-    
-    fetchDashboardData();
-  }, []);
+  }, [isLoggedIn]);
 
-  const handleSignOut = async () => {
-    if (auth) {
-      await signOut(auth);
-      router.push('/admin/login');
+  const loadEvents = async () => {
+    setLoading(true);
+    try {
+      const data = await getAllEvents();
+      setEvents(data);
+    } catch (error) {
+      console.error('Error loading events:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleLogin = async (email: string, password: string) => {
+    // Validate against hardcoded credentials
+    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@accrc.edu';
+    const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123';
+
+    if (email === adminEmail && password === adminPassword) {
+      setIsLoggedIn(true);
+    } else {
+      throw new Error('Invalid email or password');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setEvents([]);
+    setNews([]);
+  };
+
+  const handleSubmitEvent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      if (editingEvent && editingEvent.id) {
+        await updateEvent(editingEvent.id, formData);
+      } else {
+        await addEvent({ ...formData, date: new Date(formData.date) });
+      }
+      loadEvents();
+      setShowForm(false);
+      setEditingEvent(null);
+      setFormData({ tag: '', title: '', venue: '', date: '', status: 'DRAFT', published: false, description: '' });
+    } catch (error) {
+      console.error('Error saving event:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditEvent = (event: Event) => {
+    setEditingEvent(event);
+    setFormData({
+      tag: event.tag,
+      title: event.title,
+      venue: event.venue,
+      date: event.date instanceof Date ? event.date.toISOString().split('T')[0] : '',
+      status: event.status,
+      published: event.published,
+      description: event.description || '',
+    });
+    setShowForm(true);
+  };
+
+  const handleDeleteEvent = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this event?')) return;
+    setLoading(true);
+    try {
+      await deleteEvent(id);
+      loadEvents();
+    } catch (error) {
+      console.error('Error deleting event:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePublishEvent = async (id: string, published: boolean) => {
+    setLoading(true);
+    try {
+      await updateEvent(id, { published: !published, status: !published ? 'PUBLISHED' : 'DRAFT' });
+      loadEvents();
+    } catch (error) {
+      console.error('Error publishing event:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isLoggedIn) {
+    return <AdminLogin onLogin={handleLogin} />;
+  }
+
   return (
-    <AdminGuard>
-      <div className="pt-24 container-content min-h-screen text-primary pb-16">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-sans font-bold">Admin Dashboard</h1>
-            <p className="text-secondary font-mono mt-1">Manage ACCRC portal contents</p>
-          </div>
-          <Button variant="secondary" onClick={handleSignOut} className="border-border">
-            <LogOut className="w-4 h-4 mr-2" /> Sign Out
-          </Button>
+    <div className="admin-dashboard">
+      <div className="admin-header">
+        <div>
+          <h1>ADMIN DASHBOARD</h1>
+          <p className="mono">ACCRC Management Portal</p>
         </div>
+        <button onClick={handleLogout} className="logout-button">
+          <LogOut size={18} /> LOGOUT
+        </button>
+      </div>
 
-        {error && (
-          <div className="mb-8 p-4 bg-danger/10 border border-danger/20 text-danger font-mono text-sm">
-            {error}
-          </div>
-        )}
+      <div className="admin-nav">
+        <button
+          className={`tab-button ${activeTab === 'events' ? 'active' : ''}`}
+          onClick={() => setActiveTab('events')}
+        >
+          EVENTS
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'news' ? 'active' : ''}`}
+          onClick={() => setActiveTab('news')}
+        >
+          NEWS & UPDATES
+        </button>
+      </div>
 
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-accent" />
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-              <div className="bg-secondary border border-border p-6 flex flex-col justify-between">
-                <div className="flex items-center justify-between mb-4 text-secondary">
-                  <span className="font-mono text-xs uppercase tracking-wider">Total Events</span>
-                  <Calendar className="w-5 h-5" />
-                </div>
-                <div className="text-4xl font-sans font-bold text-accent">{counts.events}</div>
-              </div>
-              
-              <div className="bg-secondary border border-border p-6 flex flex-col justify-between">
-                <div className="flex items-center justify-between mb-4 text-secondary">
-                  <span className="font-mono text-xs uppercase tracking-wider">Registrations</span>
-                  <Users className="w-5 h-5" />
-                </div>
-                <div className="text-4xl font-sans font-bold text-accent">{counts.registrations}</div>
-              </div>
-              
-              <div className="bg-secondary border border-border p-6 flex flex-col justify-between">
-                <div className="flex items-center justify-between mb-4 text-secondary">
-                  <span className="font-mono text-xs uppercase tracking-wider">News Posts</span>
-                  <FileText className="w-5 h-5" />
-                </div>
-                <div className="text-4xl font-sans font-bold text-accent">{counts.news}</div>
-              </div>
-              
-              <div className="bg-secondary border border-border p-6 flex flex-col justify-between">
-                <div className="flex items-center justify-between mb-4 text-secondary">
-                  <span className="font-mono text-xs uppercase tracking-wider">Applications</span>
-                  <Briefcase className="w-5 h-5" />
-                </div>
-                <div className="text-4xl font-sans font-bold text-accent">{counts.applications}</div>
-              </div>
+      <div className="admin-content">
+        {activeTab === 'events' && (
+          <div className="admin-section">
+            <div className="section-header">
+              <h2>UPCOMING EVENTS</h2>
+              <button
+                onClick={() => {
+                  setEditingEvent(null);
+                  setFormData({ tag: '', title: '', venue: '', date: '', status: 'DRAFT', published: false, description: '' });
+                  setShowForm(!showForm);
+                }}
+                className="primary-button"
+              >
+                <Plus size={16} /> NEW EVENT
+              </button>
             </div>
 
-            <h2 className="text-xl font-sans font-bold mb-4 border-b border-border pb-2">Quick Actions</h2>
-            <div className="flex flex-wrap gap-4">
-              <Link href="/admin/events">
-                <Button className="bg-secondary hover:bg-tertiary border border-border text-primary">Manage Events</Button>
-              </Link>
-              <Link href="/admin/news">
-                <Button className="bg-secondary hover:bg-tertiary border border-border text-primary">Manage News</Button>
-              </Link>
-              <Link href="/admin/portal">
-                <Button className="bg-secondary hover:bg-tertiary border border-border text-primary">Manage Portal</Button>
-              </Link>
+            {showForm && (
+              <form onSubmit={handleSubmitEvent} className="admin-form">
+                <input
+                  type="text"
+                  placeholder="Event Tag (e.g., Flagship Competition)"
+                  value={formData.tag}
+                  onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Event Title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Venue"
+                  value={formData.venue}
+                  onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
+                  required
+                />
+                <input
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  required
+                />
+                <textarea
+                  placeholder="Event Description (optional)"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  rows={3}
+                />
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' })}
+                >
+                  <option value="DRAFT">DRAFT</option>
+                  <option value="PUBLISHED">PUBLISHED</option>
+                  <option value="ARCHIVED">ARCHIVED</option>
+                </select>
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={formData.published}
+                    onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
+                  />
+                  <span>Publish to Website</span>
+                </label>
+                <div className="form-actions">
+                  <button type="submit" className="primary-button" disabled={loading}>
+                    {editingEvent ? 'UPDATE' : 'CREATE'} EVENT
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowForm(false)}
+                    className="outline-button"
+                  >
+                    CANCEL
+                  </button>
+                </div>
+              </form>
+            )}
+
+            <div className="events-list">
+              {events.map((event) => (
+                <div key={event.id} className="event-item">
+                  <div className="event-item-header">
+                    <div>
+                      <h3>{event.title}</h3>
+                      <p className="mono" style={{ fontSize: '12px', color: '#999' }}>{event.tag}</p>
+                    </div>
+                    <div className="event-item-status">
+                      <span className={`status-badge ${event.published ? 'published' : 'draft'}`}>
+                        {event.published ? 'PUBLISHED' : 'DRAFT'}
+                      </span>
+                    </div>
+                  </div>
+                  <p style={{ color: '#aaa', marginTop: '8px' }}>{event.venue}</p>
+                  <div className="event-item-actions">
+                    <button
+                      onClick={() => handlePublishEvent(event.id!, event.published)}
+                      className="icon-button"
+                      title={event.published ? 'Unpublish' : 'Publish'}
+                    >
+                      {event.published ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                    <button
+                      onClick={() => handleEditEvent(event)}
+                      className="icon-button"
+                      title="Edit"
+                    >
+                      <Edit2 size={18} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteEvent(event.id!)}
+                      className="icon-button delete"
+                      title="Delete"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
-          </>
+          </div>
         )}
       </div>
-    </AdminGuard>
+    </div>
   );
 }
