@@ -11,6 +11,7 @@ const standardNavLinks = [
   { href: "/membership/", label: "Membership" },
   { href: "/news/", label: "News" },
   { href: "/about/", label: "About" },
+  { href: "/admin/", label: "Portals" },
 ];
 
 export function Navbar() {

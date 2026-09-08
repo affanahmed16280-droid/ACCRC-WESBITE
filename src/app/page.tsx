@@ -18,6 +18,7 @@ import {
   type FirestoreEvent,
   type PortalConfig,
 } from '@/lib/firestore';
+import { club } from '@/lib/club';
 
 /* ─── particle field data (60 dots) ─── */
 const particles = Array.from({ length: 60 }, (_, i) => ({
@@ -27,27 +28,6 @@ const particles = Array.from({ length: 60 }, (_, i) => ({
   height: i % 10 === 0 ? '2px' : '1px',
   animationDelay: `${(i % 8) * 0.45}s`,
 }));
-
-const news = [
-  {
-    date: '18.08.26',
-    cat: 'ANNOUNCEMENT',
-    title: 'ACCRC is now accepting new members for 2026\u201327',
-    desc: 'Build, compete, and learn alongside the next generation of Dhaka\u2019s robotics community.',
-  },
-  {
-    date: '02.08.26',
-    cat: 'FIELD NOTES',
-    title: 'Inside the lab: tuning our autonomous line follower',
-    desc: 'A look at the small decisions that turn a good prototype into a reliable machine.',
-  },
-  {
-    date: '19.07.26',
-    cat: 'COMMUNITY',
-    title: 'Five teams. One weekend. Zero sleep.',
-    desc: 'What we learned from our first inter-college build sprint.',
-  },
-];
 
 export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -120,6 +100,7 @@ export default function HomePage() {
           <a href="#events" onClick={() => setMenuOpen(false)}>Events</a>
           <a href="#news" onClick={() => setMenuOpen(false)}>Updates</a>
           <a href="#join" onClick={() => setMenuOpen(false)}>Join us</a>
+          <a href="/admin/" onClick={() => setMenuOpen(false)}>Portals</a>
           {activeLeadershipApplications.length > 0 && (
             <a href="/portal/" onClick={() => setMenuOpen(false)}>Leadership</a>
           )}
@@ -149,15 +130,15 @@ export default function HomePage() {
 
         <div className="hero-content">
           <p className="eyebrow">
-            <span /> EST. 2024 &middot; DHAKA, BANGLADESH
+            <span /> EST. 2020 &middot; DHAKA, BANGLADESH
           </p>
           <h1>
             BUILD<br />
             <em>WHAT&apos;S NEXT.</em>
           </h1>
           <p className="hero-copy">
-            A student-led robotics club building intelligent machines, fearless
-            teams, and a future we can all engineer.
+            ACC Robotics Club is a student-led community at Adamjee Cantonment
+            College where we build, learn, and compete together.
           </p>
           <div className="hero-actions">
             <a className="primary-button" href="#join">
@@ -247,7 +228,7 @@ export default function HomePage() {
               <h3>No upcoming events right now.</h3>
               <p>Stay tuned! Follow ACCRC on Facebook for the latest announcements.</p>
             </div>
-            <a className="text-button" href="https://www.facebook.com/accroboticsclub" target="_blank" rel="noopener noreferrer">
+            <a className="text-button" href={club.socials.facebook} target="_blank" rel="noopener noreferrer">
               FACEBOOK <ArrowRight size={16} aria-hidden />
             </a>
           </div>
@@ -277,36 +258,22 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* ═══ NEWS ═══ */}
+      {/* ═══ RECRUITMENT ANNOUNCEMENT ═══ */}
       <section className="section news" id="news">
         <div className="section-heading">
           <div>
-            <p className="eyebrow accent">SIGNAL / UPDATES</p>
+            <p className="eyebrow accent">MEMBERSHIP / 2026</p>
             <h2>
-              FROM THE<br />
-              <span>WORKSHOP.</span>
+              JOIN THE<br />
+              <span>CLUB.</span>
             </h2>
           </div>
-          <a className="text-button" href="#news">
-            VIEW ALL UPDATES <ArrowRight size={16} aria-hidden />
-          </a>
         </div>
 
-        <div className="news-grid">
-          {news.map((n, i) => (
-            <article className="news-card" key={i}>
-              <div className="news-meta mono">
-                <span>{n.date}</span>
-                <span>{n.cat}</span>
-              </div>
-              <h3>{n.title}</h3>
-              <p className="muted">{n.desc}</p>
-              <a href="#join" aria-label={`Read ${n.title}`}>
-                <ArrowRight size={24} aria-hidden />
-              </a>
-            </article>
-          ))}
-        </div>
+        <article className="recruitment-announcement" aria-label="Membership recruitment announcement">
+          <h3>Accepting New Members</h3>
+          <time dateTime="2026-09-23">September 23, 2026</time>
+        </article>
       </section>
 
       {/* ═══ JOIN ═══ */}
@@ -387,12 +354,12 @@ export default function HomePage() {
               <small>ADAMJEE CANTONMENT COLLEGE<br />ROBOTICS CLUB</small>
             </span>
           </a>
-          <p className="footer-line">MAKE. BREAK. REPEAT.</p>
+          <p className="footer-line">BUILD. LEARN. COMPETE.</p>
           <div className="socials">
-            <a href="https://www.facebook.com/accroboticsclub" target="_blank" rel="noopener noreferrer" aria-label="ACCRC on Facebook">
+            <a href={club.socials.facebook} target="_blank" rel="noopener noreferrer" aria-label="ACC Robotics Club on Facebook">
               <FaFacebookF aria-hidden />
             </a>
-            <a href="https://www.instagram.com/acc_robotics_club/" target="_blank" rel="noopener noreferrer" aria-label="ACCRC on Instagram">
+            <a href={club.socials.instagram} target="_blank" rel="noopener noreferrer" aria-label="ACC Robotics Club on Instagram">
               <FaInstagram aria-hidden />
             </a>
           </div>

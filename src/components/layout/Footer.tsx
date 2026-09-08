@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { MapPin } from "lucide-react";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
 import { subscribeToPortalConfig, type PortalConfig } from "@/lib/firestore";
+import { club } from "@/lib/club";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -32,13 +33,13 @@ export function Footer() {
                   ACCRC
                 </h3>
                 <p className="font-mono text-[10px] text-text-tertiary tracking-widest uppercase">
-                  Adamjee Cantonment College Robotics Club
+                  {club.name} · Adamjee Cantonment College
                 </p>
               </div>
             </div>
             <p className="text-text-secondary text-body-sm leading-relaxed max-w-sm">
-              Building the next generation of innovators, engineers, and problem
-              solvers through robotics, electronics, and computational thinking.
+              A student-led robotics community where we build, learn, and compete
+              together through robotics, electronics, and computational thinking.
             </p>
           </div>
 
@@ -51,6 +52,7 @@ export function Footer() {
                 { href: "/membership/", label: "Membership" },
                 { href: "/news/", label: "News" },
                 { href: "/about/", label: "About" },
+                { href: "/admin/", label: "Portals" },
                 ...(leadershipApplicationsOpen ? [{ href: "/portal/", label: "Leadership" }] : []),
               ].map((link) => (
                 <li key={link.href}>
@@ -72,17 +74,17 @@ export function Footer() {
               <li className="flex items-start gap-2.5 text-body-sm text-text-secondary">
                 <MapPin size={16} className="mt-0.5 text-text-tertiary shrink-0" />
                 <span>
-                  Adamjee Cantonment College, Dhaka Cantonment, Dhaka 1206, Bangladesh
+                  {club.location}
                 </span>
               </li>
               <li className="text-body-sm text-text-secondary">
                 <a
-                  href="https://www.instagram.com/acc_robotics_club/"
+                  href={club.socials.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-accent transition-colors"
                 >
-                  Message ACCRC on Instagram
+                  Message {club.name} on Instagram
                 </a>
               </li>
             </ul>
@@ -90,8 +92,8 @@ export function Footer() {
             {/* Socials */}
             <div className="flex items-center gap-3 mt-6">
               {[
-                { icon: FaFacebook, href: "https://www.facebook.com/accroboticsclub", label: "Facebook" },
-                { icon: FaInstagram, href: "https://www.instagram.com/acc_robotics_club/", label: "Instagram" },
+                { icon: FaFacebook, href: club.socials.facebook, label: `${club.name} on Facebook` },
+                { icon: FaInstagram, href: club.socials.instagram, label: `${club.name} on Instagram` },
               ].map((social) => (
                 <a
                   key={social.label}
@@ -111,7 +113,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-border mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="font-mono text-mono-sm text-text-tertiary">
-            © {currentYear} ACCRC — Adamjee Cantonment College Robotics Club
+            © {currentYear} {club.shortName} — {club.name}
           </p>
           <p className="font-mono text-mono-sm text-text-tertiary">
             Dhaka, Bangladesh

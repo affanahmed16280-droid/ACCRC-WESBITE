@@ -1,4 +1,6 @@
-const FACEBOOK_PAGE = 'https://www.facebook.com/accroboticsclub';
+import { club } from '@/lib/club';
+
+const FACEBOOK_PAGE = club.socials.facebook;
 
 export function FacebookTimeline() {
   const src = `https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(FACEBOOK_PAGE)}&tabs=timeline&width=500&height=540&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=false`;
