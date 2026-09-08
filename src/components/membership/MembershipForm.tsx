@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import { Input, Textarea, Select } from '@/components/ui/Input';
+import { Input, Textarea } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { submitRegistration } from '@/lib/firestore';
 import { CheckCircle } from 'lucide-react';
@@ -10,16 +10,16 @@ import Link from 'next/link';
 
 export function MembershipForm() {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({ 
-    name: '', email: '', phone: '', classSection: '', rollNumber: '', areaOfInterest: '', motivation: '' 
+  const [formData, setFormData] = useState({
+    name: '', email: '', classSection: '', collegeId: '', motivation: ''
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleNext = () => {
     // Basic client validation
-    if (step === 1 && (!formData.name || !formData.email || !formData.phone)) return;
-    if (step === 2 && (!formData.classSection || !formData.rollNumber || !formData.areaOfInterest)) return;
+    if (step === 1 && (!formData.name || !formData.email)) return;
+    if (step === 2 && (!formData.classSection || !formData.collegeId)) return;
     setStep(s => Math.min(s + 1, 3));
   };
 
@@ -91,7 +91,6 @@ export function MembershipForm() {
             <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
               <Input required placeholder="Full Name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
               <Input required type="email" placeholder="Email Address" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
-              <Input required type="tel" placeholder="Phone Number" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
             </motion.div>
           )}
 
@@ -99,20 +98,8 @@ export function MembershipForm() {
             <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <Input required placeholder="Class/Section" value={formData.classSection} onChange={e => setFormData({...formData, classSection: e.target.value})} />
-                <Input required placeholder="Roll Number" value={formData.rollNumber} onChange={e => setFormData({...formData, rollNumber: e.target.value})} />
+                <Input required placeholder="College ID" value={formData.collegeId} onChange={e => setFormData({...formData, collegeId: e.target.value})} />
               </div>
-              <Select 
-                required 
-                value={formData.areaOfInterest} 
-                onChange={(e: any) => setFormData({...formData, areaOfInterest: e.target.value})}
-                placeholder="Primary Area of Interest"
-                options={[
-                  { value: "Mechanical", label: "Mechanical" },
-                  { value: "Electronics", label: "Electronics" },
-                  { value: "Programming", label: "Programming" },
-                  { value: "Design", label: "Design" }
-                ]}
-              />
             </motion.div>
           )}
 

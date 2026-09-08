@@ -1,20 +1,31 @@
-import { MapPin, Mail, Phone } from "lucide-react";
-import { FaFacebook, FaInstagram, FaLinkedin, FaGithub } from "react-icons/fa";
+"use client";
+
+import { useEffect, useState } from "react";
+import { MapPin } from "lucide-react";
+import { FaFacebook, FaInstagram } from "react-icons/fa";
+import { subscribeToPortalConfig, type PortalConfig } from "@/lib/firestore";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
+
+  useEffect(() => subscribeToPortalConfig(setPortalConfig), []);
+
+  const leadershipApplicationsOpen = Boolean(
+    portalConfig?.execOpen || portalConfig?.prefectOpen || portalConfig?.subExecOpen
+  );
 
   return (
-    <footer className="bg-primary border-t border-border">
+    <footer className="site-footer bg-primary border-t border-border">
       <div className="container-content py-16">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
           {/* Brand Column */}
           <div className="md:col-span-5">
             <div className="flex items-center gap-3 mb-5">
               <img
-                src="/logo.png"
+                src="/accrc-logo.png"
                 alt="ACCRC Logo"
-                className="h-10 w-10 rounded-full object-cover"
+                className="h-10 w-10 rounded-full object-cover border border-accent"
               />
               <div>
                 <h3 className="font-bold text-text-primary text-lg tracking-display">
@@ -40,7 +51,7 @@ export function Footer() {
                 { href: "/membership/", label: "Membership" },
                 { href: "/news/", label: "News" },
                 { href: "/about/", label: "About" },
-                { href: "/portal/", label: "Portal" },
+                ...(leadershipApplicationsOpen ? [{ href: "/portal/", label: "Leadership" }] : []),
               ].map((link) => (
                 <li key={link.href}>
                   <a
@@ -64,23 +75,23 @@ export function Footer() {
                   Adamjee Cantonment College, Dhaka Cantonment, Dhaka 1206, Bangladesh
                 </span>
               </li>
-              <li className="flex items-center gap-2.5 text-body-sm text-text-secondary">
-                <Mail size={16} className="text-text-tertiary shrink-0" />
-                {/* CUSTOMIZE: Replace with actual club email */}
-                <a href="mailto:accrc@example.com" className="hover:text-accent transition-colors">
-                  accrc@example.com
+              <li className="text-body-sm text-text-secondary">
+                <a
+                  href="https://www.instagram.com/acc_robotics_club/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-accent transition-colors"
+                >
+                  Message ACCRC on Instagram
                 </a>
               </li>
             </ul>
 
             {/* Socials */}
             <div className="flex items-center gap-3 mt-6">
-              {/* CUSTOMIZE: Replace # with actual social links */}
               {[
-                { icon: FaFacebook, href: "#", label: "Facebook" },
-                { icon: FaInstagram, href: "#", label: "Instagram" },
-                { icon: FaLinkedin, href: "#", label: "LinkedIn" },
-                { icon: FaGithub, href: "#", label: "GitHub" },
+                { icon: FaFacebook, href: "https://www.facebook.com/accroboticsclub", label: "Facebook" },
+                { icon: FaInstagram, href: "https://www.instagram.com/acc_robotics_club/", label: "Instagram" },
               ].map((social) => (
                 <a
                   key={social.label}

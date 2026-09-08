@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { SiteChrome } from '@/components/layout/SiteChrome';
 
 export const metadata: Metadata = {
   title: "ACCRC \u2014 Adamjee Cantonment College Robotics Club",
@@ -37,7 +38,7 @@ export default function RootLayout({
         <meta name="color-scheme" content="light dark" />
       </head>
       <body className="antialiased">
-        {children}
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );

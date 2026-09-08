@@ -12,10 +12,17 @@ export interface EventStatusResult {
  * This is the core time-gating logic — never hardcode open/closed state.
  */
 export function getEventStatus(
-  registrationOpensAt: Date,
-  registrationClosesAt: Date
+  registrationOpensAt?: Date,
+  registrationClosesAt?: Date
 ): EventStatusResult {
   const now = new Date();
+
+  if (!registrationOpensAt || !registrationClosesAt) {
+    return {
+      status: "closed",
+      label: "DETAILS COMING SOON",
+    };
+  }
 
   if (now < registrationOpensAt) {
     return {

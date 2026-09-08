@@ -14,12 +14,14 @@ export default function AdminPortal() {
   const [memberships, setMemberships] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'sub-executive' | 'executive' | 'membership'>('sub-executive');
+  const [activeTab, setActiveTab] = useState<'sub-executive' | 'executive' | 'prefect' | 'membership'>('sub-executive');
   const [expandedAppId, setExpandedAppId] = useState<string | null>(null);
 
-  // New role inputs
-  const [newSubExecRole, setNewSubExecRole] = useState('');
-  const [newExecRole, setNewExecRole] = useState('');
+  const [newRoles, setNewRoles] = useState({
+    subExecRoles: '',
+    execRoles: '',
+    prefectRoles: '',
+  });
 
   useEffect(() => {
     fetchData();
@@ -43,7 +45,7 @@ export default function AdminPortal() {
     }
   }
 
-  const handleConfigChange = async (section: 'subExecOpen' | 'execOpen', value: boolean) => {
+  const handleConfigChange = async (section: 'subExecOpen' | 'execOpen' | 'prefectOpen', value: boolean) => {
     if (!config) return;
     
     const newConfig = {
@@ -61,10 +63,10 @@ export default function AdminPortal() {
     }
   };
 
-  const addRole = async (section: 'subExecRoles' | 'execRoles') => {
+  const addRole = async (section: 'subExecRoles' | 'execRoles' | 'prefectRoles') => {
     if (!config) return;
     
-    const roleToAdd = section === 'subExecRoles' ? newSubExecRole.trim() : newExecRole.trim();
+    const roleToAdd = newRoles[section].trim();
     if (!roleToAdd) return;
     
     if (config[section].includes(roleToAdd)) {
@@ -78,8 +80,7 @@ export default function AdminPortal() {
     };
     
     setConfig(newConfig);
-    if (section === 'subExecRoles') setNewSubExecRole('');
-    else setNewExecRole('');
+    setNewRoles((current) => ({ ...current, [section]: '' }));
     
     try {
       await updatePortalConfig(newConfig);
@@ -89,7 +90,7 @@ export default function AdminPortal() {
     }
   };
 
-  const removeRole = async (section: 'subExecRoles' | 'execRoles', roleToRemove: string) => {
+  const removeRole = async (section: 'subExecRoles' | 'execRoles' | 'prefectRoles', roleToRemove: string) => {
     if (!config) return;
     
     const newConfig = {
@@ -132,7 +133,7 @@ export default function AdminPortal() {
         ) : (
           <div className="space-y-8">
             {/* Config Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Sub-Executive Config */}
               <div className="border border-border bg-secondary p-6">
                 <div className="flex justify-between items-center mb-6 border-b border-border pb-4">
@@ -168,8 +169,8 @@ export default function AdminPortal() {
                   </div>
                   <div className="flex gap-2">
                     <Input 
-                      value={newSubExecRole} 
-                      onChange={(e) => setNewSubExecRole(e.target.value)} 
+                      value={newRoles.subExecRoles}
+                      onChange={(e) => setNewRoles((current) => ({ ...current, subExecRoles: e.target.value }))}
                       placeholder="Add new role..." 
                       className="flex-1"
                       onKeyDown={(e) => e.key === 'Enter' && addRole('subExecRoles')}
@@ -214,13 +215,59 @@ export default function AdminPortal() {
                   </div>
                   <div className="flex gap-2">
                     <Input 
-                      value={newExecRole} 
-                      onChange={(e) => setNewExecRole(e.target.value)} 
+                      value={newRoles.execRoles}
+                      onChange={(e) => setNewRoles((current) => ({ ...current, execRoles: e.target.value }))}
                       placeholder="Add new role..." 
                       className="flex-1"
                       onKeyDown={(e) => e.key === 'Enter' && addRole('execRoles')}
                     />
                     <Button onClick={() => addRole('execRoles')} variant="secondary">Add</Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Prefect Config */}
+              <div className="border border-border bg-secondary p-6">
+                <div className="flex justify-between items-center mb-6 border-b border-border pb-4">
+                  <h2 className="text-xl font-sans font-bold">Prefect Application</h2>
+                  <label className="flex items-center cursor-pointer">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        className="sr-only"
+                        checked={config.prefectOpen}
+                        onChange={(e) => handleConfigChange('prefectOpen', e.target.checked)}
+                      />
+                      <div className={`block w-10 h-6 rounded-full transition-colors ${config.prefectOpen ? 'bg-success' : 'bg-border'}`}></div>
+                      <div className={`dot absolute left-1 top-1 bg-primary w-4 h-4 rounded-full transition-transform ${config.prefectOpen ? 'transform translate-x-4' : ''}`}></div>
+                    </div>
+                    <span className="ml-3 font-mono text-sm uppercase text-secondary">
+                      {config.prefectOpen ? 'Open' : 'Closed'}
+                    </span>
+                  </label>
+                </div>
+
+                <div className="mb-4">
+                  <h3 className="font-mono text-sm uppercase text-secondary mb-3">Available Roles</h3>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {config.prefectRoles.map(role => (
+                      <div key={role} className="bg-primary border border-border px-3 py-1 flex items-center text-sm">
+                        <span>{role}</span>
+                        <button onClick={() => removeRole('prefectRoles', role)} className="ml-2 text-secondary hover:text-danger" aria-label={`Remove ${role}`}>
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      value={newRoles.prefectRoles}
+                      onChange={(e) => setNewRoles((current) => ({ ...current, prefectRoles: e.target.value }))}
+                      placeholder="Add new role..."
+                      className="flex-1"
+                      onKeyDown={(e) => e.key === 'Enter' && addRole('prefectRoles')}
+                    />
+                    <Button onClick={() => addRole('prefectRoles')} variant="secondary">Add</Button>
                   </div>
                 </div>
               </div>
@@ -241,6 +288,12 @@ export default function AdminPortal() {
                 >
                   Executive Apps
                 </button>
+                <button
+                  className={`px-6 py-4 font-mono text-sm uppercase tracking-wider ${activeTab === 'prefect' ? 'bg-primary text-accent border-b-2 border-accent' : 'text-secondary hover:bg-primary/50'}`}
+                  onClick={() => setActiveTab('prefect')}
+                >
+                  Prefect Apps
+                </button>
                 <button 
                   className={`px-6 py-4 font-mono text-sm uppercase tracking-wider ${activeTab === 'membership' ? 'bg-primary text-accent border-b-2 border-accent' : 'text-secondary hover:bg-primary/50'}`}
                   onClick={() => setActiveTab('membership')}
@@ -250,7 +303,7 @@ export default function AdminPortal() {
               </div>
 
               <div className="p-4">
-                {(activeTab === 'sub-executive' || activeTab === 'executive') && (
+                {(activeTab === 'sub-executive' || activeTab === 'executive' || activeTab === 'prefect') && (
                   filteredApps.length === 0 ? (
                     <div className="text-center py-10 text-secondary">No applications received yet.</div>
                   ) : (
@@ -327,9 +380,9 @@ export default function AdminPortal() {
                           <tr>
                             <th className="px-4 py-3 border-b border-border">Name</th>
                             <th className="px-4 py-3 border-b border-border">Email</th>
-                            <th className="px-4 py-3 border-b border-border">Phone</th>
                             <th className="px-4 py-3 border-b border-border">Class / Section</th>
-                            <th className="px-4 py-3 border-b border-border">Blood Group</th>
+                            <th className="px-4 py-3 border-b border-border">College ID</th>
+                            <th className="px-4 py-3 border-b border-border">Reason for joining</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -337,9 +390,9 @@ export default function AdminPortal() {
                             <tr key={mem.id} className="border-b border-border hover:bg-primary/50">
                               <td className="px-4 py-3 font-bold">{mem.name}</td>
                               <td className="px-4 py-3 text-secondary">{mem.email}</td>
-                              <td className="px-4 py-3 font-mono text-secondary">{mem.phone}</td>
                               <td className="px-4 py-3 text-secondary">{mem.classSection}</td>
-                              <td className="px-4 py-3 text-danger">{mem.bloodGroup || 'N/A'}</td>
+                              <td className="px-4 py-3 font-mono text-secondary">{mem.collegeId || mem.rollNumber || 'N/A'}</td>
+                              <td className="px-4 py-3 text-secondary max-w-sm whitespace-pre-wrap">{mem.motivation}</td>
                             </tr>
                           ))}
                         </tbody>

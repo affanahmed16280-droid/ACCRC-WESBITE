@@ -119,8 +119,8 @@ export default function AdminEvents() {
       const payload = {
         ...formData,
         date: new Date(formData.date),
-        registrationOpensAt: new Date(formData.registrationOpensAt),
-        registrationClosesAt: new Date(formData.registrationClosesAt)
+        ...(formData.registrationOpensAt ? { registrationOpensAt: new Date(formData.registrationOpensAt) } : {}),
+        ...(formData.registrationClosesAt ? { registrationClosesAt: new Date(formData.registrationClosesAt) } : {})
       };
 
       if (editingId) {
@@ -183,11 +183,11 @@ export default function AdminEvents() {
                   <Input name="imageUrl" value={formData.imageUrl} onChange={handleInputChange} className="w-full" />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-mono text-secondary uppercase">Registration Opens</label>
+                  <label className="text-xs font-mono text-secondary uppercase">Registration Opens (optional)</label>
                   <Input type="datetime-local" name="registrationOpensAt" value={formData.registrationOpensAt} onChange={handleInputChange} className="w-full bg-secondary border-border text-primary" />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-mono text-secondary uppercase">Registration Closes</label>
+                  <label className="text-xs font-mono text-secondary uppercase">Registration Closes (optional)</label>
                   <Input type="datetime-local" name="registrationClosesAt" value={formData.registrationClosesAt} onChange={handleInputChange} className="w-full bg-secondary border-border text-primary" />
                 </div>
               </div>

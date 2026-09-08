@@ -3,6 +3,7 @@ import {
   getDocs,
   getDoc,
   addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   doc,
@@ -26,8 +27,8 @@ export interface FirestoreEvent {
   description: string;
   date: Date;
   location: string;
-  registrationOpensAt: Date;
-  registrationClosesAt: Date;
+  registrationOpensAt?: Date;
+  registrationClosesAt?: Date;
   imageUrl?: string;
   createdAt: Date;
 }
@@ -48,18 +49,19 @@ export interface Registration {
   eventId?: string;
   name: string;
   email: string;
-  phone: string;
+  collegeId?: string;
   classSection: string;
-  rollNumber: string;
-  areaOfInterest: string;
   motivation: string;
+  phone?: string;
+  rollNumber?: string;
+  areaOfInterest?: string;
   bloodGroup?: string;
   createdAt?: Date;
 }
 
 export interface Application {
   id?: string;
-  type: "sub-executive" | "executive";
+  type: "sub-executive" | "executive" | "prefect";
   email: string;
   idNumber: string;
   section: string;
@@ -72,9 +74,20 @@ export interface Application {
 export interface PortalConfig {
   subExecOpen: boolean;
   execOpen: boolean;
+  prefectOpen: boolean;
   subExecRoles: string[];
   execRoles: string[];
+  prefectRoles: string[];
 }
+
+export const defaultPortalConfig: PortalConfig = {
+  subExecOpen: false,
+  execOpen: false,
+  prefectOpen: false,
+  subExecRoles: [],
+  execRoles: [],
+  prefectRoles: [],
+};
 
 /* ─── Helpers ─── */
 
@@ -87,6 +100,21 @@ function toDate(ts: unknown): Date {
   return new Date();
 }
 
+function toOptionalDate(ts: unknown): Date | undefined {
+  if (!ts) return undefined;
+  return toDate(ts);
+}
+
+function parsePortalConfig(data: DocumentData | undefined): PortalConfig {
+  return {
+    ...defaultPortalConfig,
+    ...(data ?? {}),
+    subExecRoles: Array.isArray(data?.subExecRoles) ? data.subExecRoles : [],
+    execRoles: Array.isArray(data?.execRoles) ? data.execRoles : [],
+    prefectRoles: Array.isArray(data?.prefectRoles) ? data.prefectRoles : [],
+  };
+}
+
 function parseEvent(id: string, data: DocumentData): FirestoreEvent {
   return {
     id,
@@ -94,8 +122,8 @@ function parseEvent(id: string, data: DocumentData): FirestoreEvent {
     description: data.description || "",
     date: toDate(data.date),
     location: data.location || "",
-    registrationOpensAt: toDate(data.registrationOpensAt),
-    registrationClosesAt: toDate(data.registrationClosesAt),
+    registrationOpensAt: toOptionalDate(data.registrationOpensAt),
+    registrationClosesAt: toOptionalDate(data.registrationClosesAt),
     imageUrl: data.imageUrl || undefined,
     createdAt: toDate(data.createdAt),
   };
@@ -128,12 +156,15 @@ export async function getEvent(id: string): Promise<FirestoreEvent | null> {
   return parseEvent(snapshot.id, snapshot.data());
 }
 
-export function subscribeToEvents(callback: (events: FirestoreEvent[]) => void): Unsubscribe {
+export function subscribeToEvents(
+  callback: (events: FirestoreEvent[]) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
   const q = query(collection(db, "events"), orderBy("date", "desc"));
   return onSnapshot(q, (snapshot) => {
     const events = snapshot.docs.map((d) => parseEvent(d.id, d.data()));
     callback(events);
-  });
+  }, onError);
 }
 
 export function subscribeToEvent(id: string, callback: (event: FirestoreEvent | null) => void): Unsubscribe {
@@ -148,11 +179,12 @@ export function subscribeToEvent(id: string, callback: (event: FirestoreEvent | 
 }
 
 export async function createEvent(data: Omit<FirestoreEvent, "id" | "createdAt">): Promise<string> {
+  const { registrationOpensAt, registrationClosesAt, ...eventData } = data;
   const docRef = await addDoc(collection(db, "events"), {
-    ...data,
+    ...eventData,
     date: Timestamp.fromDate(data.date),
-    registrationOpensAt: Timestamp.fromDate(data.registrationOpensAt),
-    registrationClosesAt: Timestamp.fromDate(data.registrationClosesAt),
+    ...(registrationOpensAt ? { registrationOpensAt: Timestamp.fromDate(registrationOpensAt) } : {}),
+    ...(registrationClosesAt ? { registrationClosesAt: Timestamp.fromDate(registrationClosesAt) } : {}),
     createdAt: Timestamp.now(),
   });
   return docRef.id;
@@ -239,7 +271,7 @@ export async function submitApplication(data: Omit<Application, "id" | "createdA
   return docRef.id;
 }
 
-export async function getApplications(type?: "sub-executive" | "executive"): Promise<Application[]> {
+export async function getApplications(type?: Application["type"]): Promise<Application[]> {
   const constraints: QueryConstraint[] = [orderBy("createdAt", "desc")];
   if (type) constraints.unshift(where("type", "==", type));
   const q = query(collection(db, "applications"), ...constraints);
@@ -253,22 +285,22 @@ export async function getPortalConfig(): Promise<PortalConfig> {
   const docRef = doc(db, "config", "portal");
   const snapshot = await getDoc(docRef);
   if (!snapshot.exists()) {
-    return { subExecOpen: false, execOpen: false, subExecRoles: [], execRoles: [] };
+    return defaultPortalConfig;
   }
-  return snapshot.data() as PortalConfig;
+  return parsePortalConfig(snapshot.data());
 }
 
 export function subscribeToPortalConfig(callback: (config: PortalConfig) => void): Unsubscribe {
   const docRef = doc(db, "config", "portal");
   return onSnapshot(docRef, (snapshot) => {
     if (!snapshot.exists()) {
-      callback({ subExecOpen: false, execOpen: false, subExecRoles: [], execRoles: [] });
+      callback(defaultPortalConfig);
       return;
     }
-    callback(snapshot.data() as PortalConfig);
+    callback(parsePortalConfig(snapshot.data()));
   });
 }
 
 export async function updatePortalConfig(data: Partial<PortalConfig>): Promise<void> {
-  await updateDoc(doc(db, "config", "portal"), data);
+  await setDoc(doc(db, "config", "portal"), data, { merge: true });
 }

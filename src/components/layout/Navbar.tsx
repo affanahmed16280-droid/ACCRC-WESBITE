@@ -3,19 +3,20 @@
 import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { subscribeToPortalConfig, type PortalConfig } from "@/lib/firestore";
 
-const navLinks = [
+const standardNavLinks = [
   { href: "/", label: "Home" },
   { href: "/events/", label: "Events" },
   { href: "/membership/", label: "Membership" },
   { href: "/news/", label: "News" },
   { href: "/about/", label: "About" },
-  { href: "/portal/", label: "Portal" },
 ];
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -32,6 +33,15 @@ export function Navbar() {
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
+  useEffect(() => subscribeToPortalConfig(setPortalConfig), []);
+
+  const leadershipApplicationsOpen = Boolean(
+    portalConfig?.execOpen || portalConfig?.prefectOpen || portalConfig?.subExecOpen
+  );
+  const navLinks = leadershipApplicationsOpen
+    ? [...standardNavLinks, { href: "/portal/", label: "Leadership" }]
+    : standardNavLinks;
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -44,9 +54,9 @@ export function Navbar() {
         {/* Logo / Wordmark */}
         <a href="/" className="flex items-center gap-3 group" aria-label="ACCRC Home">
           <img
-            src="/logo.png"
+            src="/accrc-logo.png"
             alt="ACCRC Logo"
-            className="h-9 w-9 md:h-10 md:w-10 rounded-full object-cover"
+            className="h-9 w-9 md:h-10 md:w-10 rounded-full object-cover border border-accent"
           />
           <div className="flex flex-col">
             <span className="font-bold text-text-primary text-base md:text-lg tracking-display leading-none">

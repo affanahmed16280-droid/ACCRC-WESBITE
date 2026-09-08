@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ACCRC website
 
-## Getting Started
+The public site for the Adamjee Cantonment College Robotics Club. It is a static Next.js export backed by Firebase for live forms, portal controls, and manual event management.
 
-First, run the development server:
+## Local setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. Copy `.env.local.example` to `.env.local` and fill in the Firebase web-app values.
+2. Install dependencies with `npm install`.
+3. Start the site with `npm run dev`.
+
+## Everyday content management
+
+- **Membership:** `/membership/` and the homepage membership form are always available. They require a full name, section, email address, college ID, and reason for joining.
+- **Leadership applications:** Sign in at `/admin/login/`, then open **Manage Portal**. The Executive Panel, Prefect Application, and Sub-Executive Application each have their own on/off toggle and configurable roles. When all three are off, leadership links and forms are hidden from visitors.
+- **Events:** In `/admin/events/`, create or edit events. Registration opening/closing times are optional, so an event can be published before registration details are ready. With no event records, visitors see the "No upcoming events right now" empty state.
+
+## Facebook event import
+
+The Events page always displays the official [ACCRC Facebook page](https://www.facebook.com/accroboticsclub) in a light embedded timeline. Automatic event cards are enabled by adding these **encrypted** Cloudflare Pages environment variables:
+
+```text
+FACEBOOK_PAGE_ID=...
+FACEBOOK_PAGE_ACCESS_TOKEN=...
+FACEBOOK_GRAPH_API_VERSION=v24.0
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The access token is used only by `functions/api/facebook-events.ts`; it is never sent to a browser. The Facebook Graph API must authorize the token to read the official page's events. If it is not configured or Facebook is unavailable, the manual Firebase events and timeline continue to work.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Firebase security rule update
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Deploy the updated `firestore.rules` to Firebase before launch. It keeps membership registration public while rejecting Executive, Prefect, and Sub-Executive submissions when their respective portal toggle is off.
 
-## Learn More
+## Deploy to Cloudflare Pages
 
-To learn more about Next.js, take a look at the following resources:
+The repository is configured as a static export (`output: "export"`). In Cloudflare Pages use:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Setting | Value |
+| --- | --- |
+| Framework preset | Next.js (Static HTML Export) |
+| Build command | `npm run build` |
+| Build output directory | `out` |
+| Node.js version | `20` or newer |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Add the Firebase `NEXT_PUBLIC_*` values to both Preview and Production environments. Add the optional Facebook variables above as encrypted variables. Cloudflare deploys the `functions/` directory alongside `out/`, keeping the Facebook token server-side.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+After the first deploy, verify a membership submission, the three portal toggles, a manually added event, and the Facebook timeline in a preview deployment.

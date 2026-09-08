@@ -5,8 +5,8 @@ import { getEventStatus } from '@/lib/utils';
 import { Countdown } from './Countdown';
 
 interface EventStatusProps {
-  registrationOpensAt: Date;
-  registrationClosesAt: Date;
+  registrationOpensAt?: Date;
+  registrationClosesAt?: Date;
 }
 
 export function EventStatus({ registrationOpensAt, registrationClosesAt }: EventStatusProps) {
@@ -29,10 +29,10 @@ export function EventStatus({ registrationOpensAt, registrationClosesAt }: Event
       `}>
         {label}
       </span>
-      {status === 'upcoming' && (
+      {status === 'upcoming' && registrationOpensAt && (
         <Countdown targetDate={registrationOpensAt} />
       )}
-      {status === 'open' && (
+      {status === 'open' && registrationClosesAt && (
         <div>
           <span className="font-mono text-[10px] tracking-widest text-text-tertiary mb-1 block">CLOSES IN</span>
           <Countdown targetDate={registrationClosesAt} />

@@ -20,9 +20,17 @@ service cloud.firestore {
       allow read, update, delete: if request.auth != null;
     }
     
-    // Applications: Public create only, authenticated read/update/delete
+    // Leadership applications can be submitted only while the corresponding
+    // portal toggle is open. Membership registrations remain always open.
     match /applications/{appId} {
-      allow create: if true;
+      allow create: if exists(/databases/$(database)/documents/config/portal) && (
+        (request.resource.data.type == 'executive' &&
+          get(/databases/$(database)/documents/config/portal).data.execOpen == true) ||
+        (request.resource.data.type == 'prefect' &&
+          get(/databases/$(database)/documents/config/portal).data.prefectOpen == true) ||
+        (request.resource.data.type == 'sub-executive' &&
+          get(/databases/$(database)/documents/config/portal).data.subExecOpen == true)
+      );
       allow read, update, delete: if request.auth != null;
     }
     

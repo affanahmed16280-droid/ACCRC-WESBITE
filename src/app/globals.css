@@ -77,14 +77,14 @@ button, a, input, select, textarea {
   letter-spacing: 0.12em;
 }
 
-.wordmark-mark {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  color: #27e0d2;
+.wordmark-logo {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  object-fit: cover;
+  border-radius: 50%;
+  background: #fff;
   border: 1px solid #27e0d2;
-  font-size: 18px;
 }
 
 .wordmark small {
@@ -424,6 +424,37 @@ h1 em, h2 span {
   border-top: 1px solid #292929;
 }
 
+.event-empty {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-height: 160px;
+  padding: 32px;
+  border: 1px solid #292929;
+  background: linear-gradient(135deg, #0b2225, #061416);
+}
+
+.event-empty > svg {
+  flex: 0 0 auto;
+  color: #27e0d2;
+}
+
+.event-empty h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.event-empty p {
+  margin: 0;
+  color: #929292;
+  line-height: 1.6;
+}
+
+.event-empty .text-button {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
 .event-row {
   display: grid;
   grid-template-columns: 70px 1fr 150px 250px;
@@ -556,6 +587,10 @@ h1 em, h2 span {
   padding-top: 20px;
 }
 
+.portal-note:hover {
+  color: #e8fffb;
+}
+
 .portal-note p {
   margin: 0 0 8px;
 }
@@ -614,6 +649,17 @@ h1 em, h2 span {
   outline: none;
 }
 
+.member-form button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.form-error {
+  margin: 0;
+  color: #ff8d8d;
+  font-size: 13px;
+}
+
 .member-form select {
   color: #929292;
 }
@@ -645,7 +691,7 @@ h1 em, h2 span {
 /* ═══════════════════════════════════════════════════════════
    FOOTER
    ═══════════════════════════════════════════════════════════ */
-footer {
+footer:not(.site-footer) {
   padding: 55px 5vw 24px;
 }
 
@@ -774,6 +820,18 @@ footer {
     grid-template-columns: 30px 1fr 50px;
     gap: 10px;
     padding: 22px 0;
+  }
+
+  .event-empty {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 25px;
+  }
+
+  .event-empty .text-button {
+    width: 100%;
+    margin-left: 0;
   }
 
   .event-date {

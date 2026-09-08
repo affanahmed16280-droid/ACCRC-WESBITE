@@ -1,31 +1,51 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { SectionReveal } from '@/components/ui/SectionReveal';
 import { Card } from '@/components/ui/Card';
 import { ApplicationForm } from '@/components/portal/ApplicationForm';
 import { subscribeToPortalConfig, type PortalConfig } from '@/lib/firestore';
-import { Lock, CheckCircle } from 'lucide-react';
+import { CheckCircle, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const DEFAULT_SUB_EXEC_ROLES = [
-  'Sub-Executive (Electronics)',
-  'Sub-Executive (Programming)',
-  'Sub-Executive (Mechanical)',
-  'Sub-Executive (Design)',
-  'Sub-Executive (Media & PR)'
-];
+type LeadershipApplication = 'executive' | 'prefect' | 'sub-executive';
 
-const DEFAULT_EXEC_ROLES = [
-  'President',
-  'Vice President',
-  'General Secretary',
-  'Treasurer',
-  'Technical Director'
-];
+const APPLICATIONS: Record<LeadershipApplication, { label: string; description: string; rolesKey: keyof PortalConfig; defaultRoles: string[] }> = {
+  executive: {
+    label: 'Executive Panel',
+    description: 'Lead the direction and operations of ACCRC.',
+    rolesKey: 'execRoles',
+    defaultRoles: ['President', 'Vice President', 'General Secretary', 'Treasurer', 'Technical Director'],
+  },
+  prefect: {
+    label: 'Prefect Application',
+    description: 'Help coordinate members, activities, and club operations.',
+    rolesKey: 'prefectRoles',
+    defaultRoles: ['Club Prefect'],
+  },
+  'sub-executive': {
+    label: 'Sub-Executive Application',
+    description: 'Join a working team and help build ACCRC projects and events.',
+    rolesKey: 'subExecRoles',
+    defaultRoles: [
+      'Sub-Executive (Electronics)',
+      'Sub-Executive (Programming)',
+      'Sub-Executive (Mechanical)',
+      'Sub-Executive (Design)',
+      'Sub-Executive (Media & PR)',
+    ],
+  },
+};
+
+function isApplicationOpen(config: PortalConfig | null, type: LeadershipApplication) {
+  if (!config) return false;
+  if (type === 'executive') return config.execOpen;
+  if (type === 'prefect') return config.prefectOpen;
+  return config.subExecOpen;
+}
 
 export default function PortalPage() {
-  const [activeTab, setActiveTab] = useState<'sub-executive' | 'executive'>('sub-executive');
+  const [activeApplication, setActiveApplication] = useState<LeadershipApplication>('executive');
   const [config, setConfig] = useState<PortalConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
@@ -39,97 +59,93 @@ export default function PortalPage() {
     return () => unsubscribe();
   }, []);
 
-  const handleSuccess = () => {
-    setSuccess(true);
-    // Reset success state after a while or leave it
-  };
+  const availableApplications = useMemo(
+    () => (Object.keys(APPLICATIONS) as LeadershipApplication[]).filter((type) => isApplicationOpen(config, type)),
+    [config]
+  );
 
-  const isSubExecOpen = config?.subExecOpen ?? false;
-  const isExecOpen = config?.execOpen ?? false;
+  useEffect(() => {
+    if (availableApplications.length && !availableApplications.includes(activeApplication)) {
+      setActiveApplication(availableApplications[0]);
+      setSuccess(false);
+    }
+  }, [activeApplication, availableApplications]);
 
-  const currentRoles = activeTab === 'sub-executive' 
-    ? (config?.subExecRoles?.length ? config.subExecRoles : DEFAULT_SUB_EXEC_ROLES)
-    : (config?.execRoles?.length ? config.execRoles : DEFAULT_EXEC_ROLES);
-    
-  const isOpen = activeTab === 'sub-executive' ? isSubExecOpen : isExecOpen;
+  const application = APPLICATIONS[activeApplication];
+  const configuredRoles = config?.[application.rolesKey];
+  const roles = Array.isArray(configuredRoles) && configuredRoles.length
+    ? configuredRoles
+    : application.defaultRoles;
 
   return (
     <main className="pt-24 section-padding container-content min-h-screen">
       <SectionReveal>
         <div className="max-w-3xl mx-auto mb-12 text-center">
-          <div className="mono-label text-accent mb-2">PORTAL</div>
-          <h1 className="text-display-md font-bold text-text-primary mb-4">Executive Applications</h1>
+          <div className="mono-label text-accent mb-2">LEADERSHIP APPLICATIONS</div>
+          <h1 className="text-display-md font-bold text-text-primary mb-4">Help shape ACCRC</h1>
           <p className="text-body-lg text-text-secondary">
-            Apply for leadership positions within ACCRC. Executive and sub-executive roles are open during specific application windows.
+            Leadership applications are shown only while their application window is open. Membership applications remain available year-round.
           </p>
         </div>
       </SectionReveal>
 
       <SectionReveal>
         <div className="max-w-2xl mx-auto">
-          {/* Tabs */}
-          <div className="flex border-b border-border mb-8">
-            <button
-              onClick={() => { setActiveTab('sub-executive'); setSuccess(false); }}
-              className={`flex-1 py-4 text-center font-bold text-body-md transition-colors ${
-                activeTab === 'sub-executive' 
-                  ? 'border-b-2 border-accent text-text-primary' 
-                  : 'text-text-tertiary hover:text-text-secondary'
-              }`}
-            >
-              Sub-Executive
-            </button>
-            <button
-              onClick={() => { setActiveTab('executive'); setSuccess(false); }}
-              className={`flex-1 py-4 text-center font-bold text-body-md transition-colors ${
-                activeTab === 'executive' 
-                  ? 'border-b-2 border-accent text-text-primary' 
-                  : 'text-text-tertiary hover:text-text-secondary'
-              }`}
-            >
-              Executive
-            </button>
-          </div>
+          {loading ? (
+            <Card className="p-12 text-center text-text-secondary animate-pulse">Loading application windows...</Card>
+          ) : availableApplications.length === 0 ? (
+            <Card className="p-10 sm:p-14 text-center">
+              <Lock className="w-12 h-12 text-text-tertiary mx-auto mb-4" />
+              <h2 className="text-display-xs font-bold text-text-primary mb-2">Leadership applications are closed</h2>
+              <p className="text-body-sm text-text-secondary max-w-md mx-auto">
+                Please check back when an Executive, Prefect, or Sub-Executive application window opens.
+              </p>
+            </Card>
+          ) : (
+            <>
+              <div className="flex flex-wrap border-b border-border mb-8" role="tablist" aria-label="Leadership application type">
+                {availableApplications.map((type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    role="tab"
+                    aria-selected={activeApplication === type}
+                    onClick={() => { setActiveApplication(type); setSuccess(false); }}
+                    className={`flex-1 min-w-40 py-4 px-3 text-center font-bold text-body-sm transition-colors ${
+                      activeApplication === type
+                        ? 'border-b-2 border-accent text-text-primary'
+                        : 'text-text-tertiary hover:text-text-secondary'
+                    }`}
+                  >
+                    {APPLICATIONS[type].label}
+                  </button>
+                ))}
+              </div>
 
-          <Card className="p-6 sm:p-8">
-            {loading ? (
-              <div className="text-center py-12 text-text-secondary animate-pulse">
-                Loading configuration...
-              </div>
-            ) : success ? (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-12"
-              >
-                <CheckCircle className="w-16 h-16 text-success mx-auto mb-4" />
-                <h3 className="text-display-xs font-bold text-text-primary mb-2">Application Submitted!</h3>
-                <p className="text-body-sm text-text-secondary">
-                  Thank you for applying. We will review your application and get back to you soon.
-                </p>
-                <button 
-                  onClick={() => setSuccess(false)}
-                  className="mt-6 text-accent hover:underline text-body-sm"
-                >
-                  Submit another application
-                </button>
-              </motion.div>
-            ) : !isOpen ? (
-              <div className="text-center py-16">
-                <Lock className="w-12 h-12 text-text-tertiary mx-auto mb-4" />
-                <h3 className="text-display-xs font-bold text-text-primary mb-2">Applications Closed</h3>
-                <p className="text-body-sm text-text-secondary max-w-md mx-auto">
-                  Applications for {activeTab} positions are currently closed. Check back when the next application window opens.
-                </p>
-              </div>
-            ) : (
-              <ApplicationForm 
-                type={activeTab} 
-                roles={currentRoles} 
-                onSuccess={handleSuccess} 
-              />
-            )}
-          </Card>
+              <Card className="p-6 sm:p-8">
+                {success ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center py-12"
+                  >
+                    <CheckCircle className="w-16 h-16 text-success mx-auto mb-4" />
+                    <h2 className="text-display-xs font-bold text-text-primary mb-2">Application submitted</h2>
+                    <p className="text-body-sm text-text-secondary">Thank you. The ACCRC team will review your application.</p>
+                    <button type="button" onClick={() => setSuccess(false)} className="mt-6 text-accent hover:underline text-body-sm">
+                      Submit another application
+                    </button>
+                  </motion.div>
+                ) : (
+                  <>
+                    <h2 className="text-display-xs font-bold text-text-primary mb-2">{application.label}</h2>
+                    <p className="text-body-sm text-text-secondary mb-8">{application.description}</p>
+                    <ApplicationForm type={activeApplication} roles={roles} onSuccess={() => setSuccess(true)} />
+                  </>
+                )}
+              </Card>
+            </>
+          )}
         </div>
       </SectionReveal>
     </main>

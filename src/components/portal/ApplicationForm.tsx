@@ -6,7 +6,7 @@ import { Input, Textarea, Select } from '@/components/ui/Input';
 import { submitApplication } from '@/lib/firestore';
 
 interface ApplicationFormProps {
-  type: 'sub-executive' | 'executive';
+  type: 'sub-executive' | 'executive' | 'prefect';
   roles: string[];
   onSuccess: () => void;
 }

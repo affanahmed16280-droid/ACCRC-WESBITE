@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { subscribeToEvent } from '@/lib/firestore';
+import { subscribeToEvent, type FirestoreEvent } from '@/lib/firestore';
 import { EventStatus } from '@/components/events/EventStatus';
 import { EventRegistrationForm } from '@/components/events/EventRegistrationForm';
 import { Countdown } from '@/components/events/Countdown';
@@ -12,7 +12,7 @@ import Link from 'next/link';
 function EventDetailContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
-  const [event, setEvent] = useState<any>(null);
+  const [event, setEvent] = useState<FirestoreEvent | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [now, setNow] = useState(new Date());
@@ -46,11 +46,12 @@ function EventDetailContent() {
     return <div className="text-danger">Event not found.</div>;
   }
 
-  const openAt = new Date(event.registrationOpensAt);
-  const closeAt = new Date(event.registrationClosesAt);
+  const openAt = event.registrationOpensAt ? new Date(event.registrationOpensAt) : undefined;
+  const closeAt = event.registrationClosesAt ? new Date(event.registrationClosesAt) : undefined;
+  const hasRegistrationWindow = Boolean(openAt && closeAt);
   let status = 'closed';
-  if (now < openAt) status = 'upcoming';
-  else if (now >= openAt && now < closeAt) status = 'open';
+  if (openAt && closeAt && now < openAt) status = 'upcoming';
+  else if (openAt && closeAt && now >= openAt && now < closeAt) status = 'open';
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -60,7 +61,7 @@ function EventDetailContent() {
       </Link>
       
       <div className="mb-8">
-        <h1 className="text-3xl md:text-5xl font-bold text-primary mb-4">{event.title}</h1>
+        <h1 className="text-3xl md:text-5xl font-bold text-primary mb-4">{event.name}</h1>
         <div className="flex flex-wrap items-center gap-6 mb-6">
           <span className="font-mono text-text-secondary">
             {new Date(event.date).toLocaleString(undefined, { 
@@ -81,10 +82,10 @@ function EventDetailContent() {
 
       <div className="border-t border-border pt-12">
         {status === 'open' && (
-          <EventRegistrationForm eventId={event.id} eventName={event.title} />
+          <EventRegistrationForm eventId={event.id} eventName={event.name} />
         )}
         
-        {status === 'upcoming' && (
+        {status === 'upcoming' && openAt && (
           <div className="bg-secondary border border-border p-8 text-center max-w-xl mx-auto">
             <h3 className="text-xl font-bold text-primary mb-4">Registration Opens Soon</h3>
             <div className="flex justify-center">
@@ -93,10 +94,17 @@ function EventDetailContent() {
           </div>
         )}
 
-        {status === 'closed' && (
+        {hasRegistrationWindow && status === 'closed' && (
           <div className="bg-secondary border border-border p-8 text-center max-w-xl mx-auto">
             <h3 className="text-xl font-bold text-text-secondary mb-2">Registration Closed</h3>
             <p className="text-text-tertiary">Registration for this event has closed.</p>
+          </div>
+        )}
+
+        {!hasRegistrationWindow && (
+          <div className="bg-secondary border border-border p-8 text-center max-w-xl mx-auto">
+            <h3 className="text-xl font-bold text-text-secondary mb-2">Registration details coming soon</h3>
+            <p className="text-text-tertiary">Please follow ACCRC for registration announcements.</p>
           </div>
         )}
       </div>
