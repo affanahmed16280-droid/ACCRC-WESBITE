@@ -5,6 +5,11 @@ import { LogOut, Plus, Edit2, Trash2, Eye, EyeOff } from 'lucide-react';
 import AdminLogin from '@/components/AdminLogin';
 import { Event, News, getAllEvents, addEvent, updateEvent, deleteEvent, getPublishedNews, addNews, updateNews } from '@/lib/eventsDb';
 
+type EventFormData = Omit<Event, 'id' | 'date' | 'createdAt' | 'updatedAt' | 'description'> & {
+  date: string;
+  description: string;
+};
+
 export default function AdminDashboard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState('events');
@@ -14,7 +19,7 @@ export default function AdminDashboard() {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [showForm, setShowForm] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<EventFormData>({
     tag: '',
     title: '',
     venue: '',
@@ -65,7 +70,7 @@ export default function AdminDashboard() {
     setLoading(true);
     try {
       if (editingEvent && editingEvent.id) {
-        await updateEvent(editingEvent.id, formData);
+        await updateEvent(editingEvent.id, { ...formData, date: new Date(formData.date) });
       } else {
         await addEvent({ ...formData, date: new Date(formData.date) });
       }

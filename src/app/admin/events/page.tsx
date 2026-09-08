@@ -116,11 +116,17 @@ export default function AdminEvents() {
     setFormLoading(true);
     
     try {
+      const {
+        date,
+        registrationOpensAt,
+        registrationClosesAt,
+        ...eventDetails
+      } = formData;
       const payload = {
-        ...formData,
-        date: new Date(formData.date),
-        ...(formData.registrationOpensAt ? { registrationOpensAt: new Date(formData.registrationOpensAt) } : {}),
-        ...(formData.registrationClosesAt ? { registrationClosesAt: new Date(formData.registrationClosesAt) } : {})
+        ...eventDetails,
+        date: new Date(date),
+        ...(registrationOpensAt ? { registrationOpensAt: new Date(registrationOpensAt) } : {}),
+        ...(registrationClosesAt ? { registrationClosesAt: new Date(registrationClosesAt) } : {})
       };
 
       if (editingId) {
