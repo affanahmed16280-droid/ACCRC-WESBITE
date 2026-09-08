@@ -50,7 +50,6 @@ export default function HomePage() {
   const upcomingEvents = events
     .filter((event) => event.date.getTime() >= Date.now())
     .sort((a, b) => a.date.getTime() - b.date.getTime());
-  const nextEvent = upcomingEvents[0];
   const activeLeadershipApplications = [
     portalConfig?.execOpen ? 'Executive Panel' : null,
     portalConfig?.prefectOpen ? 'Prefect Application' : null,
@@ -159,29 +158,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══ STATUS STRIP ═══ */}
-      <section className="status-strip">
-        <div className="status-label">
-          <span className="live-dot" /> LIVE STATUS
+      <section className="social-status" aria-label="Follow ACC Robotics Club">
+        <span className="mono muted">STAY TUNED</span>
+        <div className="social-status-links">
+          <a href={club.socials.facebook} target="_blank" rel="noopener noreferrer">
+            FACEBOOK <ArrowRight size={18} aria-hidden />
+          </a>
+          <a href={club.socials.instagram} target="_blank" rel="noopener noreferrer">
+            INSTAGRAM <ArrowRight size={18} aria-hidden />
+          </a>
         </div>
-        <div className="status-event">
-          <span className="mono muted">NEXT EVENT</span>
-          {nextEvent ? (
-            <>
-              <strong>{nextEvent.name}</strong>
-              <span className="muted">{nextEvent.date.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-            </>
-          ) : (
-            <strong>No upcoming events</strong>
-          )}
-        </div>
-        <div className="status-open">
-          <span className="mono">{nextEvent ? 'EVENT DETAILS' : 'STAY TUNED'}</span>
-          <strong>{nextEvent?.location || 'Follow ACCRC on Facebook'}</strong>
-        </div>
-        <a href="/events/" className="status-arrow" aria-label="View events">
-          <ArrowRight size={24} aria-hidden />
-        </a>
       </section>
 
       {/* ═══ MISSION ═══ */}

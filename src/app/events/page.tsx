@@ -55,9 +55,6 @@ export default function EventsPage() {
         >
           <span className="font-mono text-xs tracking-widest text-accent mb-4 block uppercase">EVENTS</span>
           <h1 className="text-4xl md:text-5xl font-bold text-primary">Competitions, workshops & meetups</h1>
-          <p className="mt-4 max-w-2xl text-text-secondary">
-            Events are managed in the ACCRC admin panel and can also be imported automatically from the official Facebook page.
-          </p>
         </motion.div>
 
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-10 items-start">
