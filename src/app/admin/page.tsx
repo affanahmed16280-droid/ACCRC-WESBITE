@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { signOut } from 'firebase/auth';
-import { ArrowUpRight, CalendarDays, Crown, LogOut, ShieldCheck, Trophy, UsersRound } from 'lucide-react';
+import { ArrowUpRight, CalendarDays, Crown, LogOut, Newspaper, ShieldCheck, Trophy, UsersRound } from 'lucide-react';
 import AdminGuard from '@/components/admin/AdminGuard';
 import { auth } from '@/lib/firebase';
 
@@ -18,6 +18,12 @@ const portals = [
     description: 'Publish, edit, and remove achievements shown on the public site.',
     href: '/admin/achievements/',
     icon: Trophy,
+  },
+  {
+    name: 'News Portal',
+    description: 'Write and publish club updates for the public news feed.',
+    href: '/admin/news/',
+    icon: Newspaper,
   },
   {
     name: 'Sub-Executive Portal',

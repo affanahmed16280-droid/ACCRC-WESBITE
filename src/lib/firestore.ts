@@ -13,6 +13,7 @@ import {
   limit,
   onSnapshot,
   Timestamp,
+  deleteField,
   type DocumentData,
   type QueryConstraint,
   type Unsubscribe,
@@ -217,8 +218,16 @@ export async function createEvent(data: Omit<FirestoreEvent, "id" | "createdAt">
 export async function updateEvent(id: string, data: Partial<Omit<FirestoreEvent, "id" | "createdAt">>): Promise<void> {
   const updateData: Record<string, unknown> = { ...data };
   if (data.date) updateData.date = Timestamp.fromDate(data.date);
-  if (data.registrationOpensAt) updateData.registrationOpensAt = Timestamp.fromDate(data.registrationOpensAt);
-  if (data.registrationClosesAt) updateData.registrationClosesAt = Timestamp.fromDate(data.registrationClosesAt);
+  if ("registrationOpensAt" in data) {
+    updateData.registrationOpensAt = data.registrationOpensAt
+      ? Timestamp.fromDate(data.registrationOpensAt)
+      : deleteField();
+  }
+  if ("registrationClosesAt" in data) {
+    updateData.registrationClosesAt = data.registrationClosesAt
+      ? Timestamp.fromDate(data.registrationClosesAt)
+      : deleteField();
+  }
   await updateDoc(doc(db, "events", id), updateData);
 }
 

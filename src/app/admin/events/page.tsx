@@ -125,8 +125,8 @@ export default function AdminEvents() {
       const payload = {
         ...eventDetails,
         date: new Date(date),
-        ...(registrationOpensAt ? { registrationOpensAt: new Date(registrationOpensAt) } : {}),
-        ...(registrationClosesAt ? { registrationClosesAt: new Date(registrationClosesAt) } : {})
+        registrationOpensAt: registrationOpensAt ? new Date(registrationOpensAt) : undefined,
+        registrationClosesAt: registrationClosesAt ? new Date(registrationClosesAt) : undefined,
       };
 
       if (editingId) {

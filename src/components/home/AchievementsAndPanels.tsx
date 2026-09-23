@@ -6,6 +6,7 @@ import { subscribeToAchievements, type FirestoreAchievement } from '@/lib/firest
 import styles from './AchievementsAndPanels.module.css';
 
 type PanelKey = '2026' | '2025' | '2023' | 'founder';
+type ViewKey = 'all' | PanelKey;
 type AwardLevel = 'Global' | 'National';
 
 type Achievement = {
@@ -401,7 +402,16 @@ const panels: Record<PanelKey, PanelData> = {
 
 const allAchievements = Object.values(panels).flatMap((panel) => panel.achievements);
 
-const tabs: { key: PanelKey; label: string }[] = [
+const allAchievementsPanel: PanelData = {
+  label: 'All Achievements',
+  eyebrow: 'CLUB RECOGNITION',
+  description: 'Every published achievement, with the year shown on each record. Choose a year to focus the list.',
+  achievements: [],
+  executive_panel: [],
+};
+
+const tabs: { key: ViewKey; label: string }[] = [
+  { key: 'all', label: 'All achievements' },
   { key: '2026', label: '2026' },
   { key: '2025', label: '2025' },
   { key: '2023', label: '2023' },
@@ -409,9 +419,9 @@ const tabs: { key: PanelKey; label: string }[] = [
 ];
 
 export function AchievementsAndPanels() {
-  const [activeTab, setActiveTab] = useState<PanelKey>('2026');
+  const [activeTab, setActiveTab] = useState<ViewKey>('all');
   const [adminAchievements, setAdminAchievements] = useState<FirestoreAchievement[]>([]);
-  const activePanel = panels[activeTab];
+  const activePanel = activeTab === 'all' ? allAchievementsPanel : panels[activeTab];
 
   useEffect(() => {
     return subscribeToAchievements(setAdminAchievements, (error) => {
@@ -421,9 +431,15 @@ export function AchievementsAndPanels() {
   }, []);
 
   const achievements = useMemo(() => {
+    const publishedAchievements = [...allAchievements, ...adminAchievements];
+
+    if (activeTab === 'all') {
+      return publishedAchievements.sort((a, b) => b.year - a.year || a.title.localeCompare(b.title));
+    }
+
     if (activeTab === 'founder') return activePanel.achievements;
 
-    return [...allAchievements, ...adminAchievements]
+    return publishedAchievements
       .filter((achievement) => achievement.year === Number(activeTab))
       .sort((a, b) => a.title.localeCompare(b.title));
   }, [activePanel.achievements, activeTab, adminAchievements]);
@@ -480,7 +496,7 @@ export function AchievementsAndPanels() {
               <div className={styles.contentHeading}>
                 <div>
                   <Trophy aria-hidden="true" />
-                  <h4>Achievements</h4>
+                  <h4>{activeTab === 'all' ? 'All Achievements' : `${activeTab} Achievements`}</h4>
                 </div>
                 <span>{achievements.length} published</span>
               </div>

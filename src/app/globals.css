@@ -233,7 +233,9 @@ p {
   font-weight: 800;
   line-height: 0.84;
   letter-spacing: -0.07em;
-  margin: 30px 0;
+  /* The large headline can wrap to three lines on laptop widths. Reserve a
+     fixed gap so the paragraph never crowds the final line. */
+  margin: 30px 0 48px;
 }
 
 h1 em, h2 span {
@@ -245,6 +247,7 @@ h1 em, h2 span {
   color: #b3b3b3;
   font-size: 18px;
   line-height: 1.7;
+  margin: 0;
   max-width: 430px;
 }
 

@@ -328,6 +328,15 @@
   width: 100%;
 }
 
+/* Keep the adviser portraits visually balanced even though the supplied artwork
+   has different source aspect ratios. The original images remain fully visible. */
+.moderatorGrid .portraitFrame,
+.moderatorGrid .wideFrame {
+  aspect-ratio: 4 / 3;
+  background: #061416;
+  object-fit: contain;
+}
+
 .memberInfo { text-align: center; }
 .memberRole { color: #5de6db; font: 700 0.69rem/1.4 "Courier New", monospace; letter-spacing: 0.08em; margin: 0 0 0.45rem; text-transform: uppercase; }
 .memberId { align-items: center; color: #91a7a6; display: flex; font-size: 0.78rem; gap: 0.35rem; justify-content: center; line-height: 1.4; margin: 0.75rem 0 0; }
@@ -370,12 +379,15 @@
 @media (max-width: 480px) {
   .tab { padding: 0 1.15rem; }
   .achievementCard { min-height: unset; }
-  .memberGrid { grid-template-columns: 1fr; }
+  .memberGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .founderGrid { grid-template-columns: 1fr; max-width: 22.5rem; }
-  .moderatorGrid { grid-template-columns: 1fr; max-width: 25rem; }
+  .moderatorGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 25rem; }
   .memberCard { padding: 1rem 0.7rem; }
   .framedCard { padding: 0; }
   .avatar { max-width: 8.5rem; }
+  .portraitFrame,
+  .squareFrame,
+  .wideFrame { max-width: none; }
   .avatarFallback { max-width: 8.5rem; }
   .memberId { font-size: 0.72rem; }
 }
