@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { adminSessionReady, auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Loader2 } from 'lucide-react';
@@ -24,6 +24,7 @@ export default function AdminLogin() {
     setLoading(true);
     setError(null);
     try {
+      await adminSessionReady;
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/admin');
     } catch (err: any) {

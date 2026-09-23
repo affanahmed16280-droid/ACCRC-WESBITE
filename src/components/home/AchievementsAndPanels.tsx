@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { Award, IdCard, Medal, Trophy, UsersRound } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Award, GraduationCap, IdCard, Medal, Trophy, UsersRound } from 'lucide-react';
+import { subscribeToAchievements, type FirestoreAchievement } from '@/lib/firestore';
 import styles from './AchievementsAndPanels.module.css';
 
 type PanelKey = '2026' | '2025' | '2023' | 'founder';
@@ -18,8 +19,9 @@ type Achievement = {
 type ExecutiveMember = {
   name: string;
   designation: string;
-  collegeId: string;
+  collegeId?: string;
   imageUrl?: string;
+  imageFrame?: 'portrait' | 'square' | 'wide';
 };
 
 type PanelData = {
@@ -28,6 +30,7 @@ type PanelData = {
   description: string;
   achievements: Achievement[];
   executive_panel: ExecutiveMember[];
+  moderators?: ExecutiveMember[];
 };
 
 /*
@@ -53,12 +56,94 @@ const panels: Record<PanelKey, PanelData> = {
       {
         name: 'Masroor Ali Neil',
         designation: 'President',
-        collegeId: 'ACCRC-26-001',
+        imageUrl: '/leadership/committee-26/photo_6170079490235634212_y.jpg',
+        imageFrame: 'square',
       },
       {
         name: 'Md. Shafayet Biswas',
         designation: 'General Secretary',
-        collegeId: 'ACCRC-26-002',
+        imageUrl: '/leadership/committee-26/photo_6170079490235634213_y.jpg',
+        imageFrame: 'square',
+      },
+      {
+        name: 'Fatema Tooz-Zohra Falguni',
+        designation: 'Assistant General Secretary',
+        imageUrl: '/leadership/committee-26/photo_6170079490235634214_y.jpg',
+        imageFrame: 'square',
+      },
+      {
+        name: 'Md. Farhad Hossain',
+        designation: 'Organizing Secretary',
+        imageUrl: '/leadership/committee-26/photo_6170079490235634215_y.jpg',
+        imageFrame: 'square',
+      },
+      {
+        name: 'Waqil Chowdhury Jim',
+        designation: 'Administrative Secretary',
+        imageUrl: '/leadership/committee-26/photo_6170079490235634216_y.jpg',
+        imageFrame: 'square',
+      },
+      {
+        name: 'Aisha Tabassum Probha',
+        designation: 'Joint Secretary',
+        imageUrl: '/leadership/committee-26/photo_6170079490235634217_y.jpg',
+        imageFrame: 'square',
+      },
+      {
+        name: 'Mahdi Al Rayan Bhuiyan',
+        designation: 'Head of Event Management',
+        imageUrl: '/leadership/committee-26/photo_6170079490235634218_y.jpg',
+        imageFrame: 'square',
+      },
+      {
+        name: 'Shahria Ahmed Arafat',
+        designation: 'Vice President (Project)',
+        imageUrl: '/leadership/committee-26/photo_6170079490235634219_y.jpg',
+        imageFrame: 'square',
+      },
+      {
+        name: 'Nusrat Jahan',
+        designation: 'Vice President (IT)',
+        imageUrl: '/leadership/committee-26/photo_6170079490235634220_y.jpg',
+        imageFrame: 'square',
+      },
+      {
+        name: 'Ayman Ibna Amir',
+        designation: 'Vice President (Creative Works)',
+        imageUrl: '/leadership/committee-26/photo_6170079490235634221_y.jpg',
+        imageFrame: 'square',
+      },
+      {
+        name: 'Mst. Sraboni Akter Mimi',
+        designation: 'Vice President (Publication)',
+        imageUrl: '/leadership/committee-26/photo_6170079490235634222_y.jpg',
+        imageFrame: 'square',
+      },
+      {
+        name: 'Azim Saikat Hassan Sagor',
+        designation: 'Secretary of IT',
+        imageUrl: '/leadership/committee-26/photo_6170079490235634223_y.jpg',
+        imageFrame: 'square',
+      },
+      {
+        name: 'Mukaddim Rahman',
+        designation: 'Secretary of Creative Works',
+        imageUrl: '/leadership/committee-26/photo_6170079490235634224_y.jpg',
+        imageFrame: 'square',
+      },
+    ],
+    moderators: [
+      {
+        name: 'Naimul Haque Naim',
+        designation: 'Moderator',
+        imageUrl: '/leadership/moderator-naimul-haque-naim.png',
+        imageFrame: 'wide',
+      },
+      {
+        name: 'Prof. Md. Abdul Halim',
+        designation: 'Co-Moderator',
+        imageUrl: '/leadership/moderator-md-abdul-halim.jpg',
+        imageFrame: 'portrait',
       },
     ],
   },
@@ -294,18 +379,21 @@ const panels: Record<PanelKey, PanelData> = {
         designation: 'Founder & President',
         collegeId: 'Founding Team',
         imageUrl: '/leadership/muedul-hasan-methun.png',
+        imageFrame: 'portrait',
       },
       {
         name: 'Ahmad Zaim Khan',
         designation: 'Co-Founder & General Secretary',
         collegeId: 'Founding Team',
         imageUrl: '/leadership/ahmad-zaim-khan.png',
+        imageFrame: 'portrait',
       },
       {
         name: 'Shibil Rahman',
         designation: 'Co-Founder & Vice President (Admin)',
         collegeId: 'Founding Team',
         imageUrl: '/leadership/shibil-rahman.png',
+        imageFrame: 'portrait',
       },
     ],
   },
@@ -322,14 +410,23 @@ const tabs: { key: PanelKey; label: string }[] = [
 
 export function AchievementsAndPanels() {
   const [activeTab, setActiveTab] = useState<PanelKey>('2026');
+  const [adminAchievements, setAdminAchievements] = useState<FirestoreAchievement[]>([]);
   const activePanel = panels[activeTab];
+
+  useEffect(() => {
+    return subscribeToAchievements(setAdminAchievements, (error) => {
+      // Historical achievements remain available if the live content service is unavailable.
+      console.error('Unable to load live achievements.', error);
+    });
+  }, []);
+
   const achievements = useMemo(() => {
     if (activeTab === 'founder') return activePanel.achievements;
 
-    return allAchievements
+    return [...allAchievements, ...adminAchievements]
       .filter((achievement) => achievement.year === Number(activeTab))
       .sort((a, b) => a.title.localeCompare(b.title));
-  }, [activePanel.achievements, activeTab]);
+  }, [activePanel.achievements, activeTab, adminAchievements]);
 
   return (
     <section className={styles.section} id="achievements" aria-labelledby="achievements-title">
@@ -378,39 +475,55 @@ export function AchievementsAndPanels() {
 
           <div className={styles.contentDivider} />
 
-          <div className={styles.contentHeading}>
-            <div>
-              <Trophy aria-hidden="true" />
-              <h4>Achievements</h4>
-            </div>
-            <span>{achievements.length} published</span>
-          </div>
+          {activeTab !== 'founder' && (
+            <>
+              <div className={styles.contentHeading}>
+                <div>
+                  <Trophy aria-hidden="true" />
+                  <h4>Achievements</h4>
+                </div>
+                <span>{achievements.length} published</span>
+              </div>
 
-          {achievements.length > 0 ? (
-            <div className={styles.achievementGrid}>
-              {achievements.map((achievement, index) => (
-                <article className={styles.achievementCard} key={`${achievement.title}-${achievement.recipients}`}>
-                  <div className={styles.awardIcon} aria-hidden="true">
-                    {index % 2 === 0 ? <Trophy /> : <Medal />}
-                  </div>
-                  <div className={styles.achievementBody}>
-                    <div className={styles.cardMeta}>
-                      <span className={achievement.level === 'Global' ? styles.global : styles.national}>{achievement.level}</span>
-                      <time dateTime={String(achievement.year)}>{achievement.year}</time>
-                    </div>
-                    <h5>{achievement.title}</h5>
-                    <p className={styles.recipients}>{achievement.recipients}</p>
-                    <p className={styles.competition}>{achievement.competition}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <EmptyState label="achievement records" />
+              {achievements.length > 0 ? (
+                <div className={styles.achievementGrid}>
+                  {achievements.map((achievement, index) => (
+                    <article className={styles.achievementCard} key={`${achievement.title}-${achievement.recipients}`}>
+                      <div className={styles.awardIcon} aria-hidden="true">
+                        {index % 2 === 0 ? <Trophy /> : <Medal />}
+                      </div>
+                      <div className={styles.achievementBody}>
+                        <div className={styles.cardMeta}>
+                          <span className={achievement.level === 'Global' ? styles.global : styles.national}>{achievement.level}</span>
+                          <time dateTime={String(achievement.year)}>{achievement.year}</time>
+                        </div>
+                        <h5>{achievement.title}</h5>
+                        <p className={styles.recipients}>{achievement.recipients}</p>
+                        <p className={styles.competition}>{achievement.competition}</p>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState label="achievement records" />
+              )}
+            </>
           )}
 
           {activePanel.executive_panel.length > 0 && (
             <>
+              {activePanel.moderators && activePanel.moderators.length > 0 && (
+                <>
+                  <div className={`${styles.contentHeading} ${styles.executiveHeading}`}>
+                    <div>
+                      <GraduationCap aria-hidden="true" />
+                      <h4>Advisor &amp; Moderation Panel</h4>
+                    </div>
+                    <span>{activePanel.moderators.length} members</span>
+                  </div>
+                  <MemberGrid members={activePanel.moderators} className={styles.moderatorGrid} />
+                </>
+              )}
               <div className={`${styles.contentHeading} ${styles.executiveHeading}`}>
                 <div>
                   <UsersRound aria-hidden="true" />
@@ -418,32 +531,10 @@ export function AchievementsAndPanels() {
                 </div>
                 <span>{activePanel.executive_panel.length} members</span>
               </div>
-              <div className={`${styles.memberGrid} ${activeTab === 'founder' ? styles.founderGrid : ''}`}>
-                {activePanel.executive_panel.map((member) => (
-                  <article
-                    className={`${styles.memberCard} ${activeTab === 'founder' ? styles.founderCard : ''}`}
-                    key={member.name}
-                    aria-label={`${member.name}, ${member.designation}`}
-                  >
-                    {member.imageUrl ? (
-                      <img
-                        className={`${styles.avatar} ${activeTab === 'founder' ? styles.founderImage : ''}`}
-                        src={member.imageUrl}
-                        alt={`${member.name}, ${member.designation}`}
-                      />
-                    ) : (
-                      <div className={styles.avatarFallback} aria-label={`Photo to be added for ${member.name}`}>
-                        {member.name.split(' ').map((part) => part[0]).join('').slice(0, 3)}
-                      </div>
-                    )}
-                    <div className={styles.memberInfo}>
-                      <p className={styles.memberRole}>{member.designation}</p>
-                      <h5>{member.name}</h5>
-                      <p className={styles.memberId}><IdCard size={14} aria-hidden="true" /> College ID: {member.collegeId}</p>
-                    </div>
-                  </article>
-                ))}
-              </div>
+              <MemberGrid
+                members={activePanel.executive_panel}
+                className={activeTab === 'founder' ? styles.founderGrid : undefined}
+              />
             </>
           )}
         </div>
@@ -452,11 +543,51 @@ export function AchievementsAndPanels() {
   );
 }
 
+function MemberGrid({ members, className = '' }: { members: ExecutiveMember[]; className?: string }) {
+  return (
+    <div className={`${styles.memberGrid} ${className}`}>
+      {members.map((member) => {
+        const framed = Boolean(member.imageUrl && member.imageFrame);
+        const imageClass = member.imageFrame === 'portrait'
+          ? styles.portraitFrame
+          : member.imageFrame === 'wide'
+            ? styles.wideFrame
+            : member.imageFrame === 'square'
+              ? styles.squareFrame
+              : '';
+
+        return (
+          <article
+            className={`${styles.memberCard} ${framed ? styles.framedCard : ''}`}
+            key={member.name}
+            aria-label={`${member.name}, ${member.designation}`}
+          >
+            {member.imageUrl ? (
+              <img className={`${styles.avatar} ${imageClass}`} src={member.imageUrl} alt={`${member.name}, ${member.designation}`} />
+            ) : (
+              <div className={styles.avatarFallback} aria-label={`Photo to be added for ${member.name}`}>
+                {member.name.split(' ').map((part) => part[0]).join('').slice(0, 3)}
+              </div>
+            )}
+            <div className={styles.memberInfo}>
+              <p className={styles.memberRole}>{member.designation}</p>
+              <h5>{member.name}</h5>
+              {member.collegeId && (
+                <p className={styles.memberId}><IdCard size={14} aria-hidden="true" /> College ID: {member.collegeId}</p>
+              )}
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
 function EmptyState({ label }: { label: string }) {
   return (
     <div className={styles.emptyState}>
       <Award aria-hidden="true" />
-      <p>No {label} published yet. Add entries to the <code>panels.founder</code> object when ready.</p>
+      <p>No {label} published yet.</p>
     </div>
   );
 }

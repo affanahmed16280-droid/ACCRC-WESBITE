@@ -43,6 +43,16 @@ export interface FirestoreNews {
   createdAt: Date;
 }
 
+export interface FirestoreAchievement {
+  id: string;
+  title: string;
+  recipients: string;
+  competition: string;
+  level: "Global" | "National";
+  year: number;
+  createdAt: Date;
+}
+
 export interface Registration {
   id?: string;
   type: "membership" | "event";
@@ -137,6 +147,20 @@ function parseNews(id: string, data: DocumentData): FirestoreNews {
     excerpt: data.excerpt || "",
     imageUrl: data.imageUrl || undefined,
     publishedAt: toDate(data.publishedAt),
+    createdAt: toDate(data.createdAt),
+  };
+}
+
+function parseAchievement(id: string, data: DocumentData): FirestoreAchievement {
+  const year = Number(data.year);
+
+  return {
+    id,
+    title: data.title || "",
+    recipients: data.recipients || "",
+    competition: data.competition || "",
+    level: data.level === "Global" ? "Global" : "National",
+    year: Number.isInteger(year) && year >= 1900 && year <= 9999 ? year : new Date().getFullYear(),
     createdAt: toDate(data.createdAt),
   };
 }
@@ -240,6 +264,47 @@ export async function updateNewsPost(id: string, data: Partial<Omit<FirestoreNew
 
 export async function deleteNewsPost(id: string): Promise<void> {
   await deleteDoc(doc(db, "news", id));
+}
+
+/* ─── Achievements ─── */
+
+export async function getAchievements(): Promise<FirestoreAchievement[]> {
+  const snapshot = await getDocs(collection(db, "achievements"));
+  return snapshot.docs
+    .map((document) => parseAchievement(document.id, document.data()))
+    .sort((a, b) => b.year - a.year || b.createdAt.getTime() - a.createdAt.getTime());
+}
+
+export function subscribeToAchievements(
+  callback: (achievements: FirestoreAchievement[]) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  return onSnapshot(collection(db, "achievements"), (snapshot) => {
+    callback(
+      snapshot.docs
+        .map((document) => parseAchievement(document.id, document.data()))
+        .sort((a, b) => b.year - a.year || b.createdAt.getTime() - a.createdAt.getTime())
+    );
+  }, onError);
+}
+
+export async function createAchievement(data: Omit<FirestoreAchievement, "id" | "createdAt">): Promise<string> {
+  const docRef = await addDoc(collection(db, "achievements"), {
+    ...data,
+    createdAt: Timestamp.now(),
+  });
+  return docRef.id;
+}
+
+export async function updateAchievement(
+  id: string,
+  data: Partial<Omit<FirestoreAchievement, "id" | "createdAt">>
+): Promise<void> {
+  await updateDoc(doc(db, "achievements", id), data);
+}
+
+export async function deleteAchievement(id: string): Promise<void> {
+  await deleteDoc(doc(db, "achievements", id));
 }
 
 /* ─── Registrations ─── */

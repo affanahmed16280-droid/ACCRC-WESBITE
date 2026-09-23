@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { adminSessionReady, auth } from '@/lib/firebase';
 import { Loader2 } from 'lucide-react';
 
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
@@ -18,20 +17,29 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
       return;
     }
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setAuthenticated(true);
-      } else {
-        setAuthenticated(false);
-        window.location.href = '/admin/login';
-      }
-      setLoading(false);
-    }, (err) => {
-      setError(err.message);
-      setLoading(false);
-    });
+    let unsubscribe: (() => void) | undefined;
 
-    return () => unsubscribe();
+    void adminSessionReady
+      .then(() => {
+        unsubscribe = onAuthStateChanged(auth, (user) => {
+          if (user) {
+            setAuthenticated(true);
+          } else {
+            setAuthenticated(false);
+            window.location.href = '/admin/login';
+          }
+          setLoading(false);
+        }, (err) => {
+          setError(err.message);
+          setLoading(false);
+        });
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof Error ? err.message : 'Unable to initialise secure authentication.');
+        setLoading(false);
+      });
+
+    return () => unsubscribe?.();
   }, []);
 
   if (loading) {

@@ -12,6 +12,7 @@ The public site for the Adamjee Cantonment College Robotics Club. It is a static
 
 - **Membership:** `/membership/` and the homepage membership form are always available. They require a full name, section, email address, college ID, and reason for joining.
 - **Leadership applications:** Sign in at `/admin/login/`, then open **Manage Portal**. The Executive Panel, Prefect Application, and Sub-Executive Application each have their own on/off toggle and configurable roles. When all three are off, leadership links and forms are hidden from visitors.
+- **Achievements:** Sign in at `/admin/login/`, then open **Achievements Portal**. Add an award/result, recipient or team, recognition level, year, and competition context. Entries appear immediately in the matching year on the homepage.
 - **Events:** In `/admin/events/`, create or edit events. Registration opening/closing times are optional, so an event can be published before registration details are ready. With no event records, visitors see the "No upcoming events right now" empty state.
 
 ## Facebook event import

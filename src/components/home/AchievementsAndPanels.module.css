@@ -242,6 +242,12 @@
   max-width: 70rem;
 }
 
+.moderatorGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0 auto;
+  max-width: 58rem;
+}
+
 .memberCard {
   background: #0b272a;
   border: 1px solid #315052;
@@ -283,12 +289,16 @@
   width: 100%;
 }
 
-.founderCard {
+.framedCard {
   background: #082124;
   padding: 0;
 }
 
-.founderImage {
+.framedCard .memberInfo {
+  padding: 1.2rem;
+}
+
+.portraitFrame {
   aspect-ratio: 358 / 514;
   border: 0;
   border-bottom: 1px solid #315052;
@@ -298,7 +308,25 @@
   width: 100%;
 }
 
-.founderCard .memberInfo { display: none; }
+.squareFrame {
+  aspect-ratio: 1;
+  border: 0;
+  border-bottom: 1px solid #315052;
+  border-radius: 0;
+  margin: 0;
+  max-width: none;
+  width: 100%;
+}
+
+.wideFrame {
+  aspect-ratio: 871 / 819;
+  border: 0;
+  border-bottom: 1px solid #315052;
+  border-radius: 0;
+  margin: 0;
+  max-width: none;
+  width: 100%;
+}
 
 .memberInfo { text-align: center; }
 .memberRole { color: #5de6db; font: 700 0.69rem/1.4 "Courier New", monospace; letter-spacing: 0.08em; margin: 0 0 0.45rem; text-transform: uppercase; }
@@ -325,6 +353,7 @@
 @media (max-width: 1040px) {
   .memberGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .founderGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .moderatorGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 800px) {
@@ -335,6 +364,7 @@
   .achievementGrid { grid-template-columns: 1fr; }
   .memberGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .founderGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .moderatorGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 480px) {
@@ -342,8 +372,9 @@
   .achievementCard { min-height: unset; }
   .memberGrid { grid-template-columns: 1fr; }
   .founderGrid { grid-template-columns: 1fr; max-width: 22.5rem; }
+  .moderatorGrid { grid-template-columns: 1fr; max-width: 25rem; }
   .memberCard { padding: 1rem 0.7rem; }
-  .founderCard { padding: 0; }
+  .framedCard { padding: 0; }
   .avatar { max-width: 8.5rem; }
   .avatarFallback { max-width: 8.5rem; }
   .memberId { font-size: 0.72rem; }

@@ -13,6 +13,12 @@ service cloud.firestore {
       allow read: if true;
       allow create, update, delete: if request.auth != null;
     }
+
+    // Achievements: Public read, authenticated write
+    match /achievements/{achievementId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null;
+    }
     
     // Registrations: Public create only, authenticated read/update/delete
     match /registrations/{regId} {
