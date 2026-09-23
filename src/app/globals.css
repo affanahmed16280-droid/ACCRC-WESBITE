@@ -1137,13 +1137,18 @@ footer:not(.site-footer) {
   }
 
   .hero-copy {
-    font-size: 17px;
+    font-size: 18px;
     line-height: 1.65;
     max-width: 34ch;
   }
 
   .hero h1 {
     font-size: clamp(62px, 18vw, 110px);
+  }
+
+  .scroll-cue {
+    /* Keep the prompt clear of the vertical guide line at the phone gutter. */
+    left: calc(6vw + 18px);
   }
 
   .hero-coordinates {

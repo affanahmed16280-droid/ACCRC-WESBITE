@@ -444,6 +444,17 @@ export function AchievementsAndPanels() {
       .sort((a, b) => a.title.localeCompare(b.title));
   }, [activePanel.achievements, activeTab, adminAchievements]);
 
+  const achievementGroups = useMemo(() => {
+    if (activeTab !== 'all') return [];
+
+    return [...new Set(achievements.map((achievement) => achievement.year))]
+      .sort((a, b) => b - a)
+      .map((year) => ({
+        year,
+        achievements: achievements.filter((achievement) => achievement.year === year),
+      }));
+  }, [achievements, activeTab]);
+
   return (
     <section className={styles.section} id="achievements" aria-labelledby="achievements-title">
       <div className={styles.wrap}>
@@ -502,24 +513,21 @@ export function AchievementsAndPanels() {
               </div>
 
               {achievements.length > 0 ? (
-                <div className={styles.achievementGrid}>
-                  {achievements.map((achievement, index) => (
-                    <article className={styles.achievementCard} key={`${achievement.title}-${achievement.recipients}`}>
-                      <div className={styles.awardIcon} aria-hidden="true">
-                        {index % 2 === 0 ? <Trophy /> : <Medal />}
-                      </div>
-                      <div className={styles.achievementBody}>
-                        <div className={styles.cardMeta}>
-                          <span className={achievement.level === 'Global' ? styles.global : styles.national}>{achievement.level}</span>
-                          <time dateTime={String(achievement.year)}>{achievement.year}</time>
+                activeTab === 'all' ? (
+                  <div className={styles.yearGroups}>
+                    {achievementGroups.map((group) => (
+                      <section className={styles.yearGroup} key={group.year} aria-label={`${group.year} achievements`}>
+                        <div className={styles.yearGroupHeading}>
+                          <h5>{group.year} Achievements</h5>
+                          <span>{group.achievements.length} published</span>
                         </div>
-                        <h5>{achievement.title}</h5>
-                        <p className={styles.recipients}>{achievement.recipients}</p>
-                        <p className={styles.competition}>{achievement.competition}</p>
-                      </div>
-                    </article>
-                  ))}
-                </div>
+                        <AchievementGrid achievements={group.achievements} />
+                      </section>
+                    ))}
+                  </div>
+                ) : (
+                  <AchievementGrid achievements={achievements} />
+                )
               ) : (
                 <EmptyState label="achievement records" />
               )}
@@ -556,6 +564,29 @@ export function AchievementsAndPanels() {
         </div>
       </div>
     </section>
+  );
+}
+
+function AchievementGrid({ achievements }: { achievements: Array<Achievement | FirestoreAchievement> }) {
+  return (
+    <div className={styles.achievementGrid}>
+      {achievements.map((achievement, index) => (
+        <article className={styles.achievementCard} key={`${'id' in achievement ? achievement.id : 'built-in'}-${achievement.title}-${achievement.recipients}`}>
+          <div className={styles.awardIcon} aria-hidden="true">
+            {index % 2 === 0 ? <Trophy /> : <Medal />}
+          </div>
+          <div className={styles.achievementBody}>
+            <div className={styles.cardMeta}>
+              <span className={achievement.level === 'Global' ? styles.global : styles.national}>{achievement.level}</span>
+              <time dateTime={String(achievement.year)}>{achievement.year}</time>
+            </div>
+            <h5>{achievement.title}</h5>
+            <p className={styles.recipients}>{achievement.recipients}</p>
+            <p className={styles.competition}>{achievement.competition}</p>
+          </div>
+        </article>
+      ))}
+    </div>
   );
 }
 

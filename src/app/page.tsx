@@ -101,7 +101,6 @@ export default function HomePage() {
           <a href="#achievements" onClick={() => setMenuOpen(false)}>Achievements</a>
           <a href="#news" onClick={() => setMenuOpen(false)}>Updates</a>
           <a href="#join" onClick={() => setMenuOpen(false)}>Join us</a>
-          <a href="/admin/" onClick={() => setMenuOpen(false)}>Portals</a>
           {activeLeadershipApplications.length > 0 && (
             <a href="/portal/" onClick={() => setMenuOpen(false)}>Leadership</a>
           )}

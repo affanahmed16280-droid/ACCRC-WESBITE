@@ -162,6 +162,38 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.yearGroups {
+  display: grid;
+  gap: 2.4rem;
+}
+
+.yearGroup {
+  display: grid;
+  gap: 1rem;
+}
+
+.yearGroupHeading {
+  align-items: baseline;
+  border-bottom: 1px solid #315052;
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 0.7rem;
+}
+
+.yearGroupHeading h5 {
+  color: #dffefd;
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.yearGroupHeading span {
+  color: #86a3a3;
+  font: 700 0.64rem/1 "Courier New", monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .achievementCard {
   background: #0b272a;
   border: 1px solid #315052;
