@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { Award, IdCard, Medal, Trophy, UsersRound } from 'lucide-react';
 import styles from './AchievementsAndPanels.module.css';
 
-type PanelKey = '2026' | '2025' | 'founder';
+type PanelKey = '2026' | '2025' | '2023' | 'founder';
 type AwardLevel = 'Global' | 'National';
 
 type Achievement = {
@@ -19,7 +19,7 @@ type ExecutiveMember = {
   name: string;
   designation: string;
   collegeId: string;
-  imageUrl: string;
+  imageUrl?: string;
 };
 
 type PanelData = {
@@ -30,12 +30,10 @@ type PanelData = {
   executive_panel: ExecutiveMember[];
 };
 
-const placeholder = (name: string) =>
-  `https://placehold.co/512x512/123236/67e8f9?text=${encodeURIComponent(name.split(' ').map((part) => part[0]).join(''))}`;
-
 /*
- * Update this object as new results and committee members are confirmed.
- * Each tab intentionally keeps achievements and executive_panel together.
+ * Update this object as new results and committee members are confirmed. The
+ * achievement filter below uses the actual year stored on every record, so a
+ * selected year never includes records from an earlier or later season.
  */
 const panels: Record<PanelKey, PanelData> = {
   '2026': {
@@ -56,13 +54,11 @@ const panels: Record<PanelKey, PanelData> = {
         name: 'Masroor Ali Neil',
         designation: 'President',
         collegeId: 'ACCRC-26-001',
-        imageUrl: placeholder('Masroor Ali Neil'),
       },
       {
         name: 'Md. Shafayet Biswas',
         designation: 'General Secretary',
         collegeId: 'ACCRC-26-002',
-        imageUrl: placeholder('Md. Shafayet Biswas'),
       },
     ],
   },
@@ -252,62 +248,88 @@ const panels: Record<PanelKey, PanelData> = {
         name: 'Sayeed Un Nur Shoaib',
         designation: "President'25",
         collegeId: '100002399',
-        imageUrl: placeholder('Sayeed Un Nur Shoaib'),
       },
       {
         name: 'Mirza Tamzid Hasan',
         designation: "General Secretary'25",
         collegeId: '100002400',
-        imageUrl: placeholder('Mirza Tamzid Hasan'),
       },
       {
         name: 'Halima Tus Shadia',
         designation: "Administrative Secretary'25",
         collegeId: '100002401',
-        imageUrl: placeholder('Halima Tus Shadia'),
       },
       {
         name: 'Mohine Rana Soria',
         designation: "VP of Publications'25",
         collegeId: '100002402',
-        imageUrl: placeholder('Mohine Rana Soria'),
       },
       {
         name: 'DM Abrar Mead',
         designation: "President'24",
         collegeId: '100002403',
-        imageUrl: placeholder('DM Abrar Mead'),
       },
       {
         name: 'Sabrina Mustari',
         designation: "Organizing Secretary'24",
         collegeId: '100002404',
-        imageUrl: placeholder('Sabrina Mustari'),
       },
     ],
+  },
+  '2023': {
+    label: 'Achievements Archive 2023',
+    eyebrow: 'RECOGNITION ARCHIVE',
+    description: 'Awards and recognition recorded during the 2023 season.',
+    achievements: [],
+    executive_panel: [],
   },
   founder: {
     label: 'Founder Panel',
     eyebrow: 'OUR BEGINNING',
-    description: 'The Founder Panel is ready for the club’s verified founding roster and legacy achievements.',
+    description: 'The founding team that established the club’s culture of building, learning, and competing together.',
     achievements: [],
-    executive_panel: [],
+    executive_panel: [
+      {
+        name: 'Muedul Hasan Methun',
+        designation: 'Founder & President',
+        collegeId: 'Founding Team',
+        imageUrl: '/leadership/muedul-hasan-methun.png',
+      },
+      {
+        name: 'Ahmad Zaim Khan',
+        designation: 'Co-Founder & General Secretary',
+        collegeId: 'Founding Team',
+        imageUrl: '/leadership/ahmad-zaim-khan.png',
+      },
+      {
+        name: 'Shibil Rahman',
+        designation: 'Co-Founder & Vice President (Admin)',
+        collegeId: 'Founding Team',
+        imageUrl: '/leadership/shibil-rahman.png',
+      },
+    ],
   },
 };
+
+const allAchievements = Object.values(panels).flatMap((panel) => panel.achievements);
 
 const tabs: { key: PanelKey; label: string }[] = [
   { key: '2026', label: '2026' },
   { key: '2025', label: '2025' },
+  { key: '2023', label: '2023' },
   { key: 'founder', label: 'Founder Panel' },
 ];
 
 export function AchievementsAndPanels() {
   const [activeTab, setActiveTab] = useState<PanelKey>('2026');
   const activePanel = panels[activeTab];
-  const achievements = useMemo(
-    () => [...activePanel.achievements].sort((a, b) => b.year - a.year),
-    [activePanel.achievements],
-  );
+  const achievements = useMemo(() => {
+    if (activeTab === 'founder') return activePanel.achievements;
+
+    return allAchievements
+      .filter((achievement) => achievement.year === Number(activeTab))
+      .sort((a, b) => a.title.localeCompare(b.title));
+  }, [activePanel.achievements, activeTab]);
 
   return (
     <section className={styles.section} id="achievements" aria-labelledby="achievements-title">
@@ -387,29 +409,42 @@ export function AchievementsAndPanels() {
             <EmptyState label="achievement records" />
           )}
 
-          <div className={`${styles.contentHeading} ${styles.executiveHeading}`}>
-            <div>
-              <UsersRound aria-hidden="true" />
-              <h4>Executive Panel</h4>
-            </div>
-            <span>{activePanel.executive_panel.length} members</span>
-          </div>
-
-          {activePanel.executive_panel.length > 0 ? (
-            <div className={styles.memberGrid}>
-              {activePanel.executive_panel.map((member) => (
-                <article className={styles.memberCard} key={member.name}>
-                  <img className={styles.avatar} src={member.imageUrl} alt={`Portrait placeholder for ${member.name}`} />
-                  <div className={styles.memberInfo}>
-                    <p className={styles.memberRole}>{member.designation}</p>
-                    <h5>{member.name}</h5>
-                    <p className={styles.memberId}><IdCard size={14} aria-hidden="true" /> College ID: {member.collegeId}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <EmptyState label="Founder Panel members" />
+          {activePanel.executive_panel.length > 0 && (
+            <>
+              <div className={`${styles.contentHeading} ${styles.executiveHeading}`}>
+                <div>
+                  <UsersRound aria-hidden="true" />
+                  <h4>{activeTab === 'founder' ? 'Founding Team' : 'Executive Panel'}</h4>
+                </div>
+                <span>{activePanel.executive_panel.length} members</span>
+              </div>
+              <div className={`${styles.memberGrid} ${activeTab === 'founder' ? styles.founderGrid : ''}`}>
+                {activePanel.executive_panel.map((member) => (
+                  <article
+                    className={`${styles.memberCard} ${activeTab === 'founder' ? styles.founderCard : ''}`}
+                    key={member.name}
+                    aria-label={`${member.name}, ${member.designation}`}
+                  >
+                    {member.imageUrl ? (
+                      <img
+                        className={`${styles.avatar} ${activeTab === 'founder' ? styles.founderImage : ''}`}
+                        src={member.imageUrl}
+                        alt={`${member.name}, ${member.designation}`}
+                      />
+                    ) : (
+                      <div className={styles.avatarFallback} aria-label={`Photo to be added for ${member.name}`}>
+                        {member.name.split(' ').map((part) => part[0]).join('').slice(0, 3)}
+                      </div>
+                    )}
+                    <div className={styles.memberInfo}>
+                      <p className={styles.memberRole}>{member.designation}</p>
+                      <h5>{member.name}</h5>
+                      <p className={styles.memberId}><IdCard size={14} aria-hidden="true" /> College ID: {member.collegeId}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>
