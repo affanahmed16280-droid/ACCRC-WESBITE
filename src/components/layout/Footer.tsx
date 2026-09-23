@@ -49,6 +49,7 @@ export function Footer() {
             <ul className="flex flex-col gap-2.5">
               {[
                 { href: "/events/", label: "Events" },
+                { href: "/#achievements", label: "Achievements" },
                 { href: "/membership/", label: "Membership" },
                 { href: "/news/", label: "News" },
                 { href: "/about/", label: "About" },

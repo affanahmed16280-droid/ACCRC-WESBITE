@@ -1,0 +1,308 @@
+.section {
+  background: #081c1f;
+  border-bottom: 1px solid rgba(39, 224, 210, 0.18);
+  padding: clamp(5rem, 9vw, 9rem) 10vw;
+}
+
+.wrap {
+  margin: 0 auto;
+  max-width: 1440px;
+}
+
+.intro {
+  align-items: end;
+  display: grid;
+  gap: 2rem 4rem;
+  grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.65fr);
+}
+
+.eyebrow {
+  color: #48dfd4;
+  font: 700 0.72rem/1.35 "Courier New", monospace;
+  letter-spacing: 0.13em;
+  margin: 0 0 1rem;
+}
+
+.intro h2 {
+  color: #effffd;
+  font-size: clamp(2.75rem, 6.1vw, 5.5rem);
+  font-weight: 800;
+  letter-spacing: -0.065em;
+  line-height: 0.9;
+  margin: 0;
+  max-width: 11ch;
+}
+
+.intro h2 span {
+  color: #92a5a5;
+}
+
+.introCopy,
+.panelIntro > p {
+  color: #b3c5c4;
+  font-size: clamp(1rem, 1.2vw, 1.125rem);
+  line-height: 1.7;
+  margin: 0;
+  max-width: 38rem;
+}
+
+.tabList {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: clamp(2.75rem, 5vw, 4.5rem);
+  overflow-x: auto;
+  padding-bottom: 0.2rem;
+}
+
+.tab {
+  background: transparent;
+  border: 1px solid #315052;
+  color: #b3c5c4;
+  cursor: pointer;
+  flex: 0 0 auto;
+  font: 700 0.78rem/1 "Courier New", monospace;
+  letter-spacing: 0.09em;
+  min-height: 3.25rem;
+  padding: 0 1.4rem;
+  text-transform: uppercase;
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.tab:hover {
+  border-color: #67e8f9;
+  color: #effffd;
+}
+
+.tab:focus-visible {
+  outline: 3px solid #67e8f9;
+  outline-offset: 3px;
+}
+
+.activeTab {
+  background: #36dbd0;
+  border-color: #36dbd0;
+  box-shadow: 0 8px 28px rgba(54, 219, 208, 0.16);
+  color: #062023;
+}
+
+.activeTab:hover {
+  border-color: #b9fffb;
+  color: #062023;
+}
+
+.panel {
+  animation: panelEnter 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  border-top: 1px solid #315052;
+  margin-top: 1.3rem;
+  padding-top: clamp(2rem, 4vw, 3.75rem);
+}
+
+@keyframes panelEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.panelIntro {
+  align-items: end;
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+}
+
+.panelIntro h3 {
+  color: #effffd;
+  font-size: clamp(1.8rem, 3.1vw, 3rem);
+  letter-spacing: -0.045em;
+  line-height: 1;
+  margin: 0;
+}
+
+.contentDivider {
+  background: #315052;
+  height: 1px;
+  margin: clamp(2rem, 4vw, 3.5rem) 0 1.35rem;
+}
+
+.contentHeading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.1rem;
+}
+
+.contentHeading > div {
+  align-items: center;
+  display: flex;
+  gap: 0.65rem;
+}
+
+.contentHeading svg {
+  color: #36dbd0;
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+.contentHeading h4 {
+  color: #effffd;
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.contentHeading > span {
+  color: #86a3a3;
+  font: 700 0.69rem/1 "Courier New", monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.achievementGrid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.achievementCard {
+  background: linear-gradient(135deg, rgba(21, 58, 61, 0.75), rgba(8, 28, 31, 0.92));
+  border: 1px solid #315052;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-height: 11rem;
+  padding: clamp(1.15rem, 2.1vw, 1.55rem);
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.achievementCard:hover {
+  border-color: #4fd8d1;
+  transform: translateY(-3px);
+}
+
+.awardIcon {
+  align-items: center;
+  background: rgba(54, 219, 208, 0.12);
+  border: 1px solid rgba(103, 232, 249, 0.26);
+  color: #67e8f9;
+  display: flex;
+  height: 2.75rem;
+  justify-content: center;
+  width: 2.75rem;
+}
+
+.awardIcon svg { height: 1.35rem; width: 1.35rem; }
+.achievementBody { min-width: 0; }
+
+.cardMeta {
+  align-items: center;
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 0.65rem;
+}
+
+.cardMeta span,
+.cardMeta time {
+  font: 700 0.64rem/1 "Courier New", monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cardMeta span { border: 1px solid currentColor; padding: 0.28rem 0.38rem; }
+.global { color: #70f3df; }
+.national { color: #b7c9c7; }
+.cardMeta time { color: #86a3a3; }
+
+.achievementCard h5,
+.memberCard h5 {
+  color: #f2ffff;
+  font-size: clamp(1.02rem, 1.5vw, 1.18rem);
+  letter-spacing: -0.022em;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.recipients,
+.competition {
+  margin: 0.45rem 0 0;
+}
+
+.recipients { color: #d4e5e3; font-size: 0.94rem; font-weight: 700; line-height: 1.48; }
+.competition { color: #93aaaa; font-size: 0.88rem; line-height: 1.5; }
+
+.executiveHeading { border-top: 1px solid #315052; margin-top: clamp(2.5rem, 5vw, 4rem); padding-top: 1.6rem; }
+
+.memberGrid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.memberCard {
+  background: #0b272a;
+  border: 1px solid #315052;
+  min-width: 0;
+  overflow: hidden;
+  padding: 1.2rem;
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.memberCard:hover { border-color: #4fd8d1; transform: translateY(-3px); }
+
+.avatar {
+  aspect-ratio: 1;
+  background: #123236;
+  border: 2px solid #42d8cf;
+  border-radius: 50%;
+  display: block;
+  margin: 0 auto 1.15rem;
+  max-width: 9.2rem;
+  object-fit: cover;
+  width: 100%;
+}
+
+.memberInfo { text-align: center; }
+.memberRole { color: #5de6db; font: 700 0.69rem/1.4 "Courier New", monospace; letter-spacing: 0.08em; margin: 0 0 0.45rem; text-transform: uppercase; }
+.memberId { align-items: center; color: #91a7a6; display: flex; font-size: 0.78rem; gap: 0.35rem; justify-content: center; line-height: 1.4; margin: 0.75rem 0 0; }
+.memberId svg { color: #54d9d0; flex: 0 0 auto; }
+
+.emptyState {
+  align-items: center;
+  background: rgba(21, 58, 61, 0.4);
+  border: 1px dashed #477071;
+  color: #b3c5c4;
+  display: flex;
+  gap: 0.85rem;
+  justify-content: center;
+  min-height: 8rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.emptyState svg { color: #67e8f9; flex: 0 0 auto; }
+.emptyState p { font-size: 0.95rem; margin: 0; }
+.emptyState code { color: #71e5dc; font: 0.82rem "Courier New", monospace; }
+
+@media (max-width: 1040px) {
+  .memberGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 800px) {
+  .section { padding: 5rem 6vw; }
+  .intro { align-items: start; grid-template-columns: 1fr; }
+  .intro h2 { max-width: 12ch; }
+  .panelIntro { align-items: start; flex-direction: column; }
+  .achievementGrid { grid-template-columns: 1fr; }
+  .memberGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 480px) {
+  .tab { padding: 0 1.15rem; }
+  .achievementCard { min-height: unset; }
+  .memberGrid { grid-template-columns: 1fr; }
+  .memberCard { padding: 1rem 0.7rem; }
+  .avatar { max-width: 8.5rem; }
+  .memberId { font-size: 0.72rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel, .tab, .achievementCard, .memberCard { animation: none; transition: none; }
+}

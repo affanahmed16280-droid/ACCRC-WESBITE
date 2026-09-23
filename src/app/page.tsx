@@ -19,6 +19,7 @@ import {
   type PortalConfig,
 } from '@/lib/firestore';
 import { club } from '@/lib/club';
+import { AchievementsAndPanels } from '@/components/home/AchievementsAndPanels';
 
 /* ─── particle field data (60 dots) ─── */
 const particles = Array.from({ length: 60 }, (_, i) => ({
@@ -97,6 +98,7 @@ export default function HomePage() {
         <div className={`nav-links ${menuOpen ? 'open' : ''}`}>
           <a href="#mission" onClick={() => setMenuOpen(false)}>Mission</a>
           <a href="#events" onClick={() => setMenuOpen(false)}>Events</a>
+          <a href="#achievements" onClick={() => setMenuOpen(false)}>Achievements</a>
           <a href="#news" onClick={() => setMenuOpen(false)}>Updates</a>
           <a href="#join" onClick={() => setMenuOpen(false)}>Join us</a>
           <a href="/admin/" onClick={() => setMenuOpen(false)}>Portals</a>
@@ -243,6 +245,8 @@ export default function HomePage() {
           </div>
         )}
       </section>
+
+      <AchievementsAndPanels />
 
       {/* ═══ RECRUITMENT ANNOUNCEMENT ═══ */}
       <section className="section news" id="news">

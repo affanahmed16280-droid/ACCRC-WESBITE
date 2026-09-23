@@ -33,7 +33,9 @@ body {
   color: #e8fffb;
   background: #061416;
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 a {
@@ -1119,8 +1121,22 @@ footer:not(.site-footer) {
   }
 
   .hero {
-    min-height: 690px;
+    min-height: 660px;
     padding: 120px 6vw 55px;
+  }
+
+  .hero::after {
+    left: 6vw;
+  }
+
+  .hero-content {
+    max-width: min(100%, 34rem);
+  }
+
+  .hero-copy {
+    font-size: 17px;
+    line-height: 1.65;
+    max-width: 34ch;
   }
 
   .hero h1 {
