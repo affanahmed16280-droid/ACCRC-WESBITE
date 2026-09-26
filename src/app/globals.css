@@ -127,6 +127,7 @@ p {
   gap: 10px;
   font: 11px 'Courier New', monospace;
   letter-spacing: 0.1em;
+  min-height: 44px;
 }
 
 .nav-cta {
@@ -206,7 +207,8 @@ p {
 
 .eyebrow, .mono {
   font-family: 'Courier New', monospace;
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 700;
   letter-spacing: 0.14em;
 }
 
@@ -239,12 +241,12 @@ p {
 }
 
 h1 em, h2 span {
-  color: #929292;
+  color: #94a3b8;
   font-style: normal;
 }
 
 .hero-copy {
-  color: #b3b3b3;
+  color: #cbd5e1;
   font-size: 18px;
   line-height: 1.7;
   margin: 0;
@@ -349,7 +351,7 @@ h1 em, h2 span {
 }
 
 .muted {
-  color: #929292;
+  color: #94a3b8;
 }
 
 .status-open {
@@ -384,6 +386,12 @@ h1 em, h2 span {
   gap: 32px;
 }
 
+@media (max-width: 1024px) and (min-width: 801px) {
+  .mission {
+    grid-template-columns: 1fr 1.5fr;
+  }
+}
+
 .section-index {
   color: #555;
   font-size: 11px;
@@ -404,7 +412,7 @@ h1 em, h2 span {
 }
 
 .mission-body p {
-  color: #aaa;
+  color: #cbd5e1;
   font-size: 17px;
   line-height: 1.7;
   max-width: 330px;

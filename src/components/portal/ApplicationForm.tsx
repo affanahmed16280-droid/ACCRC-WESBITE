@@ -24,6 +24,7 @@ export function ApplicationForm({ type, roles, onSuccess }: ApplicationFormProps
     const data = {
       type,
       email: formData.get('email') as string,
+      whatsapp: formData.get('whatsapp') as string,
       idNumber: formData.get('idNumber') as string,
       section: formData.get('section') as string,
       roleApplyingFor: formData.get('role') as string,
@@ -60,6 +61,18 @@ export function ApplicationForm({ type, roles, onSuccess }: ApplicationFormProps
           name="email" 
           required 
           placeholder="your.email@example.com" 
+        />
+      </div>
+
+      <div>
+        <label htmlFor="whatsapp" className="block text-body-sm text-text-secondary mb-2">WhatsApp Number</label>
+        <Input
+          type="tel"
+          id="whatsapp"
+          name="whatsapp"
+          required
+          autoComplete="tel"
+          placeholder="e.g. +880 1XXX-XXXXXX"
         />
       </div>
 
@@ -119,7 +132,7 @@ export function ApplicationForm({ type, roles, onSuccess }: ApplicationFormProps
         />
       </div>
 
-      <Button type="submit" disabled={loading} className="w-full justify-center">
+      <Button type="submit" loading={loading} className="w-full justify-center">
         {loading ? 'Submitting...' : 'Submit Application'}
       </Button>
     </form>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { Lock } from 'lucide-react';
+import { Loader2, Lock } from 'lucide-react';
 
 interface AdminLoginProps {
   onLogin: (email: string, password: string) => Promise<void>;
@@ -60,7 +60,8 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
             />
           </label>
 
-          <button type="submit" disabled={loading} className="primary-button">
+          <button type="submit" disabled={loading} aria-busy={loading} className="primary-button">
+            {loading && <Loader2 size={16} className="animate-spin" aria-hidden />}
             {loading ? 'LOGGING IN...' : 'LOGIN'}
           </button>
         </form>

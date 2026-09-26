@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { signOut } from 'firebase/auth';
-import { ArrowUpRight, CalendarDays, Crown, LogOut, Newspaper, ShieldCheck, Trophy, UsersRound } from 'lucide-react';
+import { ArrowUpRight, CalendarDays, Crown, Loader2, LogOut, Newspaper, ShieldCheck, Trophy, UsersRound } from 'lucide-react';
+import { useState } from 'react';
 import AdminGuard from '@/components/admin/AdminGuard';
 import { auth } from '@/lib/firebase';
 
@@ -46,9 +47,16 @@ const portals = [
 ];
 
 export default function AdminDashboard() {
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
   const handleLogout = async () => {
-    await signOut(auth);
-    window.location.assign('/admin/login/');
+    setIsSigningOut(true);
+    try {
+      await signOut(auth);
+      window.location.assign('/admin/login/');
+    } finally {
+      setIsSigningOut(false);
+    }
   };
 
   return (
@@ -61,8 +69,9 @@ export default function AdminDashboard() {
               <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Portal Hub</h1>
               <p className="mt-3 max-w-xl text-secondary">Choose a secure workspace for events, recruitment, and club operations.</p>
             </div>
-            <button onClick={handleLogout} className="inline-flex items-center justify-center gap-2 border border-border px-4 py-3 font-mono text-xs uppercase tracking-widest text-secondary transition-colors hover:border-danger hover:text-danger">
-              <LogOut size={16} aria-hidden /> Sign out
+            <button type="button" onClick={() => void handleLogout()} disabled={isSigningOut} aria-busy={isSigningOut} aria-label="Sign out of the administration portal" className="inline-flex items-center justify-center gap-2 border border-border px-4 py-3 font-mono text-xs uppercase tracking-widest text-secondary transition-colors hover:border-danger hover:text-danger disabled:cursor-wait disabled:opacity-60">
+              {isSigningOut ? <Loader2 size={16} className="animate-spin" aria-hidden /> : <LogOut size={16} aria-hidden />}
+              {isSigningOut ? 'Signing out...' : 'Sign out'}
             </button>
           </header>
 

@@ -60,6 +60,7 @@ export interface Registration {
   eventId?: string;
   name: string;
   email: string;
+  whatsapp?: string;
   collegeId?: string;
   classSection: string;
   motivation: string;
@@ -74,6 +75,7 @@ export interface Application {
   id?: string;
   type: "sub-executive" | "executive" | "prefect";
   email: string;
+  whatsapp?: string;
   idNumber: string;
   section: string;
   pastExperience: string;
@@ -335,6 +337,10 @@ export async function getRegistrations(filters?: { type?: string; eventId?: stri
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data(), createdAt: toDate(d.data().createdAt) } as Registration));
 }
 
+export async function deleteRegistration(id: string): Promise<void> {
+  await deleteDoc(doc(db, "registrations", id));
+}
+
 /* ─── Applications ─── */
 
 export async function submitApplication(data: Omit<Application, "id" | "createdAt">): Promise<string> {
@@ -351,6 +357,10 @@ export async function getApplications(type?: Application["type"]): Promise<Appli
   const q = query(collection(db, "applications"), ...constraints);
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data(), createdAt: toDate(d.data().createdAt) } as Application));
+}
+
+export async function deleteApplication(id: string): Promise<void> {
+  await deleteDoc(doc(db, "applications", id));
 }
 
 /* ─── Portal Config ─── */

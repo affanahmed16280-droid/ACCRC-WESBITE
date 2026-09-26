@@ -7,10 +7,14 @@ import { subscribeToPortalConfig, type PortalConfig } from "@/lib/firestore";
 import { club } from "@/lib/club";
 
 export function Footer() {
-  const currentYear = new Date().getFullYear();
+  const [currentYear, setCurrentYear] = useState<number | null>(null);
   const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
 
   useEffect(() => subscribeToPortalConfig(setPortalConfig), []);
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
 
   const leadershipApplicationsOpen = Boolean(
     portalConfig?.execOpen || portalConfig?.prefectOpen || portalConfig?.subExecOpen
@@ -114,7 +118,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-border mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="font-mono text-mono-sm text-text-tertiary">
-            © {currentYear} {club.shortName} — {club.name}
+            © {currentYear ? `${currentYear} ` : ''}{club.shortName} — {club.name}
           </p>
           <p className="font-mono text-mono-sm text-text-tertiary">
             Dhaka, Bangladesh

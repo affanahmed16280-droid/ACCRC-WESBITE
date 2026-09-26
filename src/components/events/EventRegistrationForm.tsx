@@ -73,7 +73,7 @@ export function EventRegistrationForm({ eventId, eventName }: { eventId: string,
       
       {status === 'error' && <p className="text-danger text-sm">{errorMsg}</p>}
       
-      <Button type="submit" disabled={status === 'loading'} className="w-full">
+      <Button type="submit" loading={status === 'loading'} className="w-full">
         {status === 'loading' ? 'Submitting...' : 'Complete Registration'}
       </Button>
     </form>

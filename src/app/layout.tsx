@@ -3,6 +3,7 @@ import "./globals.css";
 import { SiteChrome } from '@/components/layout/SiteChrome';
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://accrc.pages.dev"),
   title: "ACCRC \u2014 Adamjee Cantonment College Robotics Club",
   description:
     "Build what's next with ACCRC \u2014 the student robotics club at Adamjee Cantonment College, Dhaka.",
@@ -23,6 +24,13 @@ export const metadata: Metadata = {
     siteName: "ACCRC",
     locale: "en_US",
     type: "website",
+    images: [{ url: "/accrc-logo.png", alt: "ACCRC logo" }],
+  },
+  twitter: {
+    card: "summary",
+    title: "ACCRC \u2014 Adamjee Cantonment College Robotics Club",
+    description: "Build what's next with ACCRC — the student robotics club at Adamjee Cantonment College, Dhaka.",
+    images: ["/accrc-logo.png"],
   },
   robots: { index: true, follow: true },
 };

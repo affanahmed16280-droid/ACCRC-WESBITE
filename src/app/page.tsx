@@ -9,6 +9,7 @@ import {
   X,
   Send,
   Terminal,
+  Loader2,
 } from 'lucide-react';
 import { FaFacebookF, FaInstagram } from 'react-icons/fa';
 import {
@@ -69,6 +70,7 @@ export default function HomePage() {
         type: 'membership',
         name: String(formData.get('name') ?? ''),
         email: String(formData.get('email') ?? ''),
+        whatsapp: String(formData.get('whatsapp') ?? ''),
         classSection: String(formData.get('classSection') ?? ''),
         collegeId: String(formData.get('collegeId') ?? ''),
         motivation: String(formData.get('motivation') ?? ''),
@@ -87,7 +89,7 @@ export default function HomePage() {
     <main>
       {/* ═══ NAVBAR ═══ */}
       <nav className="nav">
-        <a className="wordmark" href="#top">
+        <a className="wordmark" href="#top" aria-label="ACCRC home">
           <img className="wordmark-logo" src="/accrc-logo.png" alt="ACCRC logo" />
           <span>
             ACCRC
@@ -162,10 +164,10 @@ export default function HomePage() {
       <section className="social-status" aria-label="Follow ACC Robotics Club">
         <span className="mono muted">STAY TUNED</span>
         <div className="social-status-links">
-          <a href={club.socials.facebook} target="_blank" rel="noopener noreferrer">
+          <a href={club.socials.facebook} target="_blank" rel="noopener noreferrer" aria-label="Visit ACCRC on Facebook">
             FACEBOOK <ArrowRight size={18} aria-hidden />
           </a>
-          <a href={club.socials.instagram} target="_blank" rel="noopener noreferrer">
+          <a href={club.socials.instagram} target="_blank" rel="noopener noreferrer" aria-label="Visit ACCRC on Instagram">
             INSTAGRAM <ArrowRight size={18} aria-hidden />
           </a>
         </div>
@@ -215,7 +217,7 @@ export default function HomePage() {
               <h3>No upcoming events right now.</h3>
               <p>Stay tuned! Follow ACCRC on Facebook for the latest announcements.</p>
             </div>
-            <a className="text-button" href={club.socials.facebook} target="_blank" rel="noopener noreferrer">
+            <a className="text-button" href={club.socials.facebook} target="_blank" rel="noopener noreferrer" aria-label="Visit ACCRC on Facebook">
               FACEBOOK <ArrowRight size={16} aria-hidden />
             </a>
           </div>
@@ -312,6 +314,10 @@ export default function HomePage() {
                   <input name="email" required type="email" placeholder="you@example.com" autoComplete="email" />
                 </label>
                 <label>
+                  WHATSAPP NUMBER
+                  <input name="whatsapp" required type="tel" placeholder="+880 1XXX-XXXXXX" autoComplete="tel" />
+                </label>
+                <label>
                   SECTION
                   <input name="classSection" required placeholder="XI · Science A" />
                 </label>
@@ -325,8 +331,9 @@ export default function HomePage() {
                 <textarea name="motivation" required rows={4} placeholder="Tell us why you want to join ACCRC..." />
               </label>
               {formError && <p className="form-error" role="alert">{formError}</p>}
-              <button className="primary-button" type="submit" disabled={submitting}>
-                {submitting ? 'SENDING...' : 'SEND APPLICATION'} <Send size={16} aria-hidden />
+              <button className="primary-button" type="submit" disabled={submitting} aria-busy={submitting}>
+                {submitting ? <Loader2 size={16} className="animate-spin" aria-hidden /> : <Send size={16} aria-hidden />}
+                {submitting ? 'SENDING...' : 'SEND APPLICATION'}
               </button>
             </form>
           )}
@@ -336,7 +343,7 @@ export default function HomePage() {
       {/* ═══ FOOTER ═══ */}
       <footer>
         <div className="footer-top">
-          <a className="wordmark" href="#top">
+          <a className="wordmark" href="#top" aria-label="Back to the top of ACCRC home">
             <img className="wordmark-logo" src="/accrc-logo.png" alt="ACCRC logo" />
             <span>
               ACCRC

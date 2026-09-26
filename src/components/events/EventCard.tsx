@@ -28,7 +28,7 @@ export function EventCard({ event }: { event: PublicEvent }) {
       {event.imageUrl && (
         <img
           src={event.imageUrl}
-          alt=""
+          alt={`${event.name} event`}
           className="h-44 w-full object-cover border-b border-border"
         />
       )}

@@ -7,6 +7,7 @@ import { getNewsPosts, createNewsPost, updateNewsPost, deleteNewsPost, Firestore
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ChevronLeft, Plus, Edit2, Trash2, Loader2 } from 'lucide-react';
+import { DeleteModal } from '@/components/admin/DeleteModal';
 
 export default function AdminNews() {
   const [news, setNews] = useState<FirestoreNews[]>([]);
@@ -16,6 +17,8 @@ export default function AdminNews() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<FirestoreNews | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -75,14 +78,21 @@ export default function AdminNews() {
     setIsFormOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this post?')) {
-      try {
-        await deleteNewsPost(id);
-        setNews(news.filter(n => n.id !== id));
-      } catch (err: any) {
-        alert('Failed to delete news post: ' + err.message);
-      }
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const deletedPost = deleteTarget;
+    setIsDeleting(true);
+    setError(null);
+    setNews((current) => current.filter((post) => post.id !== deletedPost.id));
+    try {
+      await deleteNewsPost(deletedPost.id);
+      setDeleteTarget(null);
+    } catch (err: any) {
+      setNews((current) => [...current, deletedPost].sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime()));
+      setError(err.message || 'Failed to delete news post');
+      setDeleteTarget(null);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -200,8 +210,8 @@ export default function AdminNews() {
                     <Button variant="secondary" size="sm" onClick={() => handleEdit(post)}>
                       <Edit2 className="w-4 h-4 mr-1" /> Edit
                     </Button>
-                    <Button variant="secondary" size="sm" className="text-danger border-danger/50 hover:bg-danger/10" onClick={() => handleDelete(post.id)}>
-                      <Trash2 className="w-4 h-4" />
+                    <Button variant="danger" size="sm" aria-label={`Delete ${post.title}`} onClick={() => setDeleteTarget(post)}>
+                      <Trash2 className="w-4 h-4" aria-hidden />
                     </Button>
                   </div>
                 </div>
@@ -210,6 +220,14 @@ export default function AdminNews() {
           </div>
         )}
       </div>
+      <DeleteModal
+        isOpen={!!deleteTarget}
+        title="Delete news post?"
+        description={deleteTarget ? `Are you sure you want to delete "${deleteTarget.title}"? This action cannot be undone.` : ''}
+        isDeleting={isDeleting}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </AdminGuard>
   );
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "ghost" | "danger";
@@ -8,16 +8,19 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
 }
 
-export function Button({
-  variant = "primary",
-  size = "md",
-  children,
-  href,
-  loading = false,
-  className = "",
-  disabled,
-  ...props
-}: ButtonProps) {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    variant = "primary",
+    size = "md",
+    children,
+    href,
+    loading = false,
+    className = "",
+    disabled,
+    ...props
+  },
+  ref
+) {
   const baseStyles =
     "inline-flex items-center justify-center font-medium transition-all duration-200 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50 disabled:cursor-not-allowed";
 
@@ -49,7 +52,7 @@ export function Button({
   }
 
   return (
-    <button className={classes} disabled={disabled || loading} {...props}>
+    <button ref={ref} className={classes} disabled={disabled || loading} aria-busy={loading || undefined} {...props}>
       {loading && (
         <svg
           className="animate-spin -ml-1 mr-2 h-4 w-4"
@@ -74,4 +77,4 @@ export function Button({
       {children}
     </button>
   );
-}
+});

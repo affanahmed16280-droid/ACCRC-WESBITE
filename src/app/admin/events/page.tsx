@@ -8,6 +8,7 @@ import { getEventStatus } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ChevronLeft, Plus, Edit2, Trash2, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { DeleteModal } from '@/components/admin/DeleteModal';
 
 export default function AdminEvents() {
   const [events, setEvents] = useState<FirestoreEvent[]>([]);
@@ -19,6 +20,8 @@ export default function AdminEvents() {
   const [formLoading, setFormLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [expandedEventId, setExpandedEventId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<FirestoreEvent | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -100,14 +103,21 @@ export default function AdminEvents() {
     setIsFormOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
-      try {
-        await deleteEvent(id);
-        setEvents(events.filter(e => e.id !== id));
-      } catch (err: any) {
-        alert('Failed to delete event: ' + err.message);
-      }
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const deletedEvent = deleteTarget;
+    setIsDeleting(true);
+    setEvents((prev) => prev.filter((event) => event.id !== deletedEvent.id));
+    setExpandedEventId((current) => current === deletedEvent.id ? null : current);
+    try {
+      await deleteEvent(deletedEvent.id);
+      setDeleteTarget(null);
+    } catch (err: any) {
+      setEvents((prev) => [...prev, deletedEvent].sort((a, b) => b.date.getTime() - a.date.getTime()));
+      setError('Failed to delete event: ' + err.message);
+      setDeleteTarget(null);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -251,7 +261,7 @@ export default function AdminEvents() {
                         <Button variant="secondary" size="sm" onClick={() => handleEdit(event)}>
                           <Edit2 className="w-4 h-4" />
                         </Button>
-                        <Button variant="secondary" size="sm" className="text-danger border-danger/50 hover:bg-danger/10" onClick={() => handleDelete(event.id)}>
+                        <Button variant="danger" size="sm" onClick={() => setDeleteTarget(event)} aria-label={`Delete event ${event.name}`}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -297,6 +307,14 @@ export default function AdminEvents() {
           </div>
         )}
       </div>
+      <DeleteModal
+        isOpen={!!deleteTarget}
+        title="Delete event?"
+        description={deleteTarget ? `Are you sure you want to delete "${deleteTarget.name}"? This action cannot be undone.` : ''}
+        isDeleting={isDeleting}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </AdminGuard>
   );
 }

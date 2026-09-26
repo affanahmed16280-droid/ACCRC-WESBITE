@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, Edit2, Loader2, Plus, Trash2, Trophy } from 'lucide-react';
+import { DeleteModal } from '@/components/admin/DeleteModal';
 import AdminGuard from '@/components/admin/AdminGuard';
 import { Button } from '@/components/ui/Button';
 import { Input, Textarea } from '@/components/ui/Input';
@@ -38,6 +39,8 @@ export default function AdminAchievements() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<FirestoreAchievement | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const unsubscribe = subscribeToAchievements(
@@ -100,14 +103,21 @@ export default function AdminAchievements() {
     }
   };
 
-  const handleDelete = async (achievement: FirestoreAchievement) => {
-    if (!window.confirm(`Delete “${achievement.title}”? This cannot be undone.`)) return;
-
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const deletedAchievement = deleteTarget;
+    setIsDeleting(true);
     setError(null);
+    setAchievements((current) => current.filter((achievement) => achievement.id !== deletedAchievement.id));
     try {
-      await deleteAchievement(achievement.id);
+      await deleteAchievement(deletedAchievement.id);
+      setDeleteTarget(null);
     } catch (deleteError) {
+      setAchievements((current) => [...current, deletedAchievement].sort((a, b) => b.year - a.year || b.createdAt.getTime() - a.createdAt.getTime()));
       setError(deleteError instanceof Error ? deleteError.message : 'Unable to delete the achievement.');
+      setDeleteTarget(null);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -179,13 +189,21 @@ export default function AdminAchievements() {
                 </div>
                 <div className="flex shrink-0 gap-2">
                   <Button variant="secondary" size="sm" onClick={() => startEdit(achievement)} aria-label={`Edit ${achievement.title}`}><Edit2 className="h-4 w-4" aria-hidden /></Button>
-                  <Button variant="danger" size="sm" onClick={() => void handleDelete(achievement)} aria-label={`Delete ${achievement.title}`}><Trash2 className="h-4 w-4" aria-hidden /></Button>
+                  <Button variant="danger" size="sm" onClick={() => setDeleteTarget(achievement)} aria-label={`Delete ${achievement.title}`}><Trash2 className="h-4 w-4" aria-hidden /></Button>
                 </div>
               </article>
             ))}
           </div>
         )}
       </main>
+      <DeleteModal
+        isOpen={!!deleteTarget}
+        title="Delete achievement?"
+        description={deleteTarget ? `Are you sure you want to delete "${deleteTarget.title}"? This action cannot be undone.` : ''}
+        isDeleting={isDeleting}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </AdminGuard>
   );
 }

@@ -11,14 +11,14 @@ import Link from 'next/link';
 export function MembershipForm() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    name: '', email: '', classSection: '', collegeId: '', motivation: ''
+    name: '', email: '', whatsapp: '', classSection: '', collegeId: '', motivation: ''
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleNext = () => {
     // Basic client validation
-    if (step === 1 && (!formData.name || !formData.email)) return;
+    if (step === 1 && (!formData.name || !formData.email || !formData.whatsapp)) return;
     if (step === 2 && (!formData.classSection || !formData.collegeId)) return;
     setStep(s => Math.min(s + 1, 3));
   };
@@ -91,6 +91,7 @@ export function MembershipForm() {
             <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
               <Input required placeholder="Full Name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
               <Input required type="email" placeholder="Email Address" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+              <Input required type="tel" autoComplete="tel" placeholder="WhatsApp number (e.g. +880 1XXX-XXXXXX)" value={formData.whatsapp} onChange={e => setFormData({...formData, whatsapp: e.target.value})} />
             </motion.div>
           )}
 
@@ -123,9 +124,9 @@ export function MembershipForm() {
           </Button>
           
           {step < 3 ? (
-            <Button type="button" onClick={handleNext}>Next Step</Button>
+            <Button type="button" onClick={handleNext} disabled={status === 'loading'}>Next Step</Button>
           ) : (
-            <Button type="submit" disabled={status === 'loading'} className="min-w-[120px]">
+            <Button type="submit" loading={status === 'loading'} className="min-w-[140px]">
               {status === 'loading' ? 'Submitting...' : 'Submit Application'}
             </Button>
           )}

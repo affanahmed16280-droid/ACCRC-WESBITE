@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminGuard from '@/components/admin/AdminGuard';
-import { getPortalConfig, updatePortalConfig, getApplications, getRegistrations, PortalConfig, Application, Registration } from '@/lib/firestore';
+import { getPortalConfig, updatePortalConfig, getApplications, getRegistrations, deleteApplication, deleteRegistration, PortalConfig, Application, Registration } from '@/lib/firestore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { ChevronLeft, Plus, X, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { ChevronLeft, Plus, X, ChevronDown, ChevronUp, Loader2, Trash2 } from 'lucide-react';
+import { DeleteModal } from '@/components/admin/DeleteModal';
 
 export default function AdminPortal() {
   const [config, setConfig] = useState<PortalConfig | null>(null);
@@ -16,6 +17,9 @@ export default function AdminPortal() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'sub-executive' | 'executive' | 'prefect' | 'membership'>('sub-executive');
   const [expandedAppId, setExpandedAppId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; type: 'application' | 'membership' } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [configSaving, setConfigSaving] = useState<string | null>(null);
 
   const [newRoles, setNewRoles] = useState({
     subExecRoles: '',
@@ -52,14 +56,17 @@ export default function AdminPortal() {
       ...config,
       [section]: value
     };
-    
     setConfig(newConfig);
+    setConfigSaving(section);
+    setError(null);
     try {
       await updatePortalConfig(newConfig);
     } catch (err: any) {
-      alert('Failed to update config: ' + err.message);
+      setError('Failed to update application status: ' + err.message);
       // Revert on error
       fetchData();
+    } finally {
+      setConfigSaving(null);
     }
   };
 
@@ -70,7 +77,7 @@ export default function AdminPortal() {
     if (!roleToAdd) return;
     
     if (config[section].includes(roleToAdd)) {
-      alert('Role already exists');
+      setError('That role is already listed.');
       return;
     }
     
@@ -81,12 +88,15 @@ export default function AdminPortal() {
     
     setConfig(newConfig);
     setNewRoles((current) => ({ ...current, [section]: '' }));
-    
+    setConfigSaving(section);
+    setError(null);
     try {
       await updatePortalConfig(newConfig);
     } catch (err: any) {
-      alert('Failed to update config: ' + err.message);
+      setError('Failed to add role: ' + err.message);
       fetchData();
+    } finally {
+      setConfigSaving(null);
     }
   };
 
@@ -99,11 +109,40 @@ export default function AdminPortal() {
     };
     
     setConfig(newConfig);
+    setConfigSaving(section);
+    setError(null);
     try {
       await updatePortalConfig(newConfig);
     } catch (err: any) {
-      alert('Failed to update config: ' + err.message);
+      setError('Failed to remove role: ' + err.message);
       fetchData();
+    } finally {
+      setConfigSaving(null);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    const deletedRecord = deleteTarget;
+    setIsDeleting(true);
+    if (deletedRecord.type === 'application') {
+      setApplications((prev) => prev.filter((application) => application.id !== deletedRecord.id));
+    } else {
+      setMemberships((prev) => prev.filter((membership) => membership.id !== deletedRecord.id));
+    }
+    try {
+      if (deletedRecord.type === 'application') {
+        await deleteApplication(deletedRecord.id);
+      } else {
+        await deleteRegistration(deletedRecord.id);
+      }
+      setDeleteTarget(null);
+    } catch (err: any) {
+      await fetchData();
+      setError(err.message || 'Failed to delete record');
+      setDeleteTarget(null);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -126,9 +165,13 @@ export default function AdminPortal() {
           </div>
         )}
 
-        {loading || !config ? (
+        {loading ? (
           <div className="flex justify-center py-10">
             <Loader2 className="w-8 h-8 animate-spin text-accent" />
+          </div>
+        ) : !config ? (
+          <div className="border border-danger/30 bg-danger/10 p-6 text-danger" role="alert">
+            Portal settings could not be loaded. Please refresh and try again.
           </div>
         ) : (
           <div className="space-y-8">
@@ -144,7 +187,9 @@ export default function AdminPortal() {
                         type="checkbox" 
                         className="sr-only" 
                         checked={config.subExecOpen} 
-                        onChange={(e) => handleConfigChange('subExecOpen', e.target.checked)} 
+                        disabled={configSaving !== null}
+                        aria-label="Toggle sub-executive applications"
+                        onChange={(e) => void handleConfigChange('subExecOpen', e.target.checked)}
                       />
                       <div className={`block w-10 h-6 rounded-full transition-colors ${config.subExecOpen ? 'bg-success' : 'bg-border'}`}></div>
                       <div className={`dot absolute left-1 top-1 bg-primary w-4 h-4 rounded-full transition-transform ${config.subExecOpen ? 'transform translate-x-4' : ''}`}></div>
@@ -161,8 +206,8 @@ export default function AdminPortal() {
                     {config.subExecRoles.map(role => (
                       <div key={role} className="bg-primary border border-border px-3 py-1 flex items-center text-sm">
                         <span>{role}</span>
-                        <button onClick={() => removeRole('subExecRoles', role)} className="ml-2 text-secondary hover:text-danger">
-                          <X className="w-3 h-3" />
+                        <button type="button" disabled={configSaving !== null} onClick={() => void removeRole('subExecRoles', role)} className="ml-2 text-secondary hover:text-danger disabled:cursor-wait" aria-label={`Remove ${role}`}>
+                          {configSaving === 'subExecRoles' ? <Loader2 className="w-3 h-3 animate-spin" aria-hidden /> : <X className="w-3 h-3" aria-hidden />}
                         </button>
                       </div>
                     ))}
@@ -174,8 +219,9 @@ export default function AdminPortal() {
                       placeholder="Add new role..." 
                       className="flex-1"
                       onKeyDown={(e) => e.key === 'Enter' && addRole('subExecRoles')}
+                      disabled={configSaving !== null}
                     />
-                    <Button onClick={() => addRole('subExecRoles')} variant="secondary">Add</Button>
+                    <Button type="button" onClick={() => void addRole('subExecRoles')} variant="secondary" loading={configSaving === 'subExecRoles'} disabled={configSaving !== null}>Add</Button>
                   </div>
                 </div>
               </div>
@@ -190,7 +236,9 @@ export default function AdminPortal() {
                         type="checkbox" 
                         className="sr-only" 
                         checked={config.execOpen} 
-                        onChange={(e) => handleConfigChange('execOpen', e.target.checked)} 
+                        disabled={configSaving !== null}
+                        aria-label="Toggle executive applications"
+                        onChange={(e) => void handleConfigChange('execOpen', e.target.checked)}
                       />
                       <div className={`block w-10 h-6 rounded-full transition-colors ${config.execOpen ? 'bg-success' : 'bg-border'}`}></div>
                       <div className={`dot absolute left-1 top-1 bg-primary w-4 h-4 rounded-full transition-transform ${config.execOpen ? 'transform translate-x-4' : ''}`}></div>
@@ -207,8 +255,8 @@ export default function AdminPortal() {
                     {config.execRoles.map(role => (
                       <div key={role} className="bg-primary border border-border px-3 py-1 flex items-center text-sm">
                         <span>{role}</span>
-                        <button onClick={() => removeRole('execRoles', role)} className="ml-2 text-secondary hover:text-danger">
-                          <X className="w-3 h-3" />
+                        <button type="button" disabled={configSaving !== null} onClick={() => void removeRole('execRoles', role)} className="ml-2 text-secondary hover:text-danger disabled:cursor-wait" aria-label={`Remove ${role}`}>
+                          {configSaving === 'execRoles' ? <Loader2 className="w-3 h-3 animate-spin" aria-hidden /> : <X className="w-3 h-3" aria-hidden />}
                         </button>
                       </div>
                     ))}
@@ -220,8 +268,9 @@ export default function AdminPortal() {
                       placeholder="Add new role..." 
                       className="flex-1"
                       onKeyDown={(e) => e.key === 'Enter' && addRole('execRoles')}
+                      disabled={configSaving !== null}
                     />
-                    <Button onClick={() => addRole('execRoles')} variant="secondary">Add</Button>
+                    <Button type="button" onClick={() => void addRole('execRoles')} variant="secondary" loading={configSaving === 'execRoles'} disabled={configSaving !== null}>Add</Button>
                   </div>
                 </div>
               </div>
@@ -236,7 +285,9 @@ export default function AdminPortal() {
                         type="checkbox"
                         className="sr-only"
                         checked={config.prefectOpen}
-                        onChange={(e) => handleConfigChange('prefectOpen', e.target.checked)}
+                        disabled={configSaving !== null}
+                        aria-label="Toggle prefect applications"
+                        onChange={(e) => void handleConfigChange('prefectOpen', e.target.checked)}
                       />
                       <div className={`block w-10 h-6 rounded-full transition-colors ${config.prefectOpen ? 'bg-success' : 'bg-border'}`}></div>
                       <div className={`dot absolute left-1 top-1 bg-primary w-4 h-4 rounded-full transition-transform ${config.prefectOpen ? 'transform translate-x-4' : ''}`}></div>
@@ -253,8 +304,8 @@ export default function AdminPortal() {
                     {config.prefectRoles.map(role => (
                       <div key={role} className="bg-primary border border-border px-3 py-1 flex items-center text-sm">
                         <span>{role}</span>
-                        <button onClick={() => removeRole('prefectRoles', role)} className="ml-2 text-secondary hover:text-danger" aria-label={`Remove ${role}`}>
-                          <X className="w-3 h-3" />
+                        <button type="button" disabled={configSaving !== null} onClick={() => void removeRole('prefectRoles', role)} className="ml-2 text-secondary hover:text-danger disabled:cursor-wait" aria-label={`Remove ${role}`}>
+                          {configSaving === 'prefectRoles' ? <Loader2 className="w-3 h-3 animate-spin" aria-hidden /> : <X className="w-3 h-3" aria-hidden />}
                         </button>
                       </div>
                     ))}
@@ -266,8 +317,9 @@ export default function AdminPortal() {
                       placeholder="Add new role..."
                       className="flex-1"
                       onKeyDown={(e) => e.key === 'Enter' && addRole('prefectRoles')}
+                      disabled={configSaving !== null}
                     />
-                    <Button onClick={() => addRole('prefectRoles')} variant="secondary">Add</Button>
+                    <Button type="button" onClick={() => void addRole('prefectRoles')} variant="secondary" loading={configSaving === 'prefectRoles'} disabled={configSaving !== null}>Add</Button>
                   </div>
                 </div>
               </div>
@@ -313,6 +365,7 @@ export default function AdminPortal() {
                           <tr>
                             <th className="px-4 py-3 border-b border-border">Applicant</th>
                             <th className="px-4 py-3 border-b border-border">ID / Section</th>
+                            <th className="px-4 py-3 border-b border-border">WhatsApp</th>
                             <th className="px-4 py-3 border-b border-border">Role Applied</th>
                             <th className="px-4 py-3 border-b border-border">Submitted</th>
                             <th className="px-4 py-3 border-b border-border">Action</th>
@@ -328,23 +381,36 @@ export default function AdminPortal() {
                                 <td className="px-4 py-3 font-mono text-secondary">
                                   {app.idNumber}<br/>{app.section}
                                 </td>
+                                <td className="px-4 py-3 font-mono text-secondary text-xs">
+                                  {app.whatsapp || '—'}
+                                </td>
                                 <td className="px-4 py-3 text-accent font-bold">{app.roleApplyingFor}</td>
                                 <td className="px-4 py-3 text-tertiary font-mono text-xs">
                                   {app.createdAt ? new Date(app.createdAt).toLocaleDateString() : 'N/A'}
                                 </td>
                                 <td className="px-4 py-3">
-                                  <Button 
-                                    variant="secondary" 
-                                    size="sm" 
-                                    onClick={() => setExpandedAppId(expandedAppId === app.id ? null : (app.id || null))}
-                                  >
-                                    {expandedAppId === app.id ? 'Hide Details' : 'View Details'}
-                                  </Button>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      variant="secondary"
+                                      size="sm"
+                                      onClick={() => setExpandedAppId(expandedAppId === app.id ? null : (app.id || null))}
+                                    >
+                                      {expandedAppId === app.id ? 'Hide' : 'View'}
+                                    </Button>
+                                    <Button
+                                      variant="danger"
+                                      size="sm"
+                                      aria-label={`Delete application from ${app.email}`}
+                                      onClick={() => setDeleteTarget({ id: app.id!, name: app.email, type: 'application' })}
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                                    </Button>
+                                  </div>
                                 </td>
                               </tr>
                               {expandedAppId === app.id && (
                                 <tr className="bg-primary/30">
-                                  <td colSpan={5} className="px-6 py-4 border-b border-border">
+                                  <td colSpan={6} className="px-6 py-4 border-b border-border">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                       <div>
                                         <h4 className="font-mono text-xs uppercase text-secondary mb-2">Experience</h4>
@@ -380,9 +446,11 @@ export default function AdminPortal() {
                           <tr>
                             <th className="px-4 py-3 border-b border-border">Name</th>
                             <th className="px-4 py-3 border-b border-border">Email</th>
+                            <th className="px-4 py-3 border-b border-border">WhatsApp</th>
                             <th className="px-4 py-3 border-b border-border">Class / Section</th>
                             <th className="px-4 py-3 border-b border-border">College ID</th>
                             <th className="px-4 py-3 border-b border-border">Reason for joining</th>
+                            <th className="px-4 py-3 border-b border-border">Action</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -390,9 +458,20 @@ export default function AdminPortal() {
                             <tr key={mem.id} className="border-b border-border hover:bg-primary/50">
                               <td className="px-4 py-3 font-bold">{mem.name}</td>
                               <td className="px-4 py-3 text-secondary">{mem.email}</td>
+                              <td className="px-4 py-3 font-mono text-secondary text-xs">{mem.whatsapp || '—'}</td>
                               <td className="px-4 py-3 text-secondary">{mem.classSection}</td>
                               <td className="px-4 py-3 font-mono text-secondary">{mem.collegeId || mem.rollNumber || 'N/A'}</td>
                               <td className="px-4 py-3 text-secondary max-w-sm whitespace-pre-wrap">{mem.motivation}</td>
+                              <td className="px-4 py-3">
+                                <Button
+                                  variant="danger"
+                                  size="sm"
+                                  aria-label={`Delete membership application from ${mem.name}`}
+                                  onClick={() => setDeleteTarget({ id: mem.id!, name: mem.name, type: 'membership' })}
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                                </Button>
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -405,6 +484,14 @@ export default function AdminPortal() {
           </div>
         )}
       </div>
+      <DeleteModal
+        isOpen={!!deleteTarget}
+        title={deleteTarget?.type === 'application' ? 'Delete application?' : 'Delete membership?'}
+        description={deleteTarget ? `Are you sure you want to permanently delete the record for "${deleteTarget.name}"? This action cannot be undone.` : ''}
+        isDeleting={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </AdminGuard>
   );
 }

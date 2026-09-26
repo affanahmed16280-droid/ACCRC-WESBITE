@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Award, GraduationCap, IdCard, Medal, Trophy, UsersRound } from 'lucide-react';
+import { Award, GraduationCap, IdCard, Medal, ShieldCheck, Trophy, UsersRound } from 'lucide-react';
 import { subscribeToAchievements, type FirestoreAchievement } from '@/lib/firestore';
 import styles from './AchievementsAndPanels.module.css';
 
-type PanelKey = '2026' | '2025' | '2023' | 'founder';
+type PanelKey = '2026' | '2025' | '2024' | '2023' | 'founder';
 type ViewKey = 'all' | PanelKey;
 type AwardLevel = 'Global' | 'National';
 
@@ -32,6 +32,7 @@ type PanelData = {
   achievements: Achievement[];
   executive_panel: ExecutiveMember[];
   moderators?: ExecutiveMember[];
+  prefects?: ExecutiveMember[];
 };
 
 /*
@@ -43,13 +44,62 @@ const panels: Record<PanelKey, PanelData> = {
   '2026': {
     label: 'Executive Committee 26',
     eyebrow: 'CURRENT LEADERSHIP',
-    description: 'The committee leading ACCRC’s next season of building, learning, and competition.',
+    description: 'The committee leading ACCRC\u2019s next season of building, learning, and competition.',
     achievements: [
       {
         title: 'Grand Prize / 1st Place',
         recipients: 'Masroor Ali Neil',
-        competition: 'Teens Dream Changemakers Video Challenge 2026 — “Cochlea Cap” wearable assistive device',
+        competition: 'Teens Dream Changemakers Video Challenge 2026 \u2014 \u201cCochlea Cap\u201d wearable assistive device',
         level: 'Global',
+        year: 2026,
+      },
+      {
+        title: 'Environmental Project Display \u2014 2nd Runners Up',
+        recipients: 'Team ZERON',
+        competition: "Green Genesis '26",
+        level: 'National',
+        year: 2026,
+      },
+      {
+        title: 'Climate Photography DSLR \u2014 Runners Up',
+        recipients: 'Md. Tahsin Araf (252773, S13)',
+        competition: "Green Genesis '26",
+        level: 'National',
+        year: 2026,
+      },
+      {
+        title: 'Non-mechanical Project Showcase \u2014 Runners Up',
+        recipients: 'Ayman',
+        competition: 'WICE 2026',
+        level: 'National',
+        year: 2026,
+      },
+      {
+        title: 'Robotics Olympiad \u2014 2nd Runners Up',
+        recipients: 'Khalid Bin Walid',
+        competition: 'INIT 2026',
+        level: 'National',
+        year: 2026,
+      },
+      {
+        title: 'Academic Writing \u2014 Runners Up',
+        recipients: 'Jihad Islam',
+        competition: 'NDESC Space Summit 2026',
+        level: 'National',
+        year: 2026,
+      },
+      {
+        title: 'Project Showcase \u2014 2nd Runners Up',
+        recipients: 'Team Waterlloyd (Jihad Ul Islam, Tawhidul Islam, Azrin Zaman Inne)',
+        competition: 'Project Showcase 2026',
+        level: 'National',
+        year: 2026,
+      },
+      {
+        title: 'Project Showcase \u2014 1st Runners Up',
+        recipients: 'Team Edu-RAG (Ashfaq Sadat, Khalid Bin Walid, Abdul Al Affan)',
+        competition: 'Project Showcase 2026',
+        level: 'National',
         year: 2026,
       },
     ],
@@ -147,11 +197,25 @@ const panels: Record<PanelKey, PanelData> = {
         imageFrame: 'portrait',
       },
     ],
+    prefects: [
+      {
+        name: 'Md. Shafayet Biswas',
+        designation: 'Central Club Prefect \u2014 2026 Batch',
+        imageUrl: '/images/panel/prefect-2026/centralclubprefect.png',
+        imageFrame: 'square',
+      },
+      {
+        name: 'Fatema-Tooz-Zohra Falguni',
+        designation: 'AST Central Club Prefect \u2014 2026 Batch',
+        imageUrl: '/images/panel/prefect-2026/astprefectbatch26.png',
+        imageFrame: 'square',
+      },
+    ],
   },
   '2025': {
     label: "Advisor Panel / EC'25",
     eyebrow: 'LEADERSHIP ARCHIVE',
-    description: 'A record of the EC’25 leadership team and the club’s national and international recognition.',
+    description: 'A record of the EC\u201925 leadership team and the club\u2019s national and international recognition.',
     achievements: [
       {
         title: 'Individual Gold Medal',
@@ -162,7 +226,7 @@ const panels: Record<PanelKey, PanelData> = {
       },
       {
         title: 'Outstanding Presentation Award',
-        recipients: 'Team Bangladesh — Taseen Mohammad, Mahdi Bin Ferdaus, Md Ashikur Rahman, Md Nur Ahmed',
+        recipients: 'Team Bangladesh \u2014 Taseen Mohammad, Mahdi Bin Ferdaus, Md Ashikur Rahman, Md Nur Ahmed',
         competition: 'International Olympiad on Climate Change and Environmental Issues (IOCE 2025), Russia',
         level: 'Global',
         year: 2025,
@@ -170,14 +234,14 @@ const panels: Record<PanelKey, PanelData> = {
       {
         title: 'Paper of the Year',
         recipients: 'Jawad Zaman',
-        competition: 'Northeast Regional Honors Conference 2025 — AI-driven machine translation research',
+        competition: 'Northeast Regional Honors Conference 2025 \u2014 AI-driven machine translation research',
         level: 'Global',
         year: 2025,
       },
       {
         title: 'Bangladesh Representative',
         recipients: 'Anas Bin Azam',
-        competition: 'World Robot Olympiad 2025, Philippines — 160 teams from 25 nations',
+        competition: 'World Robot Olympiad 2025, Philippines \u2014 160 teams from 25 nations',
         level: 'Global',
         year: 2025,
       },
@@ -189,28 +253,28 @@ const panels: Record<PanelKey, PanelData> = {
         year: 2025,
       },
       {
-        title: 'Champion — Project Presentation',
+        title: 'Champion \u2014 Project Presentation',
         recipients: 'Md. Juglul Karim and Shahria Ahmed Arafat',
         competition: 'MIE 1.0 Robolution, CUET',
         level: 'National',
         year: 2025,
       },
       {
-        title: 'Champion — Project Display (Mechanical)',
+        title: 'Champion \u2014 Project Display (Mechanical)',
         recipients: 'Md. Shafayet Biswas and Sabit Islam Efty',
         competition: '16th DRMC National Science Carnival 2025',
         level: 'National',
         year: 2025,
       },
       {
-        title: 'Champion — Research Article Contest',
+        title: 'Champion \u2014 Research Article Contest',
         recipients: 'Masroor Ali Neil',
         competition: 'Innoverse National Science & Technology Carnival 2025, BUET',
         level: 'National',
         year: 2025,
       },
       {
-        title: '1st Place — Robo Display',
+        title: '1st Place \u2014 Robo Display',
         recipients: 'Md. Shafayet Biswas',
         competition: 'Technovation 2025, Josephite IT Club',
         level: 'National',
@@ -224,49 +288,49 @@ const panels: Record<PanelKey, PanelData> = {
         year: 2025,
       },
       {
-        title: '1st Runner-Up — Project Display',
+        title: '1st Runner-Up \u2014 Project Display',
         recipients: 'Shahria Ahmed Arafat and Md. Juglul Karim',
         competition: 'Rajuk National Scipark 3.0',
         level: 'National',
         year: 2025,
       },
       {
-        title: '11th Place — Divisional Round',
+        title: '11th Place \u2014 Divisional Round',
         recipients: 'Taufiq Mustafizur Rahman',
         competition: 'Bangladesh Physics Olympiad (BDPhO)',
         level: 'National',
         year: 2025,
       },
       {
-        title: 'Champion — Robotics Project',
+        title: 'Champion \u2014 Robotics Project',
         recipients: 'Sayeed Un Nur Shoaib and Arafat Zaman Sajid',
-        competition: 'Shahid Bir Uttam Lt. Anwar’s Girls College Mega Science Festival',
+        competition: 'Shahid Bir Uttam Lt. Anwar\u2019s Girls College Mega Science Festival',
         level: 'National',
         year: 2025,
       },
       {
-        title: 'Champion — Extempore Speech',
+        title: 'Champion \u2014 Extempore Speech',
         recipients: 'Muhammad Andalib',
-        competition: 'Shahid Bir Uttam Lt. Anwar’s Girls College Mega Science Festival',
+        competition: 'Shahid Bir Uttam Lt. Anwar\u2019s Girls College Mega Science Festival',
         level: 'National',
         year: 2025,
       },
       {
-        title: 'Runner-Up — Wall Magazine',
+        title: 'Runner-Up \u2014 Wall Magazine',
         recipients: 'Ta-Sin Mahmud and Hafsa Islam Ohi',
-        competition: 'Shahid Bir Uttam Lt. Anwar’s Girls College Mega Science Festival',
+        competition: 'Shahid Bir Uttam Lt. Anwar\u2019s Girls College Mega Science Festival',
         level: 'National',
         year: 2025,
       },
       {
-        title: 'Champion — Wall Magazine',
-        recipients: 'The Renaissance — Zahinur Rahman, DM Abrar Mead, Sabrina Mustari',
+        title: 'Champion \u2014 Wall Magazine',
+        recipients: 'The Renaissance \u2014 Zahinur Rahman, DM Abrar Mead, Sabrina Mustari',
         competition: 'BAF Shaheen 6th Language Summit',
         level: 'National',
         year: 2025,
       },
       {
-        title: '2nd Runner-Up — Wall Magazine',
+        title: '2nd Runner-Up \u2014 Wall Magazine',
         recipients: 'Revolution of Fantasy',
         competition: 'BAF Shaheen 6th Language Summit',
         level: 'National',
@@ -280,14 +344,14 @@ const panels: Record<PanelKey, PanelData> = {
         year: 2025,
       },
       {
-        title: 'Green Card — 95th BMA Long Course',
+        title: 'Green Card \u2014 95th BMA Long Course',
         recipients: 'Faisal Ahmed Adit',
         competition: 'Bangladesh Military Academy',
         level: 'National',
         year: 2025,
       },
       {
-        title: 'Green Card — 93rd BMA Long Course',
+        title: 'Green Card \u2014 93rd BMA Long Course',
         recipients: 'Md. Zahinur Rahman',
         competition: 'Bangladesh Military Academy',
         level: 'National',
@@ -301,30 +365,9 @@ const panels: Record<PanelKey, PanelData> = {
         year: 2025,
       },
       {
-        title: 'National Finalist',
-        recipients: 'Abrar Galib and Danesh Rafin',
-        competition: 'Bangladesh Stockholm Junior Water Prize 2023',
-        level: 'National',
-        year: 2023,
-      },
-      {
-        title: 'Silver Award',
-        recipients: 'Abrar Galib Ohe',
-        competition: 'The Queen’s Commonwealth Essay Competition 2023',
-        level: 'Global',
-        year: 2023,
-      },
-      {
-        title: 'Sole Delegate from Bangladesh',
-        recipients: 'Fatematuj Johra Rani',
-        competition: 'International Human Rights Program',
-        level: 'Global',
-        year: 2023,
-      },
-      {
         title: 'Institutional Recognition',
         recipients: 'ACCRC members',
-        competition: 'Humanoid Robot and Nano-Satellite projects — recognised by the College Principal',
+        competition: 'Humanoid Robot and Nano-Satellite projects \u2014 recognised by the College Principal',
         level: 'National',
         year: 2025,
       },
@@ -350,15 +393,47 @@ const panels: Record<PanelKey, PanelData> = {
         designation: "VP of Publications'25",
         collegeId: '100002402',
       },
+    ],
+  },
+  '2024': {
+    label: "Executive Committee '24",
+    eyebrow: 'LEADERSHIP ARCHIVE',
+    description: 'The 2024 Executive Committee that laid the groundwork for ACCRC\u2019s growing national recognition.',
+    achievements: [
+      {
+        title: 'National Finalist',
+        recipients: 'Abrar Galib and Danesh Rafin',
+        competition: 'Bangladesh Stockholm Junior Water Prize 2023',
+        level: 'National',
+        year: 2023,
+      },
+      {
+        title: 'Silver Award',
+        recipients: 'Abrar Galib Ohe',
+        competition: "The Queen's Commonwealth Essay Competition 2023",
+        level: 'Global',
+        year: 2023,
+      },
+      {
+        title: 'Sole Delegate from Bangladesh',
+        recipients: 'Fatematuj Johra Rani',
+        competition: 'International Human Rights Program',
+        level: 'Global',
+        year: 2023,
+      },
+    ],
+    executive_panel: [
       {
         name: 'DM Abrar Mead',
         designation: "President'24",
-        collegeId: '100002403',
+        imageUrl: '/images/panel/exec-2024/presibatch24.png',
+        imageFrame: 'square',
       },
       {
         name: 'Sabrina Mustari',
         designation: "Organizing Secretary'24",
-        collegeId: '100002404',
+        imageUrl: '/images/panel/exec-2024/sabrinabatch24.png',
+        imageFrame: 'square',
       },
     ],
   },
@@ -372,7 +447,7 @@ const panels: Record<PanelKey, PanelData> = {
   founder: {
     label: 'Founder Panel',
     eyebrow: 'OUR BEGINNING',
-    description: 'The founding team that established the club’s culture of building, learning, and competing together.',
+    description: 'The founding team that established the club\u2019s culture of building, learning, and competing together.',
     achievements: [],
     executive_panel: [
       {
@@ -405,15 +480,16 @@ const allAchievements = Object.values(panels).flatMap((panel) => panel.achieveme
 const allAchievementsPanel: PanelData = {
   label: 'All Achievements',
   eyebrow: 'CLUB RECOGNITION',
-  description: 'Every published achievement, with the year shown on each record. Choose a year to focus the list.',
+  description: 'Every published achievement across all years. Choose a year tab to filter the list.',
   achievements: [],
   executive_panel: [],
 };
 
 const tabs: { key: ViewKey; label: string }[] = [
-  { key: 'all', label: 'All achievements' },
+  { key: 'all', label: 'All' },
   { key: '2026', label: '2026' },
   { key: '2025', label: '2025' },
+  { key: '2024', label: '2024' },
   { key: '2023', label: '2023' },
   { key: 'founder', label: 'Founder Panel' },
 ];
@@ -559,6 +635,19 @@ export function AchievementsAndPanels() {
                 members={activePanel.executive_panel}
                 className={activeTab === 'founder' ? styles.founderGrid : undefined}
               />
+            </>
+          )}
+
+          {activePanel.prefects && activePanel.prefects.length > 0 && (
+            <>
+              <div className={`${styles.contentHeading} ${styles.executiveHeading}`}>
+                <div>
+                  <ShieldCheck aria-hidden="true" />
+                  <h4>2026 Batch Prefects</h4>
+                </div>
+                <span>{activePanel.prefects.length} prefects</span>
+              </div>
+              <MemberGrid members={activePanel.prefects} className={styles.prefectGrid} />
             </>
           )}
         </div>
