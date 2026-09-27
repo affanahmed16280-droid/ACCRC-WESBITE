@@ -174,8 +174,10 @@ p {
   content: '';
   position: absolute;
   top: 0;
-  bottom: 0;
-  left: 10vw;
+  /* Keep this decorative rule outside the content column so it never crosses
+     the hero copy or call-to-action labels. */
+  bottom: 2rem;
+  left: calc(10vw - 24px);
   width: 1px;
   background: #27e0d229;
 }
@@ -311,8 +313,8 @@ h1 em, h2 span {
 
 .scroll-cue {
   position: absolute;
-  bottom: 28px;
-  left: 5vw;
+  bottom: 30px;
+  right: 5vw;
   display: flex;
   align-items: center;
   gap: 7px;
@@ -1152,7 +1154,7 @@ footer:not(.site-footer) {
   }
 
   .hero::after {
-    left: 6vw;
+    left: calc(6vw - 18px);
   }
 
   .hero-content {
@@ -1178,8 +1180,7 @@ footer:not(.site-footer) {
   }
 
   .scroll-cue {
-    /* Keep the prompt clear of the vertical guide line at the phone gutter. */
-    left: calc(6vw + 18px);
+    right: 6vw;
   }
 
   .hero-coordinates {
