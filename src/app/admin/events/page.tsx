@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminGuard from '@/components/admin/AdminGuard';
-import { getEvents, createEvent, updateEvent, deleteEvent, getRegistrations, FirestoreEvent, Registration } from '@/lib/firestore';
+import { getEvents, createEvent, updateEvent, deleteEvent, getRegistrations, deleteRegistration, FirestoreEvent, Registration } from '@/lib/firestore';
 import { getEventStatus } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -21,6 +21,7 @@ export default function AdminEvents() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [expandedEventId, setExpandedEventId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<FirestoreEvent | null>(null);
+  const [registrationDeleteTarget, setRegistrationDeleteTarget] = useState<Registration | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Form State
@@ -116,6 +117,30 @@ export default function AdminEvents() {
       setEvents((prev) => [...prev, deletedEvent].sort((a, b) => b.date.getTime() - a.date.getTime()));
       setError('Failed to delete event: ' + err.message);
       setDeleteTarget(null);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const confirmRegistrationDelete = async () => {
+    if (!registrationDeleteTarget?.id) return;
+    const registration = registrationDeleteTarget;
+    const registrationId = registration.id!;
+    setIsDeleting(true);
+    setRegistrations((current) => ({
+      ...current,
+      [registration.eventId ?? '']: (current[registration.eventId ?? ''] ?? []).filter((item) => item.id !== registration.id),
+    }));
+    try {
+      await deleteRegistration(registrationId);
+      setRegistrationDeleteTarget(null);
+    } catch (err: any) {
+      if (registration.eventId) {
+        const refreshed = await getRegistrations({ eventId: registration.eventId });
+        setRegistrations((current) => ({ ...current, [registration.eventId!]: refreshed }));
+      }
+      setError(err.message || 'Failed to delete registration');
+      setRegistrationDeleteTarget(null);
     } finally {
       setIsDeleting(false);
     }
@@ -281,6 +306,7 @@ export default function AdminEvents() {
                                   <th className="px-4 py-2 border-b border-border">Email</th>
                                   <th className="px-4 py-2 border-b border-border">Class/Sec</th>
                                   <th className="px-4 py-2 border-b border-border">Submitted</th>
+                                  <th className="px-4 py-2 border-b border-border">Action</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -291,6 +317,16 @@ export default function AdminEvents() {
                                     <td className="px-4 py-2 text-secondary">{reg.classSection || '-'}</td>
                                     <td className="px-4 py-2 text-tertiary">
                                       {reg.createdAt ? new Date(reg.createdAt).toLocaleDateString() : 'N/A'}
+                                    </td>
+                                    <td className="px-4 py-2">
+                                      <Button
+                                        variant="danger"
+                                        size="sm"
+                                        aria-label={`Delete registration from ${reg.name}`}
+                                        onClick={() => setRegistrationDeleteTarget(reg)}
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" aria-hidden />
+                                      </Button>
                                     </td>
                                   </tr>
                                 ))}
@@ -314,6 +350,14 @@ export default function AdminEvents() {
         isDeleting={isDeleting}
         onConfirm={confirmDelete}
         onCancel={() => setDeleteTarget(null)}
+      />
+      <DeleteModal
+        isOpen={!!registrationDeleteTarget}
+        title="Delete event registration?"
+        description={registrationDeleteTarget ? `Are you sure you want to permanently delete the registration from "${registrationDeleteTarget.name}"? This action cannot be undone.` : ''}
+        isDeleting={isDeleting}
+        onConfirm={confirmRegistrationDelete}
+        onCancel={() => setRegistrationDeleteTarget(null)}
       />
     </AdminGuard>
   );

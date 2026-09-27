@@ -23,6 +23,7 @@ export function ApplicationForm({ type, roles, onSuccess }: ApplicationFormProps
     const formData = new FormData(e.currentTarget);
     const data = {
       type,
+      name: formData.get('name') as string,
       email: formData.get('email') as string,
       whatsapp: formData.get('whatsapp') as string,
       idNumber: formData.get('idNumber') as string,
@@ -54,12 +55,25 @@ export function ApplicationForm({ type, roles, onSuccess }: ApplicationFormProps
       )}
 
       <div>
+        <label htmlFor="name" className="block text-body-sm text-text-secondary mb-2">Full Name</label>
+        <Input
+          type="text"
+          id="name"
+          name="name"
+          required
+          autoComplete="name"
+          placeholder="Your full name"
+        />
+      </div>
+
+      <div>
         <label htmlFor="email" className="block text-body-sm text-text-secondary mb-2">Email Address</label>
         <Input 
           type="email" 
           id="email" 
           name="email" 
           required 
+          autoComplete="email"
           placeholder="your.email@example.com" 
         />
       </div>

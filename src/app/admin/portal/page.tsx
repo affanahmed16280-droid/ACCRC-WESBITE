@@ -327,27 +327,35 @@ export default function AdminPortal() {
 
             {/* Submissions Section */}
             <div className="border border-border bg-secondary mt-12">
-              <div className="flex border-b border-border">
+              <div className="flex overflow-x-auto border-b border-border" role="tablist" aria-label="Application type">
                 <button 
-                  className={`px-6 py-4 font-mono text-sm uppercase tracking-wider ${activeTab === 'sub-executive' ? 'bg-primary text-accent border-b-2 border-accent' : 'text-secondary hover:bg-primary/50'}`}
+                  role="tab"
+                  aria-selected={activeTab === 'sub-executive'}
+                  className={`shrink-0 px-4 py-4 font-mono text-xs uppercase tracking-wider sm:px-6 sm:text-sm ${activeTab === 'sub-executive' ? 'bg-primary text-accent border-b-2 border-accent' : 'text-secondary hover:bg-primary/50'}`}
                   onClick={() => setActiveTab('sub-executive')}
                 >
                   Sub-Executive Apps
                 </button>
                 <button 
-                  className={`px-6 py-4 font-mono text-sm uppercase tracking-wider ${activeTab === 'executive' ? 'bg-primary text-accent border-b-2 border-accent' : 'text-secondary hover:bg-primary/50'}`}
+                  role="tab"
+                  aria-selected={activeTab === 'executive'}
+                  className={`shrink-0 px-4 py-4 font-mono text-xs uppercase tracking-wider sm:px-6 sm:text-sm ${activeTab === 'executive' ? 'bg-primary text-accent border-b-2 border-accent' : 'text-secondary hover:bg-primary/50'}`}
                   onClick={() => setActiveTab('executive')}
                 >
                   Executive Apps
                 </button>
                 <button
-                  className={`px-6 py-4 font-mono text-sm uppercase tracking-wider ${activeTab === 'prefect' ? 'bg-primary text-accent border-b-2 border-accent' : 'text-secondary hover:bg-primary/50'}`}
+                  role="tab"
+                  aria-selected={activeTab === 'prefect'}
+                  className={`shrink-0 px-4 py-4 font-mono text-xs uppercase tracking-wider sm:px-6 sm:text-sm ${activeTab === 'prefect' ? 'bg-primary text-accent border-b-2 border-accent' : 'text-secondary hover:bg-primary/50'}`}
                   onClick={() => setActiveTab('prefect')}
                 >
                   Prefect Apps
                 </button>
                 <button 
-                  className={`px-6 py-4 font-mono text-sm uppercase tracking-wider ${activeTab === 'membership' ? 'bg-primary text-accent border-b-2 border-accent' : 'text-secondary hover:bg-primary/50'}`}
+                  role="tab"
+                  aria-selected={activeTab === 'membership'}
+                  className={`shrink-0 px-4 py-4 font-mono text-xs uppercase tracking-wider sm:px-6 sm:text-sm ${activeTab === 'membership' ? 'bg-primary text-accent border-b-2 border-accent' : 'text-secondary hover:bg-primary/50'}`}
                   onClick={() => setActiveTab('membership')}
                 >
                   Memberships
@@ -376,7 +384,8 @@ export default function AdminPortal() {
                             <React.Fragment key={app.id}>
                               <tr className="border-b border-border hover:bg-primary/50">
                                 <td className="px-4 py-3">
-                                  <div className="font-bold">{app.email}</div>
+                                  <div className="font-bold">{app.name || 'Name not provided'}</div>
+                                  <div className="mt-1 text-xs text-secondary">{app.email}</div>
                                 </td>
                                 <td className="px-4 py-3 font-mono text-secondary">
                                   {app.idNumber}<br/>{app.section}
@@ -400,8 +409,8 @@ export default function AdminPortal() {
                                     <Button
                                       variant="danger"
                                       size="sm"
-                                      aria-label={`Delete application from ${app.email}`}
-                                      onClick={() => setDeleteTarget({ id: app.id!, name: app.email, type: 'application' })}
+                                      aria-label={`Delete application from ${app.name || app.email}`}
+                                      onClick={() => setDeleteTarget({ id: app.id!, name: app.name || app.email, type: 'application' })}
                                     >
                                       <Trash2 className="h-3.5 w-3.5" aria-hidden />
                                     </Button>
@@ -412,6 +421,13 @@ export default function AdminPortal() {
                                 <tr className="bg-primary/30">
                                   <td colSpan={6} className="px-6 py-4 border-b border-border">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                      <div>
+                                        <h4 className="font-mono text-xs uppercase text-secondary mb-2">Contact details</h4>
+                                        <div className="bg-secondary p-3 border border-border text-sm leading-relaxed">
+                                          <p><span className="text-secondary">Email:</span> {app.email}</p>
+                                          <p><span className="text-secondary">WhatsApp:</span> {app.whatsapp || 'Not provided'}</p>
+                                        </div>
+                                      </div>
                                       <div>
                                         <h4 className="font-mono text-xs uppercase text-secondary mb-2">Experience</h4>
                                         <div className="bg-secondary p-3 border border-border whitespace-pre-wrap text-sm">

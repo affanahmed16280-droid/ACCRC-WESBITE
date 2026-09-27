@@ -74,6 +74,7 @@ export interface Registration {
 export interface Application {
   id?: string;
   type: "sub-executive" | "executive" | "prefect";
+  name: string;
   email: string;
   whatsapp?: string;
   idNumber: string;
