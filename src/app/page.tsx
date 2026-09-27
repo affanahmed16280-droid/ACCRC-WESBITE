@@ -132,7 +132,7 @@ export default function HomePage() {
 
         <div className="hero-content">
           <p className="eyebrow">
-            <span /> EST. 2020 &middot; DHAKA, BANGLADESH
+            <span /> EST. 2019 &middot; DHAKA, BANGLADESH
           </p>
           <h1>
             BUILD<br />

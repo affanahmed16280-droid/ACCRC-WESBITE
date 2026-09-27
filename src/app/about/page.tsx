@@ -30,7 +30,7 @@ export default function AboutPage() {
               { value: '50+', label: 'Active Members' },
               { value: '10+', label: 'Competitions' },
               { value: '20+', label: 'Workshops Held' },
-              { value: '3', label: 'Years Running' },
+              { value: '2019', label: 'Established' },
             ].map((stat, i) => (
               <Card key={i} className="p-6 flex flex-col justify-center items-center text-center">
                 <div className="text-display-md font-bold text-accent mb-2">{stat.value}</div>
