@@ -401,7 +401,7 @@ const panels: Record<PanelKey, PanelData> = {
   '2024': {
     label: "Executive Committee '24",
     eyebrow: 'LEADERSHIP ARCHIVE',
-    description: 'The 2024 Executive Committee that laid the groundwork for ACCRC\u2019s growing national recognition.',
+    description: '',
     achievements: [
       {
         title: 'National Finalist',
@@ -527,7 +527,7 @@ export function AchievementsAndPanels() {
                     <p className={styles.eyebrow}>{panel.eyebrow}</p>
                     <h3 id={`leadership-${key}`}>{panel.label}</h3>
                   </div>
-                  <p>{panel.description}</p>
+                  {panel.description && <p>{panel.description}</p>}
                 </div>
 
                 {panel.moderators && panel.moderators.length > 0 && (
