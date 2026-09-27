@@ -174,10 +174,8 @@ p {
   content: '';
   position: absolute;
   top: 0;
-  /* Keep this decorative rule outside the content column so it never crosses
-     the hero copy or call-to-action labels. */
-  bottom: 2rem;
-  left: calc(10vw - 24px);
+  bottom: 0;
+  left: 10vw;
   width: 1px;
   background: #27e0d229;
 }
@@ -313,8 +311,8 @@ h1 em, h2 span {
 
 .scroll-cue {
   position: absolute;
-  bottom: 30px;
-  right: 5vw;
+  bottom: 28px;
+  left: calc(10vw + 28px);
   display: flex;
   align-items: center;
   gap: 7px;
@@ -1153,12 +1151,12 @@ footer:not(.site-footer) {
     padding: 112px 6vw 128px;
   }
 
-  .hero::after {
-    left: calc(6vw - 18px);
-  }
-
   .hero-content {
     max-width: min(100%, 34rem);
+  }
+
+  .hero::after {
+    left: 6vw;
   }
 
   .hero-copy {
@@ -1172,15 +1170,15 @@ footer:not(.site-footer) {
     justify-content: center;
   }
 
+  .scroll-cue {
+    left: calc(6vw + 28px);
+  }
+
   .hero h1 {
     font-size: clamp(56px, 17vw, 96px);
     line-height: 0.92;
     letter-spacing: -0.06em;
     margin: 26px 0 32px;
-  }
-
-  .scroll-cue {
-    right: 6vw;
   }
 
   .hero-coordinates {
