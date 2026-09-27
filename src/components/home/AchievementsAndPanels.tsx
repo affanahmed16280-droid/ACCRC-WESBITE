@@ -6,7 +6,6 @@ import { subscribeToAchievements, type FirestoreAchievement } from '@/lib/firest
 import styles from './AchievementsAndPanels.module.css';
 
 type PanelKey = '2026' | '2025' | '2024' | '2023' | 'founder';
-type ViewKey = 'all' | PanelKey;
 type AwardLevel = 'Global' | 'National';
 
 type Achievement = {
@@ -426,13 +425,13 @@ const panels: Record<PanelKey, PanelData> = {
       {
         name: 'DM Abrar Mead',
         designation: "President'24",
-        imageUrl: '/images/panel/exec-2024/presibatch24.png',
+        imageUrl: '/leadership/committee-24/dm-abrar-mead.jpg',
         imageFrame: 'square',
       },
       {
         name: 'Sabrina Mustari',
         designation: "Organizing Secretary'24",
-        imageUrl: '/images/panel/exec-2024/sabrinabatch24.png',
+        imageUrl: '/leadership/committee-24/sabrina-mustari.jpg',
         imageFrame: 'square',
       },
     ],
@@ -453,21 +452,18 @@ const panels: Record<PanelKey, PanelData> = {
       {
         name: 'Muedul Hasan Methun',
         designation: 'Founder & President',
-        collegeId: 'Founding Team',
         imageUrl: '/leadership/muedul-hasan-methun.png',
         imageFrame: 'portrait',
       },
       {
         name: 'Ahmad Zaim Khan',
         designation: 'Co-Founder & General Secretary',
-        collegeId: 'Founding Team',
         imageUrl: '/leadership/ahmad-zaim-khan.png',
         imageFrame: 'portrait',
       },
       {
         name: 'Shibil Rahman',
         designation: 'Co-Founder & Vice President (Admin)',
-        collegeId: 'Founding Team',
         imageUrl: '/leadership/shibil-rahman.png',
         imageFrame: 'portrait',
       },
@@ -477,27 +473,11 @@ const panels: Record<PanelKey, PanelData> = {
 
 const allAchievements = Object.values(panels).flatMap((panel) => panel.achievements);
 
-const allAchievementsPanel: PanelData = {
-  label: 'All Achievements',
-  eyebrow: 'CLUB RECOGNITION',
-  description: 'Every published achievement across all years. Choose a year tab to filter the list.',
-  achievements: [],
-  executive_panel: [],
-};
-
-const tabs: { key: ViewKey; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: '2026', label: '2026' },
-  { key: '2025', label: '2025' },
-  { key: '2024', label: '2024' },
-  { key: '2023', label: '2023' },
-  { key: 'founder', label: 'Founder Panel' },
-];
+const leadershipPanels = (Object.entries(panels) as Array<[PanelKey, PanelData]>)
+  .filter(([, panel]) => panel.executive_panel.length > 0 || panel.moderators?.length || panel.prefects?.length);
 
 export function AchievementsAndPanels() {
-  const [activeTab, setActiveTab] = useState<ViewKey>('all');
   const [adminAchievements, setAdminAchievements] = useState<FirestoreAchievement[]>([]);
-  const activePanel = activeTab === 'all' ? allAchievementsPanel : panels[activeTab];
 
   useEffect(() => {
     return subscribeToAchievements(setAdminAchievements, (error) => {
@@ -507,29 +487,9 @@ export function AchievementsAndPanels() {
   }, []);
 
   const achievements = useMemo(() => {
-    const publishedAchievements = [...allAchievements, ...adminAchievements];
-
-    if (activeTab === 'all') {
-      return publishedAchievements.sort((a, b) => b.year - a.year || a.title.localeCompare(b.title));
-    }
-
-    if (activeTab === 'founder') return activePanel.achievements;
-
-    return publishedAchievements
-      .filter((achievement) => achievement.year === Number(activeTab))
-      .sort((a, b) => a.title.localeCompare(b.title));
-  }, [activePanel.achievements, activeTab, adminAchievements]);
-
-  const achievementGroups = useMemo(() => {
-    if (activeTab !== 'all') return [];
-
-    return [...new Set(achievements.map((achievement) => achievement.year))]
-      .sort((a, b) => b - a)
-      .map((year) => ({
-        year,
-        achievements: achievements.filter((achievement) => achievement.year === year),
-      }));
-  }, [achievements, activeTab]);
+    return [...allAchievements, ...adminAchievements]
+      .sort((a, b) => b.year - a.year || a.title.localeCompare(b.title));
+  }, [adminAchievements]);
 
   return (
     <section className={styles.section} id="achievements" aria-labelledby="achievements-title">
@@ -544,112 +504,60 @@ export function AchievementsAndPanels() {
           </p>
         </div>
 
-        <div className={styles.tabList} role="tablist" aria-label="Achievements and executive panel by year">
-          {tabs.map((tab) => (
-            <button
-              className={`${styles.tab} ${activeTab === tab.key ? styles.activeTab : ''}`}
-              id={`achievements-tab-${tab.key}`}
-              key={tab.key}
-              role="tab"
-              type="button"
-              aria-selected={activeTab === tab.key}
-              aria-controls="achievements-panel"
-              onClick={() => setActiveTab(tab.key)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <div
-          className={styles.panel}
-          id="achievements-panel"
-          key={activeTab}
-          role="tabpanel"
-          aria-labelledby={`achievements-tab-${activeTab}`}
-        >
-          <div className={styles.panelIntro}>
-            <div>
-              <p className={styles.eyebrow}>{activePanel.eyebrow}</p>
-              <h3>{activePanel.label}</h3>
-            </div>
-            <p>{activePanel.description}</p>
-          </div>
-
+        <div className={styles.panel}>
           <div className={styles.contentDivider} />
+          <div className={styles.contentHeading}>
+            <div>
+              <Trophy aria-hidden="true" />
+              <h4>All Achievements</h4>
+            </div>
+            <span>{achievements.length} published</span>
+          </div>
+          {achievements.length > 0 ? <AchievementGrid achievements={achievements} /> : <EmptyState label="achievement records" />}
 
-          {activeTab !== 'founder' && (
-            <>
-              <div className={styles.contentHeading}>
-                <div>
-                  <Trophy aria-hidden="true" />
-                  <h4>{activeTab === 'all' ? 'All Achievements' : `${activeTab} Achievements`}</h4>
-                </div>
-                <span>{achievements.length} published</span>
-              </div>
-
-              {achievements.length > 0 ? (
-                activeTab === 'all' ? (
-                  <div className={styles.yearGroups}>
-                    {achievementGroups.map((group) => (
-                      <section className={styles.yearGroup} key={group.year} aria-label={`${group.year} achievements`}>
-                        <div className={styles.yearGroupHeading}>
-                          <h5>{group.year} Achievements</h5>
-                          <span>{group.achievements.length} published</span>
-                        </div>
-                        <AchievementGrid achievements={group.achievements} />
-                      </section>
-                    ))}
+          <div className={styles.leadershipArchive} aria-label="Leadership archive">
+            {leadershipPanels.map(([key, panel]) => (
+              <section className={styles.leadershipPanel} key={key} aria-labelledby={`leadership-${key}`}>
+                <div className={styles.panelIntro}>
+                  <div>
+                    <p className={styles.eyebrow}>{panel.eyebrow}</p>
+                    <h3 id={`leadership-${key}`}>{panel.label}</h3>
                   </div>
-                ) : (
-                  <AchievementGrid achievements={achievements} />
-                )
-              ) : (
-                <EmptyState label="achievement records" />
-              )}
-            </>
-          )}
+                  <p>{panel.description}</p>
+                </div>
 
-          {activePanel.executive_panel.length > 0 && (
-            <>
-              {activePanel.moderators && activePanel.moderators.length > 0 && (
-                <>
-                  <div className={`${styles.contentHeading} ${styles.executiveHeading}`}>
-                    <div>
-                      <GraduationCap aria-hidden="true" />
-                      <h4>Advisor &amp; Moderation Panel</h4>
+                {panel.moderators && panel.moderators.length > 0 && (
+                  <>
+                    <div className={`${styles.contentHeading} ${styles.executiveHeading}`}>
+                      <div><GraduationCap aria-hidden="true" /><h4>Advisor &amp; Moderation Panel</h4></div>
+                      <span>{panel.moderators.length} members</span>
                     </div>
-                    <span>{activePanel.moderators.length} members</span>
-                  </div>
-                  <MemberGrid members={activePanel.moderators} className={styles.moderatorGrid} />
-                </>
-              )}
-              <div className={`${styles.contentHeading} ${styles.executiveHeading}`}>
-                <div>
-                  <UsersRound aria-hidden="true" />
-                  <h4>{activeTab === 'founder' ? 'Founding Team' : 'Executive Panel'}</h4>
-                </div>
-                <span>{activePanel.executive_panel.length} members</span>
-              </div>
-              <MemberGrid
-                members={activePanel.executive_panel}
-                className={activeTab === 'founder' ? styles.founderGrid : undefined}
-              />
-            </>
-          )}
+                    <MemberGrid members={panel.moderators} className={styles.moderatorGrid} />
+                  </>
+                )}
 
-          {activePanel.prefects && activePanel.prefects.length > 0 && (
-            <>
-              <div className={`${styles.contentHeading} ${styles.executiveHeading}`}>
-                <div>
-                  <ShieldCheck aria-hidden="true" />
-                  <h4>2026 Batch Prefects</h4>
-                </div>
-                <span>{activePanel.prefects.length} prefects</span>
-              </div>
-              <MemberGrid members={activePanel.prefects} className={styles.prefectGrid} />
-            </>
-          )}
+                {panel.executive_panel.length > 0 && (
+                  <>
+                    <div className={`${styles.contentHeading} ${styles.executiveHeading}`}>
+                      <div><UsersRound aria-hidden="true" /><h4>{key === 'founder' ? 'Founding Team' : 'Executive Panel'}</h4></div>
+                      <span>{panel.executive_panel.length} members</span>
+                    </div>
+                    <MemberGrid members={panel.executive_panel} className={key === 'founder' ? styles.founderGrid : undefined} />
+                  </>
+                )}
+
+                {panel.prefects && panel.prefects.length > 0 && (
+                  <>
+                    <div className={`${styles.contentHeading} ${styles.executiveHeading}`}>
+                      <div><ShieldCheck aria-hidden="true" /><h4>2026 Batch Prefects</h4></div>
+                      <span>{panel.prefects.length} prefects</span>
+                    </div>
+                    <MemberGrid members={panel.prefects} className={styles.prefectGrid} />
+                  </>
+                )}
+              </section>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -699,7 +607,15 @@ function MemberGrid({ members, className = '' }: { members: ExecutiveMember[]; c
             aria-label={`${member.name}, ${member.designation}`}
           >
             {member.imageUrl ? (
-              <img className={`${styles.avatar} ${imageClass}`} src={member.imageUrl} alt={`${member.name}, ${member.designation}`} />
+              <img
+                className={`${styles.avatar} ${imageClass}`}
+                src={member.imageUrl}
+                alt={`${member.name}, ${member.designation}`}
+                width={768}
+                height={768}
+                loading="lazy"
+                decoding="async"
+              />
             ) : (
               <div className={styles.avatarFallback} aria-label={`Photo to be added for ${member.name}`}>
                 {member.name.split(' ').map((part) => part[0]).join('').slice(0, 3)}

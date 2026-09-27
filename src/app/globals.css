@@ -27,15 +27,28 @@
 html {
   scroll-behavior: smooth;
   background: #061416;
+  min-width: 320px;
 }
 
 body {
   color: #e8fffb;
   background: #061416;
   margin: 0;
-  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+  min-width: 320px;
+  overflow-x: hidden;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+}
+
+img {
+  height: auto;
+  max-width: 100%;
+}
+
+h1, h2, h3, h4, h5, h6, p, a, button, label {
+  overflow-wrap: anywhere;
 }
 
 a {
@@ -56,7 +69,7 @@ button, a, input, select, textarea {
    TYPOGRAPHY - INCREASED FONT SIZES
    ═══════════════════════════════════════════════════════════ */
 p {
-  font-size: 17px;
+  font-size: 18px;
   line-height: 1.6;
 }
 
@@ -233,11 +246,9 @@ p {
 .hero h1 {
   font-size: clamp(64px, 10.5vw, 168px);
   font-weight: 800;
-  line-height: 0.84;
+  line-height: 0.9;
   letter-spacing: -0.07em;
-  /* The large headline can wrap to three lines on laptop widths. Reserve a
-     fixed gap so the paragraph never crowds the final line. */
-  margin: 30px 0 48px;
+  margin: 30px 0 clamp(2rem, 4vw, 3rem);
 }
 
 h1 em, h2 span {
@@ -413,7 +424,7 @@ h1 em, h2 span {
 
 .mission-body p {
   color: #cbd5e1;
-  font-size: 17px;
+  font-size: 18px;
   line-height: 1.7;
   max-width: 330px;
 }
@@ -498,7 +509,7 @@ h1 em, h2 span {
 
 .event-info p {
   margin: 0;
-  font-size: 16px;
+  font-size: 17px;
 }
 
 .event-date {
@@ -605,7 +616,7 @@ h1 em, h2 span {
   max-width: 360px;
   margin-top: 30px;
   line-height: 1.7;
-  font-size: 17px;
+  font-size: 18px;
 }
 
 .portal-note {
@@ -1132,8 +1143,10 @@ footer:not(.site-footer) {
   }
 
   .hero {
-    min-height: 660px;
-    padding: 120px 6vw 55px;
+    height: auto;
+    min-height: max(720px, 100svh);
+    max-height: none;
+    padding: 112px 6vw 128px;
   }
 
   .hero::after {
@@ -1151,7 +1164,10 @@ footer:not(.site-footer) {
   }
 
   .hero h1 {
-    font-size: clamp(62px, 18vw, 110px);
+    font-size: clamp(56px, 17vw, 96px);
+    line-height: 0.92;
+    letter-spacing: -0.06em;
+    margin: 26px 0 32px;
   }
 
   .scroll-cue {
@@ -1160,7 +1176,7 @@ footer:not(.site-footer) {
   }
 
   .hero-coordinates {
-    bottom: 70px;
+    bottom: 28px;
     right: 6vw;
   }
 
@@ -1296,6 +1312,28 @@ footer:not(.site-footer) {
     flex-direction: column;
     gap: 16px;
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    min-height: max(700px, 100svh);
+    padding-bottom: 78px;
+  }
+
+  .hero-copy {
+    font-size: 17px;
+  }
+
+  .hero-coordinates,
+  .scroll-cue {
+    display: none;
+  }
+
+  .primary-button,
+  .outline-button {
+    justify-content: center;
+    width: 100%;
   }
 }
 
