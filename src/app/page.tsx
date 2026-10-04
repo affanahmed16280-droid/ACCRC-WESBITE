@@ -90,10 +90,10 @@ export default function HomePage() {
       {/* ═══ NAVBAR ═══ */}
       <nav className="nav">
         <a className="wordmark" href="#top" aria-label="ACCRC home">
-          <img className="wordmark-logo" src="/accrc-logo.png" alt="ACCRC logo" />
-          <span>
-            ACCRC
-            <small>ADAMJEE CANTONMENT COLLEGE<br />ROBOTICS CLUB</small>
+          <img className="wordmark-logo" src="/accrc-logo.png" alt="ACCRC logo" width={48} height={48} />
+          <span className="wordmark-text">
+            <span className="wordmark-title">ACCRC</span>
+            <small className="wordmark-sub">ADAMJEE CANTONMENT COLLEGE<br />ROBOTICS CLUB</small>
           </span>
         </a>
 
@@ -106,6 +106,9 @@ export default function HomePage() {
           {activeLeadershipApplications.length > 0 && (
             <a href="/portal/" onClick={() => setMenuOpen(false)}>Leadership</a>
           )}
+          <a href="#join" className="mobile-drawer-cta" onClick={() => setMenuOpen(false)}>
+            APPLY FOR MEMBERSHIP <ArrowRight size={16} aria-hidden />
+          </a>
         </div>
 
         <a href="#join" className="nav-cta">

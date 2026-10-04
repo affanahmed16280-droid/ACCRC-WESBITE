@@ -56,14 +56,16 @@ export function Navbar() {
           <img
             src="/accrc-logo.png"
             alt="ACCRC Logo"
-            className="h-9 w-9 md:h-10 md:w-10 rounded-full object-cover border-[1.5px] border-[#c94030]"
+            width={44}
+            height={44}
+            className="h-10 w-10 md:h-11 md:w-11 rounded-full object-contain filter drop-shadow-sm transition-transform duration-200 group-hover:scale-105"
           />
-          <div className="flex flex-col leading-none">
-            <span className="font-extrabold text-[#141210] text-[15px] md:text-[17px] tracking-[0.1em] leading-none">
+          <div className="flex flex-col leading-tight">
+            <span className="font-extrabold text-[#141210] text-[15px] md:text-[17px] tracking-[0.08em] leading-none">
               ACCRC
             </span>
-            <span className="font-mono text-[8px] text-[#6b6258] tracking-[0.12em] uppercase mt-[3px] hidden sm:block">
-              Robotics Club
+            <span className="font-mono text-[9px] md:text-[10px] font-bold text-[#1e1b18] tracking-[0.06em] uppercase mt-[3px] leading-tight">
+              Adamjee Cantonment College<br className="sm:hidden" /> Robotics Club
             </span>
           </div>
         </a>
