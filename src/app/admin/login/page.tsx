@@ -35,16 +35,16 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center pt-24 bg-primary text-primary px-4">
+    <div className="min-h-screen flex items-center justify-center pt-24 bg-primary text-[#141210] px-4">
       <div className="max-w-sm w-full mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-sans font-bold mb-2">ACCRC</h1>
           <p className="text-secondary font-mono text-sm uppercase tracking-wider">Admin Access</p>
         </div>
         
-        <form onSubmit={handleLogin} className="bg-secondary p-6 border border-border flex flex-col gap-4">
+        <form onSubmit={handleLogin} className="bg-[#ede7da] p-6 border border-[#cfc9bc] flex flex-col gap-4">
           {error && (
-            <div className="bg-danger/10 text-danger text-sm p-3 border border-danger/20 font-mono">
+            <div className="bg-[#c72c2c]/10 text-[#c72c2c] text-sm p-3 border border-[#c72c2c]/20 font-mono">
               {error}
             </div>
           )}

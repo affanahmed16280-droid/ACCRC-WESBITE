@@ -46,35 +46,35 @@ export default function EventsPage() {
   }, [clubEvents, facebookEvents]);
 
   return (
-    <div className="pt-24 min-h-screen bg-primary">
+    <div className="pt-24 min-h-screen bg-[#f6f0e7]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-12"
         >
-          <span className="font-mono text-xs tracking-widest text-accent mb-4 block uppercase">EVENTS</span>
-          <h1 className="text-4xl md:text-5xl font-bold text-primary">Competitions, workshops & meetups</h1>
+          <span className="font-mono text-xs tracking-widest text-[#c94030] mb-4 block uppercase">EVENTS</span>
+          <h1 className="text-4xl md:text-5xl font-bold text-[#141210]">Competitions, workshops & meetups</h1>
         </motion.div>
 
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-10 items-start">
           <div>
             {loading ? (
               <div className="animate-pulse space-y-6">
-                <div className="h-64 bg-secondary border border-border w-full" />
-                <div className="h-64 bg-secondary border border-border w-full" />
+                <div className="h-64 bg-[#ede7da] border border-[#cfc9bc] w-full" />
+                <div className="h-64 bg-[#ede7da] border border-[#cfc9bc] w-full" />
               </div>
             ) : error ? (
-              <p className="text-danger">Events could not be loaded. Please try again later.</p>
+              <p className="text-[#c72c2c]">Events could not be loaded. Please try again later.</p>
             ) : upcoming.length === 0 ? (
-              <section className="border border-border bg-secondary p-8 sm:p-12 text-center">
-                <p className="font-mono text-xs tracking-widest text-accent uppercase mb-3">Calendar clear</p>
-                <h2 className="text-2xl font-bold text-primary mb-3">No upcoming events right now.</h2>
-                <p className="text-text-secondary">Stay tuned! New events will appear here as soon as the club publishes them.</p>
+              <section className="border border-[#cfc9bc] bg-[#ede7da] p-8 sm:p-12 text-center">
+                <p className="font-mono text-xs tracking-widest text-[#c94030] uppercase mb-3">Calendar clear</p>
+                <h2 className="text-2xl font-bold text-[#141210] mb-3">No upcoming events right now.</h2>
+                <p className="text-[#3a3530]">Stay tuned! New events will appear here as soon as the club publishes them.</p>
               </section>
             ) : (
               <section>
-                <h2 className="text-2xl font-bold mb-6 text-primary">Upcoming events</h2>
+                <h2 className="text-2xl font-bold mb-6 text-[#141210]">Upcoming events</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {upcoming.map((event) => <EventCard key={event.id} event={event} />)}
                 </div>
@@ -83,7 +83,7 @@ export default function EventsPage() {
 
             {past.length > 0 && (
               <section className="mt-16 opacity-80">
-                <h2 className="text-2xl font-bold mb-6 text-text-secondary">Past events</h2>
+                <h2 className="text-2xl font-bold mb-6 text-[#3a3530]">Past events</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {past.map((event) => <EventCard key={event.id} event={event} />)}
                 </div>

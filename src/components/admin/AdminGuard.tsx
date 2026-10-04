@@ -44,16 +44,16 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-primary">
-        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      <div className="min-h-screen flex items-center justify-center bg-[#f6f0e7]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#c94030]" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-primary">
-        <div className="text-danger bg-danger/10 p-4 rounded-sm border border-danger/20 font-mono">
+      <div className="min-h-screen flex items-center justify-center bg-[#f6f0e7]">
+        <div className="text-[#c72c2c] bg-[#c72c2c]/10 p-4 rounded border border-[#c72c2c]/20 font-mono">
           Configuration Error: {error}
         </div>
       </div>

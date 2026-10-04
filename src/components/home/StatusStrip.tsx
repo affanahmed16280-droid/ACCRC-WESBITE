@@ -58,7 +58,7 @@ export function StatusStrip() {
 
   if (loading) {
     return (
-      <div className="w-full bg-secondary border-y border-border py-4">
+      <div className="w-full bg-[#ede7da] border-y border-[#cfc9bc] py-4">
         <div className="container-content flex flex-col md:flex-row items-center justify-between gap-3 animate-pulse">
           <div className="h-4 bg-border w-32 rounded"></div>
           <div className="h-4 bg-border w-48 rounded"></div>
@@ -68,28 +68,28 @@ export function StatusStrip() {
   }
 
   return (
-    <div className="w-full bg-secondary border-y border-border py-4">
+    <div className="w-full bg-[#ede7da] border-y border-[#cfc9bc] py-4">
       <div className="container-content flex flex-col md:flex-row items-center justify-between gap-3">
         {nextEvent ? (
           <>
             <div className="flex items-center gap-3">
-              <span className="font-mono text-mono-sm text-text-tertiary uppercase tracking-wider">NEXT EVENT</span>
-              <span className="font-bold text-primary">{nextEvent.name}</span>
+              <span className="font-mono text-[0.75rem] text-[#6b6258] uppercase tracking-wider">NEXT EVENT</span>
+              <span className="font-bold text-[#141210]">{nextEvent.name}</span>
             </div>
-            <div className="flex items-center gap-3 font-mono text-mono-sm">
+            <div className="flex items-center gap-3 font-mono text-[0.75rem]">
               <Badge 
                 status={statusLabel === 'UPCOMING' ? 'upcoming' : statusLabel === 'REGISTRATION OPEN' ? 'open' : 'closed'} 
                 label={statusLabel} 
               />
               {countdown && (
-                <span className="text-accent min-w-[120px] text-right">
+                <span className="text-[#c94030] min-w-[120px] text-right">
                   T-MINUS {countdown}
                 </span>
               )}
             </div>
           </>
         ) : (
-          <div className="w-full text-center font-mono text-mono-sm text-text-tertiary tracking-widest">
+          <div className="w-full text-center font-mono text-[0.75rem] text-[#6b6258] tracking-widest">
             NO UPCOMING EVENTS
           </div>
         )}

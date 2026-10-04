@@ -180,9 +180,9 @@ export default function AdminEvents() {
 
   return (
     <AdminGuard>
-      <div className="pt-24 container-content min-h-screen pb-16 text-primary">
+      <div className="pt-24 container-content min-h-screen pb-16 text-[#141210]">
         <div className="mb-6">
-          <Link href="/admin" className="text-secondary hover:text-accent font-mono text-sm flex items-center inline-flex">
+          <Link href="/admin" className="text-secondary hover:text-[#c94030] font-mono text-sm flex items-center inline-flex">
             <ChevronLeft className="w-4 h-4 mr-1" /> Back to Dashboard
           </Link>
         </div>
@@ -195,14 +195,14 @@ export default function AdminEvents() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-danger/10 border border-danger/20 text-danger font-mono text-sm">
+          <div className="mb-6 p-4 bg-[#c72c2c]/10 border border-[#c72c2c]/20 text-[#c72c2c] font-mono text-sm">
             {error}
           </div>
         )}
 
         {isFormOpen && (
-          <div className="bg-secondary border border-border p-6 mb-8">
-            <h2 className="text-xl font-sans font-bold mb-4 border-b border-border pb-2">
+          <div className="bg-[#ede7da] border border-[#cfc9bc] p-6 mb-8">
+            <h2 className="text-xl font-sans font-bold mb-4 border-b border-[#cfc9bc] pb-2">
               {editingId ? 'Edit Event' : 'Create New Event'}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -217,7 +217,7 @@ export default function AdminEvents() {
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-mono text-secondary uppercase">Event Date/Time</label>
-                  <Input type="datetime-local" name="date" value={formData.date} onChange={handleInputChange} required className="w-full bg-secondary border-border text-primary" />
+                  <Input type="datetime-local" name="date" value={formData.date} onChange={handleInputChange} required className="w-full bg-[#ede7da] border-[#cfc9bc] text-[#141210]" />
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-mono text-secondary uppercase">Image URL (Optional)</label>
@@ -225,11 +225,11 @@ export default function AdminEvents() {
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-mono text-secondary uppercase">Registration Opens (optional)</label>
-                  <Input type="datetime-local" name="registrationOpensAt" value={formData.registrationOpensAt} onChange={handleInputChange} className="w-full bg-secondary border-border text-primary" />
+                  <Input type="datetime-local" name="registrationOpensAt" value={formData.registrationOpensAt} onChange={handleInputChange} className="w-full bg-[#ede7da] border-[#cfc9bc] text-[#141210]" />
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-mono text-secondary uppercase">Registration Closes (optional)</label>
-                  <Input type="datetime-local" name="registrationClosesAt" value={formData.registrationClosesAt} onChange={handleInputChange} className="w-full bg-secondary border-border text-primary" />
+                  <Input type="datetime-local" name="registrationClosesAt" value={formData.registrationClosesAt} onChange={handleInputChange} className="w-full bg-[#ede7da] border-[#cfc9bc] text-[#141210]" />
                 </div>
               </div>
               <div className="space-y-1">
@@ -239,7 +239,7 @@ export default function AdminEvents() {
                   value={formData.description} 
                   onChange={handleInputChange} 
                   required 
-                  className="w-full h-32 bg-primary border border-border p-3 text-primary focus:border-accent focus:outline-none transition-colors"
+                  className="w-full h-32 bg-primary border border-[#cfc9bc] p-3 text-[#141210] focus:border-[#c94030] focus:outline-none transition-colors"
                 />
               </div>
               <div className="flex justify-end pt-4">
@@ -254,12 +254,12 @@ export default function AdminEvents() {
 
         {loading ? (
           <div className="flex justify-center py-10">
-            <Loader2 className="w-8 h-8 animate-spin text-accent" />
+            <Loader2 className="w-8 h-8 animate-spin text-[#c94030]" />
           </div>
         ) : (
           <div className="space-y-4">
             {events.length === 0 ? (
-              <div className="text-center py-10 text-secondary border border-border bg-secondary">
+              <div className="text-center py-10 text-secondary border border-[#cfc9bc] bg-[#ede7da]">
                 No events found. Create one to get started.
               </div>
             ) : (
@@ -269,13 +269,13 @@ export default function AdminEvents() {
                 const eventRegs = registrations[event.id] || [];
 
                 return (
-                  <div key={event.id} className="border border-border bg-secondary overflow-hidden">
+                  <div key={event.id} className="border border-[#cfc9bc] bg-[#ede7da] overflow-hidden">
                     <div className="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                       <div>
-                        <h3 className="text-lg font-sans font-bold text-accent">{event.name}</h3>
+                        <h3 className="text-lg font-sans font-bold text-[#c94030]">{event.name}</h3>
                         <div className="text-sm text-secondary font-mono mt-1 space-x-4">
                           <span>Date: {new Date(event.date).toLocaleDateString()}</span>
-                          <span>Status: <span className="text-primary">{statusInfo.label}</span></span>
+                          <span>Status: <span className="text-[#141210]">{statusInfo.label}</span></span>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -293,26 +293,26 @@ export default function AdminEvents() {
                     </div>
 
                     {isExpanded && (
-                      <div className="border-t border-border bg-primary p-4">
+                      <div className="border-t border-[#cfc9bc] bg-primary p-4">
                         <h4 className="font-mono text-sm uppercase text-secondary mb-3">Registrations ({eventRegs.length})</h4>
                         {eventRegs.length === 0 ? (
                           <div className="text-sm text-tertiary italic">No registrations yet.</div>
                         ) : (
                           <div className="overflow-x-auto">
                             <table className="w-full text-sm text-left">
-                              <thead className="text-xs font-mono uppercase bg-secondary text-secondary">
+                              <thead className="text-xs font-mono uppercase bg-[#ede7da] text-secondary">
                                 <tr>
-                                  <th className="px-4 py-2 border-b border-border">Name</th>
-                                  <th className="px-4 py-2 border-b border-border">Email</th>
-                                  <th className="px-4 py-2 border-b border-border">Class/Sec</th>
-                                  <th className="px-4 py-2 border-b border-border">Submitted</th>
-                                  <th className="px-4 py-2 border-b border-border">Action</th>
+                                  <th className="px-4 py-2 border-b border-[#cfc9bc]">Name</th>
+                                  <th className="px-4 py-2 border-b border-[#cfc9bc]">Email</th>
+                                  <th className="px-4 py-2 border-b border-[#cfc9bc]">Class/Sec</th>
+                                  <th className="px-4 py-2 border-b border-[#cfc9bc]">Submitted</th>
+                                  <th className="px-4 py-2 border-b border-[#cfc9bc]">Action</th>
                                 </tr>
                               </thead>
                               <tbody>
                                 {eventRegs.map((reg) => (
-                                  <tr key={reg.id} className="border-b border-border/50 hover:bg-secondary/50 font-mono text-xs">
-                                    <td className="px-4 py-2 text-primary">{reg.name}</td>
+                                  <tr key={reg.id} className="border-b border-[#cfc9bc]/50 hover:bg-[#ede7da]/50 font-mono text-xs">
+                                    <td className="px-4 py-2 text-[#141210]">{reg.name}</td>
                                     <td className="px-4 py-2 text-secondary">{reg.email}</td>
                                     <td className="px-4 py-2 text-secondary">{reg.classSection || '-'}</td>
                                     <td className="px-4 py-2 text-tertiary">

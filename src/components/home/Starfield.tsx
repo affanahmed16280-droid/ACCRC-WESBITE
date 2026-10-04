@@ -15,7 +15,7 @@ export function Starfield() {
     let stars: { x: number; y: number; size: number; speedY: number; speedX: number; opacity: number }[] = [];
     let animationFrameId: number;
 
-    const numStars = 150;
+    const numStars = 80;
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -26,17 +26,17 @@ export function Starfield() {
         stars.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          size: Math.random() * 1.5 + 0.5,
-          speedY: Math.random() * 0.3 + 0.1,
-          speedX: (Math.random() - 0.5) * 0.1,
-          opacity: Math.random() * 0.7 + 0.3,
+          size: Math.random() * 1.8 + 0.5,
+          speedY: Math.random() * 0.25 + 0.08,
+          speedX: (Math.random() - 0.5) * 0.08,
+          opacity: Math.random() * 0.35 + 0.1,
         });
       }
     };
 
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#F5F5F5';
+      ctx.fillStyle = '#8a7a6a';
 
       stars.forEach((star) => {
         ctx.globalAlpha = star.opacity;

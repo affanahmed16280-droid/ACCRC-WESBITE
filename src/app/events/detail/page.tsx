@@ -39,11 +39,11 @@ function EventDetailContent() {
   }, [id]);
 
   if (loading) {
-    return <div className="text-text-secondary animate-pulse">Loading event details...</div>;
+    return <div className="text-[#3a3530] animate-pulse">Loading event details...</div>;
   }
 
   if (error || !event) {
-    return <div className="text-danger">Event not found.</div>;
+    return <div className="text-[#c72c2c]">Event not found.</div>;
   }
 
   const openAt = event.registrationOpensAt ? new Date(event.registrationOpensAt) : undefined;
@@ -55,20 +55,20 @@ function EventDetailContent() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <Link href="/events" className="inline-flex items-center text-sm text-text-secondary hover:text-primary mb-8 transition-colors">
+      <Link href="/events" className="inline-flex items-center text-sm text-[#3a3530] hover:text-primary mb-8 transition-colors">
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back to Events
       </Link>
       
       <div className="mb-8">
-        <h1 className="text-3xl md:text-5xl font-bold text-primary mb-4">{event.name}</h1>
+        <h1 className="text-3xl md:text-5xl font-bold text-[#141210] mb-4">{event.name}</h1>
         <div className="flex flex-wrap items-center gap-6 mb-6">
-          <span className="font-mono text-text-secondary">
+          <span className="font-mono text-[#3a3530]">
             {new Date(event.date).toLocaleString(undefined, { 
               year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
             })}
           </span>
-          <div className="flex items-center text-text-secondary">
+          <div className="flex items-center text-[#3a3530]">
             <MapPin className="w-4 h-4 mr-2" />
             <span>{event.location}</span>
           </div>
@@ -76,18 +76,18 @@ function EventDetailContent() {
         <EventStatus registrationOpensAt={openAt} registrationClosesAt={closeAt} />
       </div>
 
-      <div className="prose prose-invert max-w-none mb-16 text-text-secondary">
+      <div className="prose prose-invert max-w-none mb-16 text-[#3a3530]">
         <p className="whitespace-pre-wrap">{event.description}</p>
       </div>
 
-      <div className="border-t border-border pt-12">
+      <div className="border-t border-[#cfc9bc] pt-12">
         {status === 'open' && (
           <EventRegistrationForm eventId={event.id} eventName={event.name} />
         )}
         
         {status === 'upcoming' && openAt && (
-          <div className="bg-secondary border border-border p-8 text-center max-w-xl mx-auto">
-            <h3 className="text-xl font-bold text-primary mb-4">Registration Opens Soon</h3>
+          <div className="bg-[#ede7da] border border-[#cfc9bc] p-8 text-center max-w-xl mx-auto">
+            <h3 className="text-xl font-bold text-[#141210] mb-4">Registration Opens Soon</h3>
             <div className="flex justify-center">
               <Countdown targetDate={openAt} />
             </div>
@@ -95,16 +95,16 @@ function EventDetailContent() {
         )}
 
         {hasRegistrationWindow && status === 'closed' && (
-          <div className="bg-secondary border border-border p-8 text-center max-w-xl mx-auto">
-            <h3 className="text-xl font-bold text-text-secondary mb-2">Registration Closed</h3>
-            <p className="text-text-tertiary">Registration for this event has closed.</p>
+          <div className="bg-[#ede7da] border border-[#cfc9bc] p-8 text-center max-w-xl mx-auto">
+            <h3 className="text-xl font-bold text-[#3a3530] mb-2">Registration Closed</h3>
+            <p className="text-[#6b6258]">Registration for this event has closed.</p>
           </div>
         )}
 
         {!hasRegistrationWindow && (
-          <div className="bg-secondary border border-border p-8 text-center max-w-xl mx-auto">
-            <h3 className="text-xl font-bold text-text-secondary mb-2">Registration details coming soon</h3>
-            <p className="text-text-tertiary">Please follow ACCRC for registration announcements.</p>
+          <div className="bg-[#ede7da] border border-[#cfc9bc] p-8 text-center max-w-xl mx-auto">
+            <h3 className="text-xl font-bold text-[#3a3530] mb-2">Registration details coming soon</h3>
+            <p className="text-[#6b6258]">Please follow ACCRC for registration announcements.</p>
           </div>
         )}
       </div>
@@ -114,8 +114,8 @@ function EventDetailContent() {
 
 export default function EventDetailPage() {
   return (
-    <div className="pt-24 min-h-screen bg-primary px-4 sm:px-6 lg:px-8 pb-20">
-      <Suspense fallback={<div className="text-text-secondary max-w-4xl mx-auto pt-10">Loading...</div>}>
+    <div className="pt-24 min-h-screen bg-[#f6f0e7] px-4 sm:px-6 lg:px-8 pb-20">
+      <Suspense fallback={<div className="text-[#3a3530] max-w-4xl mx-auto pt-10">Loading...</div>}>
         <EventDetailContent />
       </Suspense>
     </div>

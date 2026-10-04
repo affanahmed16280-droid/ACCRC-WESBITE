@@ -31,20 +31,20 @@ export function EventRegistrationForm({ eventId, eventName }: { eventId: string,
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center justify-center p-8 border border-border bg-secondary text-center"
+        className="flex flex-col items-center justify-center p-8 border border-[#cfc9bc] bg-[#ede7da] text-center"
       >
         <CheckCircle className="w-12 h-12 text-success mb-4" />
-        <h3 className="text-xl font-bold text-primary mb-2">Registration Submitted Successfully</h3>
-        <p className="text-text-secondary">We look forward to seeing you at {eventName}.</p>
+        <h3 className="text-xl font-bold text-[#141210] mb-2">Registration Submitted Successfully</h3>
+        <p className="text-[#3a3530]">We look forward to seeing you at {eventName}.</p>
       </motion.div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 max-w-xl border border-border p-6 md:p-8 bg-secondary">
+    <form onSubmit={handleSubmit} className="space-y-5 max-w-xl border border-[#cfc9bc] p-6 md:p-8 bg-[#ede7da]">
       <div>
         <h3 className="text-xl font-bold mb-1">Register for {eventName}</h3>
-        <p className="text-sm text-text-secondary mb-6">Please fill out all required fields below.</p>
+        <p className="text-sm text-[#3a3530] mb-6">Please fill out all required fields below.</p>
       </div>
 
       <Input required placeholder="Full Name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
@@ -71,7 +71,7 @@ export function EventRegistrationForm({ eventId, eventName }: { eventId: string,
 
       <Textarea required placeholder="Motivation (Why do you want to join?)" rows={4} value={formData.motivation} onChange={e => setFormData({...formData, motivation: e.target.value})} />
       
-      {status === 'error' && <p className="text-danger text-sm">{errorMsg}</p>}
+      {status === 'error' && <p className="text-[#c72c2c] text-sm">{errorMsg}</p>}
       
       <Button type="submit" loading={status === 'loading'} className="w-full">
         {status === 'loading' ? 'Submitting...' : 'Complete Registration'}

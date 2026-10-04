@@ -44,17 +44,17 @@ export function MembershipForm() {
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center justify-center p-12 border border-border bg-secondary text-center"
+        className="flex flex-col items-center justify-center p-12 border border-[#cfc9bc] bg-[#ede7da] text-center"
       >
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 200, damping: 15 }}
         >
-          <CheckCircle className="w-16 h-16 text-accent mb-6" />
+          <CheckCircle className="w-16 h-16 text-[#c94030] mb-6" />
         </motion.div>
-        <h3 className="text-2xl font-bold text-primary mb-3">Application Submitted</h3>
-        <p className="text-text-secondary mb-8 max-w-md">
+        <h3 className="text-2xl font-bold text-[#141210] mb-3">Application Submitted</h3>
+        <p className="text-[#3a3530] mb-8 max-w-md">
           Thank you for applying to ACCRC. We will review your application and contact you soon via email.
         </p>
         <Link href="/">
@@ -65,20 +65,20 @@ export function MembershipForm() {
   }
 
   return (
-    <div className="border border-border bg-secondary p-6 md:p-10 w-full max-w-2xl mx-auto">
+    <div className="border border-[#cfc9bc] bg-[#ede7da] p-6 md:p-10 w-full max-w-2xl mx-auto">
       {/* Progress Bar */}
       <div className="flex items-center justify-between mb-10 relative">
         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[1px] bg-border z-0" />
         {[1, 2, 3].map((num) => (
           <div key={num} className="relative z-10 flex flex-col items-center gap-2">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-mono transition-all duration-300
-              ${step > num ? 'bg-accent text-primary border-accent' : 
-                step === num ? 'bg-primary text-accent border-accent shadow-[0_0_10px_rgba(10,132,255,0.5)]' : 
-                'bg-secondary text-text-tertiary border-border'} border`}
+              ${step > num ? 'bg-[#c94030] text-[#141210] border-[#c94030]' : 
+                step === num ? 'bg-primary text-[#c94030] border-[#c94030] shadow-[0_0_10px_rgba(10,132,255,0.5)]' : 
+                'bg-[#ede7da] text-[#6b6258] border-[#cfc9bc]'} border`}
             >
               {num}
             </div>
-            <span className={`text-xs absolute -bottom-6 whitespace-nowrap ${step >= num ? 'text-text-secondary' : 'text-text-tertiary'}`}>
+            <span className={`text-xs absolute -bottom-6 whitespace-nowrap ${step >= num ? 'text-[#3a3530]' : 'text-[#6b6258]'}`}>
               {num === 1 ? 'Personal' : num === 2 ? 'Academic' : 'Motivation'}
             </span>
           </div>
@@ -113,12 +113,12 @@ export function MembershipForm() {
                 value={formData.motivation} 
                 onChange={e => setFormData({...formData, motivation: e.target.value})} 
               />
-              {status === 'error' && <p className="text-danger text-sm">{errorMsg}</p>}
+              {status === 'error' && <p className="text-[#c72c2c] text-sm">{errorMsg}</p>}
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className="flex justify-between mt-10 pt-6 border-t border-border">
+        <div className="flex justify-between mt-10 pt-6 border-t border-[#cfc9bc]">
           <Button type="button" onClick={handleBack} disabled={step === 1 || status === 'loading'} className="opacity-50 hover:opacity-100 transition-opacity">
             Back
           </Button>

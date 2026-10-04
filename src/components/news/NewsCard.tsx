@@ -26,16 +26,16 @@ export function NewsCard({ news }: NewsCardProps) {
           </div>
         )}
         <div className="p-6 flex flex-col flex-grow">
-          <div className="font-mono text-mono-sm text-text-tertiary">
+          <div className="font-mono text-[0.75rem] text-[#6b6258]">
             {dateStr}
           </div>
-          <h3 className="text-display-xs font-bold mt-2 text-text-primary">
+          <h3 className="text-[clamp(1.25rem,2vw,1.55rem)] font-bold mt-2 text-[#141210]">
             {news.title}
           </h3>
-          <p className="text-body-sm text-text-secondary mt-2 line-clamp-3 flex-grow">
+          <p className="text-[0.9375rem] text-[#3a3530] mt-2 line-clamp-3 flex-grow">
             {news.excerpt}
           </p>
-          <div className="text-accent text-body-sm mt-4 font-medium flex items-center">
+          <div className="text-[#c94030] text-[0.9375rem] mt-4 font-medium flex items-center">
             Read more <span className="ml-1">→</span>
           </div>
         </div>

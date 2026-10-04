@@ -30,18 +30,18 @@ export default function NewsPage() {
     <main className="pt-24 section-padding container-content min-h-screen">
       <SectionReveal>
         <div className="mb-12">
-          <div className="mono-label text-accent mb-2">NEWS & UPDATES</div>
-          <h1 className="text-display-md font-bold text-text-primary">Stay in the Loop</h1>
+          <div className="mono-label text-[#c94030] mb-2">NEWS & UPDATES</div>
+          <h1 className="text-[clamp(2.25rem,4.5vw,3.75rem)] font-bold text-[#141210]">Stay in the Loop</h1>
         </div>
       </SectionReveal>
 
       <SectionReveal>
         {loading ? (
-          <div className="text-text-secondary animate-pulse">Loading updates...</div>
+          <div className="text-[#3a3530] animate-pulse">Loading updates...</div>
         ) : error ? (
-          <div className="text-danger">{error}</div>
+          <div className="text-[#c72c2c]">{error}</div>
         ) : news.length === 0 ? (
-          <div className="text-text-secondary">No updates posted yet. Check back soon.</div>
+          <div className="text-[#3a3530]">No updates posted yet. Check back soon.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {news.map((post) => (

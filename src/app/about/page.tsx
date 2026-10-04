@@ -11,8 +11,8 @@ export default function AboutPage() {
       {/* Hero Section */}
       <SectionReveal>
         <div className="mb-16">
-          <div className="mono-label text-accent mb-2">ABOUT</div>
-          <h1 className="text-display-md font-bold text-text-primary">The Story Behind ACCRC</h1>
+          <div className="mono-label text-[#c94030] mb-2">ABOUT</div>
+          <h1 className="text-[clamp(2.25rem,4.5vw,3.75rem)] font-bold text-[#141210]">The Story Behind ACCRC</h1>
         </div>
       </SectionReveal>
 
@@ -20,8 +20,8 @@ export default function AboutPage() {
       <SectionReveal>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-24">
           <div>
-            <h2 className="text-display-sm font-bold text-text-primary mb-4">Our History</h2>
-            <p className="text-body-lg text-text-secondary leading-relaxed">
+            <h2 className="text-[clamp(1.65rem,2.75vw,2.25rem)] font-bold text-[#141210] mb-4">Our History</h2>
+            <p className="text-[1.0625rem] text-[#3a3530] leading-relaxed">
               The Adamjee Cantonment College Robotics Club was founded by a group of students who believed that engineering skills should not wait until university. What started as informal tinkering sessions in a classroom has grown into one of the most active student-led technical clubs in Dhaka. Today, ACCRC competes in national robotics olympiads, runs hands-on workshops open to all students, and maintains a growing inventory of components, tools, and project platforms.
             </p>
           </div>
@@ -33,8 +33,8 @@ export default function AboutPage() {
               { value: '2019', label: 'Established' },
             ].map((stat, i) => (
               <Card key={i} className="p-6 flex flex-col justify-center items-center text-center">
-                <div className="text-display-md font-bold text-accent mb-2">{stat.value}</div>
-                <div className="mono-label text-text-tertiary">{stat.label}</div>
+                <div className="text-[clamp(2.25rem,4.5vw,3.75rem)] font-bold text-[#c94030] mb-2">{stat.value}</div>
+                <div className="mono-label text-[#6b6258]">{stat.label}</div>
               </Card>
             ))}
           </div>
@@ -44,33 +44,33 @@ export default function AboutPage() {
       {/* What We Do Section */}
       <SectionReveal>
         <div className="mb-24">
-          <h2 className="text-display-sm font-bold text-text-primary mb-8">What We Do</h2>
+          <h2 className="text-[clamp(1.65rem,2.75vw,2.25rem)] font-bold text-[#141210] mb-8">What We Do</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="p-6">
-              <Cpu className="text-accent w-8 h-8" />
-              <h3 className="text-display-xs font-bold text-text-primary mt-4">Electronics</h3>
-              <p className="text-body-sm text-text-secondary mt-2">
+              <Cpu className="text-[#c94030] w-8 h-8" />
+              <h3 className="text-[clamp(1.25rem,2vw,1.55rem)] font-bold text-[#141210] mt-4">Electronics</h3>
+              <p className="text-[0.9375rem] text-[#3a3530] mt-2">
                 Circuit design, sensor integration, PCB prototyping, and embedded systems programming.
               </p>
             </Card>
             <Card className="p-6">
-              <Code className="text-accent w-8 h-8" />
-              <h3 className="text-display-xs font-bold text-text-primary mt-4">Programming</h3>
-              <p className="text-body-sm text-text-secondary mt-2">
+              <Code className="text-[#c94030] w-8 h-8" />
+              <h3 className="text-[clamp(1.25rem,2vw,1.55rem)] font-bold text-[#141210] mt-4">Programming</h3>
+              <p className="text-[0.9375rem] text-[#3a3530] mt-2">
                 Robot control algorithms, computer vision, path planning, and competition strategy.
               </p>
             </Card>
             <Card className="p-6">
-              <Wrench className="text-accent w-8 h-8" />
-              <h3 className="text-display-xs font-bold text-text-primary mt-4">Mechanical</h3>
-              <p className="text-body-sm text-text-secondary mt-2">
+              <Wrench className="text-[#c94030] w-8 h-8" />
+              <h3 className="text-[clamp(1.25rem,2vw,1.55rem)] font-bold text-[#141210] mt-4">Mechanical</h3>
+              <p className="text-[0.9375rem] text-[#3a3530] mt-2">
                 CAD modeling, 3D printing, chassis design, and mechanism prototyping.
               </p>
             </Card>
             <Card className="p-6">
-              <Palette className="text-accent w-8 h-8" />
-              <h3 className="text-display-xs font-bold text-text-primary mt-4">Design</h3>
-              <p className="text-body-sm text-text-secondary mt-2">
+              <Palette className="text-[#c94030] w-8 h-8" />
+              <h3 className="text-[clamp(1.25rem,2vw,1.55rem)] font-bold text-[#141210] mt-4">Design</h3>
+              <p className="text-[0.9375rem] text-[#3a3530] mt-2">
                 UI/UX for control dashboards, branding, presentation design, and documentation.
               </p>
             </Card>
@@ -81,8 +81,8 @@ export default function AboutPage() {
       {/* Team Section */}
       <SectionReveal>
         <div>
-          <div className="mono-label text-accent mb-2">LEADERSHIP</div>
-          <h2 className="text-display-sm font-bold text-text-primary mb-8">Meet the Team</h2>
+          <div className="mono-label text-[#c94030] mb-2">LEADERSHIP</div>
+          <h2 className="text-[clamp(1.65rem,2.75vw,2.25rem)] font-bold text-[#141210] mb-8">Meet the Team</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { name: '[President Name]', role: 'PRESIDENT', bio: 'Leads club strategy and external partnerships.' },
@@ -92,12 +92,12 @@ export default function AboutPage() {
             ].map((member, i) => (
               <Card key={i} className="p-6 text-center flex flex-col items-center">
                 {/* CUSTOMIZE: Replace with real team data */}
-                <div className="w-16 h-16 bg-tertiary rounded-full flex items-center justify-center border border-border mb-4">
-                  <User className="text-text-tertiary w-8 h-8" />
+                <div className="w-16 h-16 bg-[#e6dfd1] rounded-full flex items-center justify-center border border-[#cfc9bc] mb-4">
+                  <User className="text-[#6b6258] w-8 h-8" />
                 </div>
-                <h3 className="font-bold text-body-md text-text-primary">{member.name}</h3>
-                <div className="font-mono text-mono-sm text-accent mt-1">{member.role}</div>
-                <p className="text-body-xs text-text-secondary mt-2">
+                <h3 className="font-bold text-[1rem] text-[#141210]">{member.name}</h3>
+                <div className="font-mono text-[0.75rem] text-[#c94030] mt-1">{member.role}</div>
+                <p className="text-[0.8125rem] text-[#3a3530] mt-2">
                   {member.bio}
                 </p>
               </Card>

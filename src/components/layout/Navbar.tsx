@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -27,11 +28,8 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    if (isOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
@@ -48,50 +46,50 @@ export function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-primary/90 backdrop-blur-md border-b border-border"
+          ? "bg-[#f6f0e7]/95 backdrop-blur-md border-b border-[#cfc9bc] shadow-[0_1px_4px_rgba(20,18,16,0.08)]"
           : "bg-transparent"
       }`}
     >
-      <nav className="container-content flex items-center justify-between h-16 md:h-20">
-        {/* Logo / Wordmark */}
+      <nav className="container-content flex items-center justify-between h-[68px] md:h-[76px]">
+        {/* Logo */}
         <a href="/" className="flex items-center gap-3 group" aria-label="ACCRC Home">
           <img
             src="/accrc-logo.png"
             alt="ACCRC Logo"
-            className="h-9 w-9 md:h-10 md:w-10 rounded-full object-cover border border-accent"
+            className="h-9 w-9 md:h-10 md:w-10 rounded-full object-cover border-[1.5px] border-[#c94030]"
           />
-          <div className="flex flex-col">
-            <span className="font-bold text-text-primary text-base md:text-lg tracking-display leading-none">
+          <div className="flex flex-col leading-none">
+            <span className="font-extrabold text-[#141210] text-[15px] md:text-[17px] tracking-[0.1em] leading-none">
               ACCRC
             </span>
-            <span className="font-mono text-[10px] text-text-tertiary tracking-widest uppercase hidden sm:block">
+            <span className="font-mono text-[8px] text-[#6b6258] tracking-[0.12em] uppercase mt-[3px] hidden sm:block">
               Robotics Club
             </span>
           </div>
         </a>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden md:flex items-center gap-0.5">
           {navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="px-4 py-2 text-body-sm text-text-secondary hover:text-text-primary transition-colors duration-200 relative group"
+              className="px-4 py-2.5 text-[0.8125rem] font-semibold tracking-[0.03em] text-[#3a3530] hover:text-[#c94030] transition-colors duration-150 relative group"
             >
               {link.label}
-              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[1px] bg-accent transition-all duration-200 group-hover:w-3/4" />
+              <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-[1.5px] bg-[#c94030] transition-all duration-200 group-hover:w-2/3" />
             </a>
           ))}
         </div>
 
-        {/* Mobile Menu Toggle */}
+        {/* Mobile Toggle */}
         <button
-          className="md:hidden p-2 text-text-secondary hover:text-text-primary transition-colors"
+          className="md:hidden p-2 text-[#3a3530] hover:text-[#141210] transition-colors"
           onClick={() => setIsOpen(!isOpen)}
           aria-label={isOpen ? "Close menu" : "Open menu"}
           aria-expanded={isOpen}
         >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
+          {isOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </nav>
 
@@ -99,22 +97,22 @@ export function Navbar() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="md:hidden fixed inset-0 top-16 bg-primary/98 backdrop-blur-xl z-40"
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="md:hidden fixed inset-0 top-[68px] bg-[#f6f0e7] z-40 border-b border-[#cfc9bc] shadow-[0_8px_24px_rgba(20,18,16,0.1)]"
           >
-            <div className="container-content pt-8 flex flex-col gap-2">
+            <div className="container-content pt-4 pb-6 flex flex-col">
               {navLinks.map((link, i) => (
                 <motion.a
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -16 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05, duration: 0.2 }}
-                  className="text-display-sm font-bold text-text-primary py-3 border-b border-border hover:text-accent transition-colors"
+                  transition={{ delay: i * 0.04, duration: 0.18 }}
+                  className="text-[1rem] font-bold tracking-[0.03em] text-[#141210] py-3.5 border-b border-[#cfc9bc] last:border-0 hover:text-[#c94030] transition-colors"
                 >
                   {link.label}
                 </motion.a>
