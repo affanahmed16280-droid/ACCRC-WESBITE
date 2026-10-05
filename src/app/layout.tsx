@@ -43,7 +43,7 @@ export default function RootLayout({
       <head>
         <meta name="theme-color" content="white" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="black" media="(prefers-color-scheme: dark)" />
-        <meta name="color-scheme" content="light dark" />
+        <meta name="color-scheme" content="light" />
       </head>
       <body className="antialiased">
         <SiteChrome>{children}</SiteChrome>

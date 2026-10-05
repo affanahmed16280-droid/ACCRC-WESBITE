@@ -7,7 +7,7 @@ import { getEvents, createEvent, updateEvent, deleteEvent, getRegistrations, del
 import { getEventStatus } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { ChevronLeft, Plus, Edit2, Trash2, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { ChevronLeft, Plus, Edit2, Trash2, ChevronDown, ChevronUp, Loader2, Calendar } from 'lucide-react';
 import { DeleteModal } from '@/components/admin/DeleteModal';
 
 export default function AdminEvents() {
@@ -259,8 +259,10 @@ export default function AdminEvents() {
         ) : (
           <div className="space-y-4">
             {events.length === 0 ? (
-              <div className="text-center py-10 text-secondary border border-[#cfc9bc] bg-[#ede7da]">
-                No events found. Create one to get started.
+              <div className="text-center py-14 border border-dashed border-[#cfc9bc] bg-[#ede7da] rounded px-6">
+                <Calendar className="mx-auto h-9 w-9 text-[#c94030] mb-3" aria-hidden />
+                <h3 className="font-bold text-lg text-[#141210]">No events published yet</h3>
+                <p className="mt-1 text-sm text-[#3a3530]">Click "Create New Event" above to publish your first club event.</p>
               </div>
             ) : (
               events.map((event) => {
@@ -273,9 +275,9 @@ export default function AdminEvents() {
                     <div className="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                       <div>
                         <h3 className="text-lg font-sans font-bold text-[#c94030]">{event.name}</h3>
-                        <div className="text-sm text-secondary font-mono mt-1 space-x-4">
-                          <span>Date: {new Date(event.date).toLocaleDateString()}</span>
-                          <span>Status: <span className="text-[#141210]">{statusInfo.label}</span></span>
+                        <div className="text-sm text-[#3a3530] font-mono mt-1 space-x-4">
+                          <span>Date: <strong className="text-[#141210]">{new Date(event.date).toLocaleDateString()}</strong></span>
+                          <span>Status: <span className="font-semibold text-[#141210]">{statusInfo.label}</span></span>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">

@@ -11,19 +11,19 @@ export function Input({ label, error, hint, className = "", id, ...props }: Inpu
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label htmlFor={inputId} className="text-[0.7rem] font-bold tracking-[0.1em] uppercase text-[#6b6258] font-mono">
+        <label htmlFor={inputId} className="text-[0.75rem] font-bold tracking-[0.1em] uppercase text-[#141210] font-mono">
           {label}
         </label>
       )}
       <input
         id={inputId}
-        className={`bg-[#f6f0e7] border-[1.5px] border-[#cfc9bc] text-[#141210] rounded px-4 py-3 text-[0.9375rem] transition-all duration-200 placeholder:text-[#9a9088] focus:border-[#c94030] focus:shadow-[0_0_0_3px_rgba(201,64,48,0.12)] focus:outline-none ${
+        className={`bg-[#f6f0e7] border-[1.5px] border-[#cfc9bc] text-[#141210] rounded px-4 py-3 text-[0.9375rem] transition-all duration-200 placeholder:text-[#6b6258] focus:border-[#c94030] focus:shadow-[0_0_0_3px_rgba(201,64,48,0.12)] focus:outline-none ${
           error ? "border-[#c72c2c] focus:border-[#c72c2c] focus:shadow-[0_0_0_3px_rgba(199,44,44,0.12)]" : ""
         } ${className}`}
         {...props}
       />
       {error && <span className="text-[#c72c2c] text-[0.8125rem]">{error}</span>}
-      {hint && !error && <span className="text-[#6b6258] text-[0.8125rem]">{hint}</span>}
+      {hint && !error && <span className="text-[#3a3530] text-[0.8125rem]">{hint}</span>}
     </div>
   );
 }
@@ -39,19 +39,19 @@ export function Textarea({ label, error, hint, className = "", id, ...props }: T
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label htmlFor={inputId} className="text-[0.7rem] font-bold tracking-[0.1em] uppercase text-[#6b6258] font-mono">
+        <label htmlFor={inputId} className="text-[0.75rem] font-bold tracking-[0.1em] uppercase text-[#141210] font-mono">
           {label}
         </label>
       )}
       <textarea
         id={inputId}
-        className={`bg-[#f6f0e7] border-[1.5px] border-[#cfc9bc] text-[#141210] rounded px-4 py-3 text-[0.9375rem] transition-all duration-200 placeholder:text-[#9a9088] focus:border-[#c94030] focus:shadow-[0_0_0_3px_rgba(201,64,48,0.12)] focus:outline-none resize-y min-h-[120px] ${
+        className={`bg-[#f6f0e7] border-[1.5px] border-[#cfc9bc] text-[#141210] rounded px-4 py-3 text-[0.9375rem] transition-all duration-200 placeholder:text-[#6b6258] focus:border-[#c94030] focus:shadow-[0_0_0_3px_rgba(201,64,48,0.12)] focus:outline-none resize-y min-h-[120px] ${
           error ? "border-[#c72c2c] focus:border-[#c72c2c] focus:shadow-[0_0_0_3px_rgba(199,44,44,0.12)]" : ""
         } ${className}`}
         {...props}
       />
       {error && <span className="text-[#c72c2c] text-[0.8125rem]">{error}</span>}
-      {hint && !error && <span className="text-[#6b6258] text-[0.8125rem]">{hint}</span>}
+      {hint && !error && <span className="text-[#3a3530] text-[0.8125rem]">{hint}</span>}
     </div>
   );
 }
@@ -68,7 +68,7 @@ export function Select({ label, error, options, placeholder, className = "", id,
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label htmlFor={inputId} className="text-[0.7rem] font-bold tracking-[0.1em] uppercase text-[#6b6258] font-mono">
+        <label htmlFor={inputId} className="text-[0.75rem] font-bold tracking-[0.1em] uppercase text-[#141210] font-mono">
           {label}
         </label>
       )}

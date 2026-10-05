@@ -346,7 +346,7 @@ export default function AdminPortal() {
                 <button 
                   role="tab"
                   aria-selected={activeTab === 'sub-executive'}
-                  className={`shrink-0 px-4 py-4 font-mono text-xs uppercase tracking-wider sm:px-6 sm:text-sm font-semibold transition-colors ${activeTab === 'sub-executive' ? 'bg-[#141210] text-[#c94030] border-b-2 border-[#c94030]' : 'text-[#6b6258] hover:text-[#141210] hover:bg-[#e6dfd1]'}`}
+                  className={`shrink-0 px-4 py-4 font-mono text-xs uppercase tracking-wider sm:px-6 sm:text-sm font-semibold transition-colors ${activeTab === 'sub-executive' ? 'bg-[#141210] text-[#c94030] border-b-2 border-[#c94030]' : 'text-[#141210] hover:bg-[#e6dfd1] border-b-2 border-transparent'}`}
                   onClick={() => handleTabChange('sub-executive')}
                 >
                   Sub-Executive Apps
@@ -354,7 +354,7 @@ export default function AdminPortal() {
                 <button 
                   role="tab"
                   aria-selected={activeTab === 'executive'}
-                  className={`shrink-0 px-4 py-4 font-mono text-xs uppercase tracking-wider sm:px-6 sm:text-sm font-semibold transition-colors ${activeTab === 'executive' ? 'bg-[#141210] text-[#c94030] border-b-2 border-[#c94030]' : 'text-[#6b6258] hover:text-[#141210] hover:bg-[#e6dfd1]'}`}
+                  className={`shrink-0 px-4 py-4 font-mono text-xs uppercase tracking-wider sm:px-6 sm:text-sm font-semibold transition-colors ${activeTab === 'executive' ? 'bg-[#141210] text-[#c94030] border-b-2 border-[#c94030]' : 'text-[#141210] hover:bg-[#e6dfd1] border-b-2 border-transparent'}`}
                   onClick={() => handleTabChange('executive')}
                 >
                   Executive Apps
@@ -362,7 +362,7 @@ export default function AdminPortal() {
                 <button
                   role="tab"
                   aria-selected={activeTab === 'prefect'}
-                  className={`shrink-0 px-4 py-4 font-mono text-xs uppercase tracking-wider sm:px-6 sm:text-sm font-semibold transition-colors ${activeTab === 'prefect' ? 'bg-[#141210] text-[#c94030] border-b-2 border-[#c94030]' : 'text-[#6b6258] hover:text-[#141210] hover:bg-[#e6dfd1]'}`}
+                  className={`shrink-0 px-4 py-4 font-mono text-xs uppercase tracking-wider sm:px-6 sm:text-sm font-semibold transition-colors ${activeTab === 'prefect' ? 'bg-[#141210] text-[#c94030] border-b-2 border-[#c94030]' : 'text-[#141210] hover:bg-[#e6dfd1] border-b-2 border-transparent'}`}
                   onClick={() => handleTabChange('prefect')}
                 >
                   Prefect Apps
@@ -370,7 +370,7 @@ export default function AdminPortal() {
                 <button 
                   role="tab"
                   aria-selected={activeTab === 'membership'}
-                  className={`shrink-0 px-4 py-4 font-mono text-xs uppercase tracking-wider sm:px-6 sm:text-sm font-semibold transition-colors ${activeTab === 'membership' ? 'bg-[#141210] text-[#c94030] border-b-2 border-[#c94030]' : 'text-[#6b6258] hover:text-[#141210] hover:bg-[#e6dfd1]'}`}
+                  className={`shrink-0 px-4 py-4 font-mono text-xs uppercase tracking-wider sm:px-6 sm:text-sm font-semibold transition-colors ${activeTab === 'membership' ? 'bg-[#141210] text-[#c94030] border-b-2 border-[#c94030]' : 'text-[#141210] hover:bg-[#e6dfd1] border-b-2 border-transparent'}`}
                   onClick={() => handleTabChange('membership')}
                 >
                   Membership Requests ({memberships.length})
@@ -380,7 +380,10 @@ export default function AdminPortal() {
               <div className="p-4 sm:p-6">
                 {(activeTab === 'sub-executive' || activeTab === 'executive' || activeTab === 'prefect') && (
                   filteredApps.length === 0 ? (
-                    <div className="text-center py-12 text-[#6b6258] font-mono text-sm">No applications received yet.</div>
+                    <div className="py-14 text-center border border-dashed border-[#cfc9bc] rounded bg-[#f6f0e7]">
+                      <p className="font-bold text-[#141210] text-base">No applications received yet.</p>
+                      <p className="mt-1 text-sm text-[#3a3530]">Applications submitted through the public portal will appear here.</p>
+                    </div>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm text-left">
@@ -469,7 +472,10 @@ export default function AdminPortal() {
 
                 {activeTab === 'membership' && (
                   memberships.length === 0 ? (
-                    <div className="text-center py-12 text-[#6b6258] font-mono text-sm">No membership registrations received yet.</div>
+                    <div className="py-14 text-center border border-dashed border-[#cfc9bc] rounded bg-[#f6f0e7]">
+                      <p className="font-bold text-[#141210] text-base">No membership requests received yet.</p>
+                      <p className="mt-1 text-sm text-[#3a3530]">Membership applications submitted by students will appear here.</p>
+                    </div>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm text-left">

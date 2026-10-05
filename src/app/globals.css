@@ -57,17 +57,18 @@
 
 .mono-label {
   font-family: 'JetBrains Mono', 'Courier New', monospace;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #6b6258;
+  color: #141210;
 }
 
 /* ─────────────────────────────────────────────────────────────
    DESIGN SYSTEM — CSS CUSTOM PROPERTIES
    ───────────────────────────────────────────────────────────── */
 :root {
+  color-scheme: light;
   --ink:       #f6f0e7;
   --panel:     #ede7da;
   --line:      #cfc9bc;
