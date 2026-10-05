@@ -174,6 +174,42 @@ export default function AdminFest() {
     }
   }
 
+  // Direct toggle fest portal launch (isLaunched)
+  const handleToggleLaunch = async () => {
+    const nextVal = !festConfig.isLaunched;
+    setFestConfig((prev) => ({ ...prev, isLaunched: nextVal }));
+    setError(null);
+    setConfigSaving(true);
+    try {
+      await updateFestConfig({ isLaunched: nextVal });
+      setSaveSuccess(`Fest portal ${nextVal ? 'launched & public' : 'set to Unlaunched (Coming Soon mode)'}`);
+      setTimeout(() => setSaveSuccess(null), 3500);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to update launch status');
+      setFestConfig((prev) => ({ ...prev, isLaunched: !nextVal }));
+    } finally {
+      setConfigSaving(false);
+    }
+  };
+
+  // Direct toggle registration window (registrationOpen)
+  const handleToggleRegistrationWindow = async () => {
+    const nextVal = !festConfig.registrationOpen;
+    setFestConfig((prev) => ({ ...prev, registrationOpen: nextVal }));
+    setError(null);
+    setConfigSaving(true);
+    try {
+      await updateFestConfig({ registrationOpen: nextVal });
+      setSaveSuccess(`Fest registrations ${nextVal ? 'opened for teams' : 'closed'}`);
+      setTimeout(() => setSaveSuccess(null), 3500);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to update registration status');
+      setFestConfig((prev) => ({ ...prev, registrationOpen: !nextVal }));
+    } finally {
+      setConfigSaving(false);
+    }
+  };
+
   // Save Fest Launcher Settings
   const handleSaveFestConfig = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -814,8 +850,9 @@ export default function AdminFest() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setFestConfig({ ...festConfig, isLaunched: !festConfig.isLaunched })}
-                  className="p-1 text-[#c94030]"
+                  onClick={handleToggleLaunch}
+                  disabled={configSaving}
+                  className="p-1 text-[#c94030] disabled:opacity-50 transition-opacity"
                   aria-label="Toggle fest portal launch"
                 >
                   {festConfig.isLaunched ? (
@@ -835,8 +872,9 @@ export default function AdminFest() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setFestConfig({ ...festConfig, registrationOpen: !festConfig.registrationOpen })}
-                  className="p-1 text-[#c94030]"
+                  onClick={handleToggleRegistrationWindow}
+                  disabled={configSaving}
+                  className="p-1 text-[#c94030] disabled:opacity-50 transition-opacity"
                   aria-label="Toggle registration window"
                 >
                   {festConfig.registrationOpen ? (

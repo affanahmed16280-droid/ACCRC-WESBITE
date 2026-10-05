@@ -89,7 +89,6 @@ export default function HomePage() {
 
   return (
     <main>
-      <EventBanner events={events} />
       {/* ═══ NAVBAR ═══ */}
       <nav className="nav">
         <a className="wordmark" href="#top" aria-label="ACCRC home">

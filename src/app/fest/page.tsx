@@ -112,9 +112,11 @@ export default function FestPage() {
       setAnnouncements(data);
     });
 
-    getFestSchedule().then((sch) => {
-      setSchedule(sch);
-    });
+    getFestSchedule()
+      .then((sch) => setSchedule(sch))
+      .catch((error: unknown) => {
+        console.warn('Unable to load the fest schedule:', error);
+      });
 
     return () => {
       unsubConfig();
@@ -128,6 +130,9 @@ export default function FestPage() {
   };
 
   const openRegistration = (segment: FestSegment) => {
+    if (!festConfig.isLaunched || !festConfig.registrationOpen || !segment.isOpen) {
+      return;
+    }
     setSelectedSegment(segment);
     setTeamName('');
     setInstitution('');
@@ -164,7 +169,7 @@ export default function FestPage() {
     e.preventDefault();
     if (!selectedSegment) return;
 
-    if (!festConfig.registrationOpen) {
+    if (!festConfig.isLaunched || !festConfig.registrationOpen || !selectedSegment.isOpen) {
       setRegError(festConfig.closedMessage || 'Registrations are currently closed.');
       return;
     }
@@ -226,7 +231,7 @@ export default function FestPage() {
   const activeBkashType = selectedSegment?.customBkashType || festConfig.bkashAccountType || 'Personal';
 
   return (
-    <div className="min-h-screen bg-[#f6f0e7] pt-24 pb-20 text-[#141210]">
+    <div className="min-h-screen flex flex-col flex-grow bg-[#f6f0e7] pt-24 pb-20 text-[#141210]">
       {/* ═══ HERO SECTION ═══ */}
       <section className="container-content mb-12">
         <div className="border border-[#cfc9bc] bg-[#ede7da] p-8 md:p-12 relative overflow-hidden">
@@ -659,19 +664,34 @@ export default function FestPage() {
 
       {/* ═══ REGISTRATION MODAL ═══ */}
       {selectedSegment && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-[#ede7da] border border-[#cfc9bc] w-full max-w-3xl max-h-[92vh] overflow-y-auto p-6 md:p-8 relative shadow-2xl rounded my-auto">
+        <div className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm overflow-hidden sm:p-4">
+          <div className="bg-[#ede7da] border border-[#cfc9bc] w-full sm:max-w-3xl max-h-[100dvh] sm:max-h-[90vh] flex flex-col relative shadow-2xl sm:rounded">
+            {/* Close button */}
             <button
               onClick={() => setSelectedSegment(null)}
-              className="absolute top-6 right-6 text-[#6b6258] hover:text-[#141210] p-1.5 rounded transition-colors"
+              className="absolute top-4 right-4 z-10 text-[#6b6258] hover:text-[#141210] p-1.5 rounded transition-colors bg-[#ede7da]"
               aria-label="Close registration modal"
             >
               <X size={20} />
             </button>
 
+            {/* Scrollable content area */}
+            <div className="flex-1 overflow-y-auto px-4 pb-10 pt-12 sm:p-8">
             <ErrorBoundary fallbackTitle="Registration Form Error">
-            {/* If registered, show Participant Pass Card & Submissions directly */}
-            {registeredTeam ? (
+            {!festConfig.isLaunched || !festConfig.registrationOpen || !selectedSegment.isOpen ? (
+              <div className="p-8 text-center space-y-4">
+                <ShieldAlert className="w-12 h-12 text-[#c94030] mx-auto" />
+                <h3 className="text-2xl font-bold text-[#141210]">Registrations Closed</h3>
+                <p className="text-sm text-[#3a3530] max-w-md mx-auto leading-relaxed">
+                  {festConfig.closedMessage || 'Registration for this competition is currently closed or has not been launched.'}
+                </p>
+                <div className="pt-2">
+                  <Button variant="secondary" onClick={() => setSelectedSegment(null)}>
+                    Close
+                  </Button>
+                </div>
+              </div>
+            ) : registeredTeam ? (
               <div className="py-4 space-y-6">
                 <div className="text-center space-y-2 border-b border-[#cfc9bc] pb-4">
                   <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
@@ -726,7 +746,7 @@ export default function FestPage() {
                   </div>
                 )}
 
-                <form onSubmit={handleRegisterSubmit} className="space-y-4">
+                <form id="reg-form" onSubmit={handleRegisterSubmit} className="space-y-4">
                   {/* Basic Details */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
@@ -884,24 +904,33 @@ export default function FestPage() {
                       </div>
                     </div>
                   )}
-
-                  <div className="pt-4 flex justify-end gap-3 border-t border-[#cfc9bc]">
-                    <Button type="button" variant="secondary" onClick={() => setSelectedSegment(null)}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={regSubmitting}>
-                      {regSubmitting ? (
-                        <Loader2 size={16} className="animate-spin mr-2" />
-                      ) : (
-                        <Send size={16} className="mr-2" />
-                      )}
-                      {regSubmitting ? 'Registering...' : 'Complete & Generate Pass'}
-                    </Button>
-                  </div>
                 </form>
               </div>
             )}
             </ErrorBoundary>
+            </div>
+
+            {/* Sticky footer action bar — always visible regardless of scroll position */}
+            {festConfig.isLaunched && festConfig.registrationOpen && selectedSegment.isOpen && !registeredTeam && (
+              <div className="shrink-0 border-t border-[#cfc9bc] bg-[#ede7da] px-4 py-3 sm:px-6 sm:py-4 flex flex-wrap items-center justify-end gap-3">
+                <Button type="button" variant="secondary" onClick={() => setSelectedSegment(null)} disabled={regSubmitting}>
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  form="reg-form"
+                  disabled={regSubmitting}
+                  className="font-mono text-xs uppercase tracking-wider"
+                >
+                  {regSubmitting ? (
+                    <Loader2 size={16} className="animate-spin mr-2" />
+                  ) : (
+                    <Send size={16} className="mr-2" />
+                  )}
+                  {regSubmitting ? 'Registering...' : 'Complete & Generate Pass'}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}

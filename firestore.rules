@@ -62,7 +62,9 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
-    // Membership & General Event Registrations
+    // Membership & General Event Registrations + Fest registration sync index.
+    // Public can CREATE (the fest sync writes a newly generated document ID).
+    // Only admins can read/update/delete.
     match /registrations/{regId} {
       allow create: if true;
       allow read, update, delete: if isAdmin();

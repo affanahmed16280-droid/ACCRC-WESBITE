@@ -81,31 +81,40 @@ function EventDetailContent() {
       </div>
 
       <div className="border-t border-[#cfc9bc] pt-12">
-        {status === 'open' && (
-          <EventRegistrationForm eventId={event.id} eventName={event.name} />
-        )}
-        
-        {status === 'upcoming' && openAt && (
+        {event.isLaunched === false ? (
           <div className="bg-[#ede7da] border border-[#cfc9bc] p-8 text-center max-w-xl mx-auto">
-            <h3 className="text-xl font-bold text-[#141210] mb-4">Registration Opens Soon</h3>
-            <div className="flex justify-center">
-              <Countdown targetDate={openAt} />
-            </div>
+            <h3 className="text-xl font-bold text-[#3a3530] mb-2">Registrations Closed</h3>
+            <p className="text-[#6b6258]">Registration for this event is currently not open or has not been launched.</p>
           </div>
-        )}
+        ) : (
+          <>
+            {status === 'open' && (
+              <EventRegistrationForm eventId={event.id} eventName={event.name} />
+            )}
 
-        {hasRegistrationWindow && status === 'closed' && (
-          <div className="bg-[#ede7da] border border-[#cfc9bc] p-8 text-center max-w-xl mx-auto">
-            <h3 className="text-xl font-bold text-[#3a3530] mb-2">Registration Closed</h3>
-            <p className="text-[#6b6258]">Registration for this event has closed.</p>
-          </div>
-        )}
+            {status === 'upcoming' && openAt && (
+              <div className="bg-[#ede7da] border border-[#cfc9bc] p-8 text-center max-w-xl mx-auto">
+                <h3 className="text-xl font-bold text-[#141210] mb-4">Registration Opens Soon</h3>
+                <div className="flex justify-center">
+                  <Countdown targetDate={openAt} />
+                </div>
+              </div>
+            )}
 
-        {!hasRegistrationWindow && (
-          <div className="bg-[#ede7da] border border-[#cfc9bc] p-8 text-center max-w-xl mx-auto">
-            <h3 className="text-xl font-bold text-[#3a3530] mb-2">Registration details coming soon</h3>
-            <p className="text-[#6b6258]">Please follow ACCRC for registration announcements.</p>
-          </div>
+            {hasRegistrationWindow && status === 'closed' && (
+              <div className="bg-[#ede7da] border border-[#cfc9bc] p-8 text-center max-w-xl mx-auto">
+                <h3 className="text-xl font-bold text-[#3a3530] mb-2">Registration Closed</h3>
+                <p className="text-[#6b6258]">Registration for this event has closed.</p>
+              </div>
+            )}
+
+            {!hasRegistrationWindow && (
+              <div className="bg-[#ede7da] border border-[#cfc9bc] p-8 text-center max-w-xl mx-auto">
+                <h3 className="text-xl font-bold text-[#3a3530] mb-2">Registration details coming soon</h3>
+                <p className="text-[#6b6258]">Please follow ACCRC for registration announcements.</p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

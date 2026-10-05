@@ -15,6 +15,7 @@ export default function AdminEvents() {
   const [registrations, setRegistrations] = useState<Record<string, Registration[]>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
@@ -166,15 +167,30 @@ export default function AdminEvents() {
 
       if (editingId) {
         await updateEvent(editingId, payload);
+        setToastMessage('Event updated successfully!');
       } else {
         await createEvent(payload);
+        setToastMessage('New event created and announced live successfully!');
       }
+      setTimeout(() => setToastMessage(null), 4000);
       await fetchEvents();
       resetForm();
     } catch (err: any) {
       setError(err.message || 'Failed to save event');
     } finally {
       setFormLoading(false);
+    }
+  };
+
+  const handleToggleEventLaunch = async (event: FirestoreEvent) => {
+    try {
+      const nextVal = event.isLaunched === false ? true : false;
+      await updateEvent(event.id, { isLaunched: nextVal });
+      setToastMessage(`Event ${nextVal ? 'launched and published live' : 'set to unlaunched'}`);
+      setTimeout(() => setToastMessage(null), 3500);
+      await fetchEvents();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to toggle launch state');
     }
   };
 
@@ -190,6 +206,8 @@ export default function AdminEvents() {
         const closesAt = new Date(event.date);
         await updateEvent(event.id, { registrationOpensAt: opensAt, registrationClosesAt: closesAt });
       }
+      setToastMessage('Event registration window updated.');
+      setTimeout(() => setToastMessage(null), 3000);
       await fetchEvents();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to toggle event registration');
@@ -211,6 +229,13 @@ export default function AdminEvents() {
             {isFormOpen ? 'Cancel' : <><Plus className="w-4 h-4 mr-2" /> Create New Event</>}
           </Button>
         </div>
+
+        {toastMessage && (
+          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-300 text-emerald-900 font-mono text-sm rounded shadow-xs flex items-center justify-between">
+            <span>✓ {toastMessage}</span>
+            <button onClick={() => setToastMessage(null)} className="text-emerald-700 hover:text-emerald-950 font-bold">✕</button>
+          </div>
+        )}
 
         {error && (
           <div className="mb-6 p-4 bg-[#c72c2c]/10 border border-[#c72c2c]/20 text-[#c72c2c] font-mono text-sm rounded">

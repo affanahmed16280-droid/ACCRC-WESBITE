@@ -770,13 +770,11 @@ export async function updateFestConfig(data: Partial<FestConfig>): Promise<void>
 /* ─── Participant ID & Hash Helpers ─── */
 
 export function generateParticipantId(year = '26'): string {
-  // Deterministic 4-character uppercase alphanumeric UUID chunk: ACCRC-FEST26-TM-[UUID-4-chars]
-  const hex = '0123456789ABCDEF';
-  let uuid4 = '';
-  for (let i = 0; i < 4; i++) {
-    uuid4 += hex.charAt(Math.floor(Math.random() * hex.length));
-  }
-  return `ACCRC-FEST${year}-TM-${uuid4}`;
+  // A 48-bit random suffix makes collisions impractical while preserving the
+  // printed ACCRC-FEST26-TM-[ID] format used by participant passes.
+  const uuid = globalThis.crypto?.randomUUID?.().replace(/-/g, '').slice(0, 12).toUpperCase();
+  const suffix = uuid || Array.from({ length: 12 }, () => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase();
+  return `ACCRC-FEST${year}-TM-${suffix}`;
 }
 
 export function generateVerificationHash(participantId: string, teamName: string, leaderPhone: string): string {
@@ -796,40 +794,60 @@ export function generateVerificationHash(participantId: string, teamName: string
 export async function submitFestRegistration(
   data: Omit<FestRegistration, "id" | "createdAt">
 ): Promise<{ id: string; participantId: string; verificationHash: string }> {
-  const participantId = data.participantId || generateParticipantId('26');
+  const participantId = data.participantId?.trim().toUpperCase() || generateParticipantId('26');
+  if (!participantId) {
+    throw new Error('Could not generate a participant ID. Please try again.');
+  }
   const verificationHash = data.verificationHash || generateVerificationHash(participantId, data.teamName, data.leaderPhone);
 
+  const cleanMembers = (data.members || []).map((m) => ({
+    name: m.name ? String(m.name).trim() : '',
+    institution: m.institution ? String(m.institution).trim() : '',
+    phone: m.phone ? String(m.phone).trim() : '',
+    email: m.email ? String(m.email).trim() : '',
+  }));
+
+  // Keep this payload explicit: Firestore rejects undefined values, and these
+  // are the only fields a public registration needs to create under the rules.
   const payload = {
-    ...data,
     participantId,
     verificationHash,
-    eventId: data.segmentId,
-    paymentTrxId: data.transactionId || '',
+    eventId: data.segmentId.trim(),
+    segmentId: data.segmentId.trim(),
+    segmentTitle: data.segmentTitle.trim(),
+    teamName: data.teamName.trim(),
+    institution: data.institution.trim(),
+    leaderName: data.leaderName.trim(),
+    leaderEmail: data.leaderEmail.trim(),
+    leaderPhone: data.leaderPhone.trim(),
+    leaderWhatsapp: data.leaderWhatsapp ? String(data.leaderWhatsapp).trim() : (data.leaderPhone ? String(data.leaderPhone).trim() : ''),
+    members: cleanMembers,
+    transactionId: data.transactionId ? String(data.transactionId).trim().toUpperCase() : '',
+    paymentTrxId: data.transactionId ? String(data.transactionId).trim().toUpperCase() : '',
+    paymentMethod: data.paymentMethod || 'bKash',
+    amountPaid: typeof data.amountPaid === 'number' ? data.amountPaid : 0,
+    status: data.status || 'pending',
     checkInStatus: false,
     checkedIn: false,
     checkedInAt: null,
-    submittedFiles: data.submittedFiles || [],
+    submittedFiles: Array.isArray(data.submittedFiles) ? data.submittedFiles : [],
     createdAt: Timestamp.now(),
   };
 
+  // The primary write is awaited so a rejected Firestore request reaches the
+  // form's error state instead of reporting a successful registration.
   const docRef = await addDoc(collection(db, "fest_registrations"), payload);
   const teamId = docRef.id;
 
-  // Sync to canonical registrations collection with document ID: teamId
-  try {
-    await setDoc(doc(db, "registrations", teamId), {
-      teamId,
-      participantId,
-      teamName: data.teamName,
-      eventId: data.segmentId,
-      paymentTrxId: data.transactionId || '',
-      members: data.members || [],
-      checkInStatus: false,
-      createdAt: Timestamp.now(),
-    }, { merge: true });
-  } catch (syncErr) {
-    console.warn("Notice syncing to registrations collection:", syncErr);
-  }
+  // Keep the existing private admin index in sync without making a successful
+  // public registration depend on that secondary write.
+  void setDoc(doc(db, "registrations", teamId), {
+    ...payload,
+    teamId,
+    type: 'fest',
+  }).catch(() => {
+    // Non-blocking sync notice
+  });
 
   return { id: teamId, participantId, verificationHash };
 }
@@ -841,6 +859,26 @@ export async function getFestRegistrations(filters?: { segmentId?: string; statu
     if (filters?.status) constraints.unshift(where("status", "==", filters.status));
     const q = query(collection(db, "fest_registrations"), ...constraints);
     const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      // Check fallback canonical registrations collection
+      try {
+        const fallbackQ = query(collection(db, "registrations"), where("type", "==", "fest"), orderBy("createdAt", "desc"));
+        const fallbackSnap = await getDocs(fallbackQ);
+        if (!fallbackSnap.empty) {
+          return fallbackSnap.docs.map((d) => ({
+            id: d.id,
+            ...d.data(),
+            participantId: d.data().participantId || `ACCRC-FEST26-TM-${d.id.substring(0, 4).toUpperCase()}`,
+            verificationHash: d.data().verificationHash || `SEC-${d.id.substring(0, 8).toUpperCase()}`,
+            createdAt: toDate(d.data().createdAt),
+          } as FestRegistration));
+        }
+      } catch {
+        // Fallback query error ignored
+      }
+    }
+
     return snapshot.docs.map((d) => ({
       id: d.id,
       ...d.data(),
@@ -858,19 +896,39 @@ export async function getFestRegistrationById(id: string): Promise<FestRegistrat
   try {
     const docRef = doc(db, "fest_registrations", id);
     const snap = await getDoc(docRef);
-    if (!snap.exists()) return null;
-    const data = snap.data();
-    return {
-      id: snap.id,
-      ...data,
-      participantId: data.participantId || `ACCRC-FEST26-TM-${snap.id.substring(0, 4).toUpperCase()}`,
-      verificationHash: data.verificationHash || `SEC-${snap.id.substring(0, 8).toUpperCase()}`,
-      createdAt: toDate(data.createdAt),
-    } as FestRegistration;
+    if (snap.exists()) {
+      const data = snap.data();
+      return {
+        id: snap.id,
+        ...data,
+        participantId: data.participantId || `ACCRC-FEST26-TM-${snap.id.substring(0, 4).toUpperCase()}`,
+        verificationHash: data.verificationHash || `SEC-${snap.id.substring(0, 8).toUpperCase()}`,
+        createdAt: toDate(data.createdAt),
+      } as FestRegistration;
+    }
   } catch (err) {
-    console.error('Error fetching fest registration by id:', err);
-    return null;
+    console.warn('Notice checking fest_registrations by id:', err);
   }
+
+  // Fallback to registrations collection
+  try {
+    const fallbackRef = doc(db, "registrations", id);
+    const fallbackSnap = await getDoc(fallbackRef);
+    if (fallbackSnap.exists()) {
+      const data = fallbackSnap.data();
+      return {
+        id: fallbackSnap.id,
+        ...data,
+        participantId: data.participantId || `ACCRC-FEST26-TM-${fallbackSnap.id.substring(0, 4).toUpperCase()}`,
+        verificationHash: data.verificationHash || `SEC-${fallbackSnap.id.substring(0, 8).toUpperCase()}`,
+        createdAt: toDate(data.createdAt),
+      } as FestRegistration;
+    }
+  } catch (fallbackErr) {
+    console.warn('Notice checking registrations fallback by id:', fallbackErr);
+  }
+
+  return null;
 }
 
 export async function getFestRegistrationByParticipantId(participantId: string): Promise<FestRegistration | null> {
@@ -882,16 +940,8 @@ export async function getFestRegistrationByParticipantId(participantId: string):
       limit(1)
     );
     const snap = await getDocs(q);
-    if (snap.empty) {
-      // Fallback query by exact string
-      const q2 = query(
-        collection(db, "fest_registrations"),
-        where("participantId", "==", participantId.trim()),
-        limit(1)
-      );
-      const snap2 = await getDocs(q2);
-      if (snap2.empty) return null;
-      const d = snap2.docs[0];
+    if (!snap.empty) {
+      const d = snap.docs[0];
       const data = d.data();
       return {
         id: d.id,
@@ -901,19 +951,34 @@ export async function getFestRegistrationByParticipantId(participantId: string):
         createdAt: toDate(data.createdAt),
       } as FestRegistration;
     }
-    const docData = snap.docs[0];
-    const data = docData.data();
-    return {
-      id: docData.id,
-      ...data,
-      participantId: data.participantId || cleanId,
-      verificationHash: data.verificationHash || `SEC-${docData.id.substring(0, 8).toUpperCase()}`,
-      createdAt: toDate(data.createdAt),
-    } as FestRegistration;
   } catch (err) {
-    console.error('Error querying fest registration by participantId:', err);
-    return null;
+    console.warn('Notice querying fest_registrations by participantId:', err);
   }
+
+  // Fallback to canonical registrations collection
+  try {
+    const fallbackQ = query(
+      collection(db, "registrations"),
+      where("participantId", "==", cleanId),
+      limit(1)
+    );
+    const fallbackSnap = await getDocs(fallbackQ);
+    if (!fallbackSnap.empty) {
+      const d = fallbackSnap.docs[0];
+      const data = d.data();
+      return {
+        id: d.id,
+        ...data,
+        participantId: data.participantId || cleanId,
+        verificationHash: data.verificationHash || `SEC-${d.id.substring(0, 8).toUpperCase()}`,
+        createdAt: toDate(data.createdAt),
+      } as FestRegistration;
+    }
+  } catch (fallbackErr) {
+    console.warn('Notice querying registrations fallback by participantId:', fallbackErr);
+  }
+
+  return null;
 }
 
 export async function updateFestRegistrationFiles(

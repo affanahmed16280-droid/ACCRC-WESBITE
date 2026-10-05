@@ -246,10 +246,10 @@ h1 em, h2 span {
    ───────────────────────────────────────────────────────────── */
 .nav {
   position: fixed;
-  top: 0;
+  top: var(--site-banner-height, 0px);
   left: 0;
   right: 0;
-  z-index: 50;
+  z-index: 90;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1230,7 +1230,7 @@ footer:not(.site-footer) {
   .nav-links {
     display: none;
     position: fixed;
-    top: 68px;
+    top: calc(var(--site-banner-height, 0px) + 68px);
     left: 0;
     right: 0;
     bottom: 0;
@@ -1240,7 +1240,7 @@ footer:not(.site-footer) {
     border-bottom: 1px solid #cfc9bc;
     gap: 0;
     overflow-y: auto;
-    z-index: 49;
+    z-index: 89;
     box-shadow: var(--shadow-md);
   }
 

@@ -16,7 +16,13 @@ const standardNavLinks = [
   { href: "/about/", label: "About" },
 ];
 
-export function Navbar({ onHelpClick }: { onHelpClick?: () => void } = {}) {
+export function Navbar({
+  onHelpClick,
+  topOffset = 0,
+}: {
+  onHelpClick?: () => void;
+  topOffset?: number;
+} = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
@@ -44,7 +50,8 @@ export function Navbar({ onHelpClick }: { onHelpClick?: () => void } = {}) {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      style={{ top: `${topOffset}px` }}
+      className={`fixed left-0 right-0 z-[90] transition-all duration-200 ${
         scrolled
           ? "bg-[#f6f0e7]/95 backdrop-blur-md border-b border-[#cfc9bc] shadow-[0_1px_4px_rgba(20,18,16,0.08)]"
           : "bg-transparent"
@@ -113,7 +120,8 @@ export function Navbar({ onHelpClick }: { onHelpClick?: () => void } = {}) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="md:hidden fixed inset-0 top-[68px] bg-[#f6f0e7] z-40 border-b border-[#cfc9bc] shadow-[0_8px_24px_rgba(20,18,16,0.1)]"
+            style={{ top: `${topOffset + 68}px` }}
+            className="md:hidden fixed inset-x-0 bottom-0 bg-[#f6f0e7] z-[90] border-b border-[#cfc9bc] shadow-[0_8px_24px_rgba(20,18,16,0.1)]"
           >
             <div className="container-content pt-4 pb-6 flex flex-col">
               {navLinks.map((link, i) => (
