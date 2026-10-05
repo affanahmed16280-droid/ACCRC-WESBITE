@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, HelpCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { subscribeToPortalConfig, type PortalConfig } from "@/lib/firestore";
 
@@ -16,7 +16,7 @@ const standardNavLinks = [
   { href: "/admin/", label: "Portals" },
 ];
 
-export function Navbar() {
+export function Navbar({ onHelpClick }: { onHelpClick?: () => void } = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
@@ -82,6 +82,16 @@ export function Navbar() {
               <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-[1.5px] bg-[#c94030] transition-all duration-200 group-hover:w-2/3" />
             </a>
           ))}
+          {onHelpClick && (
+            <button
+              onClick={onHelpClick}
+              aria-label="How it works — open site guide"
+              title="How it works"
+              className="ml-1 p-2 text-[#6b6258] hover:text-[#c94030] transition-colors rounded-full"
+            >
+              <HelpCircle size={18} />
+            </button>
+          )}
         </div>
 
         {/* Mobile Toggle */}
@@ -119,6 +129,18 @@ export function Navbar() {
                   {link.label}
                 </motion.a>
               ))}
+              {onHelpClick && (
+                <motion.button
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: navLinks.length * 0.04, duration: 0.18 }}
+                  onClick={() => { setIsOpen(false); onHelpClick(); }}
+                  className="flex items-center gap-2 text-[1rem] font-bold tracking-[0.03em] text-[#6b6258] py-3.5 border-t border-[#cfc9bc] hover:text-[#c94030] transition-colors"
+                >
+                  <HelpCircle size={18} />
+                  How it Works
+                </motion.button>
+              )}
             </div>
           </motion.div>
         )}

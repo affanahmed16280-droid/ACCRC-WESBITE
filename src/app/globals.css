@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&family=JetBrains+Mono:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&family=JetBrains+Mono:wght@400;500;700&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 
 /* ─────────────────────────────────────────────────────────────
@@ -129,6 +129,27 @@ body {
 }
 
 img { height: auto; max-width: 100%; display: block; }
+
+/* ── Bangla / Bengali Script Typography ──────────────────────
+   Hind Siliguri needs extra vertical space so matras don't clip.
+   Apply .bn to any container holding Bengali text.
+   ──────────────────────────────────────────────────────────── */
+.bn {
+  font-family: 'Hind Siliguri', 'Noto Sans Bengali', 'SolaimanLipi', sans-serif;
+  line-height: 1.85;         /* prevent matra overlap */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+/* Ensure any element with lang="bn" or lang="bn-BD" also gets
+   the Bangla stack automatically.                             */
+:lang(bn), :lang(bn-BD) {
+  font-family: 'Hind Siliguri', 'Noto Sans Bengali', sans-serif;
+  line-height: 1.85;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
 
 h1, h2, h3, h4, h5, h6 {
   overflow-wrap: anywhere;
