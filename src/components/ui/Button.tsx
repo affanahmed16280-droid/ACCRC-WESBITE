@@ -1,7 +1,7 @@
 import React, { forwardRef } from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost" | "danger";
+  variant?: "primary" | "secondary" | "ghost" | "danger" | "outline";
   size?: "sm" | "md" | "lg";
   children: React.ReactNode;
   href?: string;
@@ -33,6 +33,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       "bg-transparent text-[#6b6258] hover:text-[#141210] hover:bg-[#e6dfd1] border border-transparent",
     danger:
       "bg-[rgba(199,44,44,0.08)] text-[#c72c2c] border border-[rgba(199,44,44,0.25)] hover:bg-[rgba(199,44,44,0.15)] active:scale-[0.98]",
+    outline:
+      "bg-transparent text-[#3a3530] border border-[#cfc9bc] hover:border-[#141210] hover:bg-[#ede7da] active:scale-[0.98]",
   };
 
   const sizes: Record<string, string> = {

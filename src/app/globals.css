@@ -55,6 +55,20 @@
   padding-inline: clamp(1.25rem, 7vw, 9rem);
 }
 
+/* ── Overflow & wrapping utilities ─────────────────────────── */
+/* Used on dynamic text containers to prevent clipping on small viewports */
+.overflow-wrap-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Ensure text grids flex-wrap on narrow (< 380px) viewports */
+.dynamic-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .section-padding {
   padding-block: clamp(4.5rem, 9vw, 8rem);
 }
@@ -159,10 +173,16 @@ img { height: auto; max-width: 100%; display: block; }
 
 h1, h2, h3, h4, h5, h6 {
   overflow-wrap: anywhere;
+  word-break: break-word;
   font-weight: 800;
   color: #141210;
-  line-height: 1.05;
+  line-height: 1.25;
   margin: 0;
+}
+
+.bn h1, .bn h2, .bn h3, .bn h4, .bn h5, .bn h6,
+:lang(bn) h1, :lang(bn) h2, :lang(bn) h3, :lang(bn) h4, :lang(bn) h5, :lang(bn) h6 {
+  line-height: 1.55;
 }
 
 p { overflow-wrap: anywhere; }

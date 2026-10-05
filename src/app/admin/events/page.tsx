@@ -178,6 +178,24 @@ export default function AdminEvents() {
     }
   };
 
+  const handleToggleEventRegistration = async (event: FirestoreEvent) => {
+    try {
+      const now = new Date();
+      const statusInfo = getEventStatus(event.registrationOpensAt, event.registrationClosesAt);
+      if (statusInfo.status === 'open') {
+        const closesAt = new Date(now.getTime() - 60000);
+        await updateEvent(event.id, { registrationClosesAt: closesAt });
+      } else {
+        const opensAt = new Date(now.getTime() - 60000);
+        const closesAt = new Date(event.date);
+        await updateEvent(event.id, { registrationOpensAt: opensAt, registrationClosesAt: closesAt });
+      }
+      await fetchEvents();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to toggle event registration');
+    }
+  };
+
   return (
     <AdminGuard>
       <div className="pt-24 container-content min-h-screen pb-16 text-[#141210]">
@@ -281,6 +299,15 @@ export default function AdminEvents() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleToggleEventRegistration(event)}
+                          className="font-mono text-xs"
+                          title="Toggle registration open/closed"
+                        >
+                          {statusInfo.status === 'open' ? 'Close Reg' : 'Open Reg'}
+                        </Button>
                         <Button variant="secondary" size="sm" onClick={() => loadRegistrations(event.id)}>
                           {isExpanded ? <ChevronUp className="w-4 h-4 mr-1" /> : <ChevronDown className="w-4 h-4 mr-1" />}
                           {isExpanded ? 'Hide Regs' : 'View Regs'}

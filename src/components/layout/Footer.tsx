@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MapPin } from "lucide-react";
+import { MapPin, Mail } from "lucide-react";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
 import { subscribeToPortalConfig, type PortalConfig } from "@/lib/firestore";
 import { club } from "@/lib/club";
@@ -25,10 +25,10 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-5">
             <div className="flex items-center gap-3 mb-5">
-              <img src="/accrc-logo.png" alt="ACCRC Logo" className="h-10 w-10 rounded-full object-cover border-[1.5px] border-[#c94030]" />
+              <img src="/accrc-logo.png" alt="Adamjee Cantonment College Robotics Club Logo" className="h-10 w-10 rounded-full object-cover border-[1.5px] border-[#c94030]" />
               <div>
                 <h3 className="font-extrabold text-[#141210] text-[16px] tracking-[0.1em]">ACCRC</h3>
-                <p className="font-mono text-[8px] text-[#6b6258] tracking-[0.12em] uppercase m-0 mt-[3px]">{club.name} · Adamjee Cantonment College</p>
+                <p className="font-mono text-[9px] text-[#6b6258] tracking-[0.06em] uppercase m-0 mt-[3px]">{club.name}</p>
               </div>
             </div>
             <p className="text-[#3a3530] text-[0.9375rem] leading-relaxed max-w-sm m-0">
@@ -67,16 +67,22 @@ export function Footer() {
                 <MapPin size={15} className="mt-0.5 text-[#9a9088] shrink-0" />
                 <span>{club.location}</span>
               </li>
+              <li className="flex items-center gap-2.5 text-[0.9375rem] text-[#6b6258]">
+                <Mail size={15} className="text-[#9a9088] shrink-0" />
+                <a href={`mailto:${club.officialEmail}`} className="hover:text-[#c94030] transition-colors break-all">
+                  {club.officialEmail}
+                </a>
+              </li>
               <li className="text-[0.9375rem] text-[#6b6258]">
                 <a href={club.socials.instagram} target="_blank" rel="noopener noreferrer" className="hover:text-[#c94030] transition-colors">
-                  Message {club.name} on Instagram
+                  Message on Instagram
                 </a>
               </li>
             </ul>
             <div className="flex items-center gap-3 mt-6">
               {[
-                { icon: FaFacebook, href: club.socials.facebook, label: `${club.name} on Facebook` },
-                { icon: FaInstagram, href: club.socials.instagram, label: `${club.name} on Instagram` },
+                { icon: FaFacebook, href: club.socials.facebook, label: `Adamjee Cantonment College Robotics Club on Facebook` },
+                { icon: FaInstagram, href: club.socials.instagram, label: `Adamjee Cantonment College Robotics Club on Instagram` },
               ].map((social) => (
                 <a
                   key={social.label}
@@ -96,7 +102,7 @@ export function Footer() {
         {/* Bottom */}
         <div className="border-t border-[#cfc9bc] mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="font-mono text-[0.7rem] text-[#9a9088] tracking-[0.06em] uppercase m-0">
-            © {currentYear ? `${currentYear} ` : ''}{club.shortName} — {club.name}
+            © {currentYear ? `${currentYear} ` : ''}{club.fullName}. All rights reserved.
           </p>
           <p className="font-mono text-[0.7rem] text-[#9a9088] tracking-[0.06em] uppercase m-0">
             Dhaka, Bangladesh

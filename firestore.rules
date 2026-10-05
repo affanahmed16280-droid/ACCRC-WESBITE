@@ -1,33 +1,74 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Events: Public read, authenticated write
-    match /events/{eventId} {
-      allow read: if true;
-      allow create, update, delete: if request.auth != null;
-    }
-    
-    // News: Public read, authenticated write
-    match /news/{newsId} {
-      allow read: if true;
-      allow create, update, delete: if request.auth != null;
+
+    // Helper functions
+    function isAdmin() {
+      return request.auth != null;
     }
 
-    // Achievements: Public read, authenticated write
+    // Fest Global Settings & Launcher Toggles: Public read, Admin write
+    match /fest_settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Fest Segments & Competitions: Public read, Admin write
+    match /fest_segments/{segmentId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Fest Schedules: Public read, Admin write
+    match /fest_schedule/{scheduleId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Fest Announcements & Match Results: Public read, Admin write
+    match /fest_announcements/{announcementId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Fest Registrations & Teams:
+    // Anyone can create a team registration.
+    // Public read so teams can retrieve their own pass by ID.
+    // Team can update their submittedFiles; Admin has full write access.
+    match /fest_registrations/{regId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if isAdmin() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['submittedFiles', 'filesUpdatedAt', 'submissionUrl'])
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Regular Club Events: Public read, Admin write
+    match /events/{eventId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // News & Announcements: Public read, Admin write
+    match /news/{newsId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Achievements: Public read, Admin write
     match /achievements/{achievementId} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null;
+      allow create, update, delete: if isAdmin();
     }
-    
-    // Registrations: Public create only, authenticated read/update/delete
+
+    // Membership & General Event Registrations
     match /registrations/{regId} {
       allow create: if true;
-      allow read, update, delete: if request.auth != null;
+      allow read, update, delete: if isAdmin();
     }
-    
-    // Leadership applications can be submitted only while the corresponding
-    // portal toggle is open. Membership registrations remain always open.
+
+    // Leadership Applications (Executive, Prefect, Sub-Executive)
     match /applications/{appId} {
       allow create: if exists(/databases/$(database)/documents/config/portal) && (
         (request.resource.data.type == 'executive' &&
@@ -37,13 +78,13 @@ service cloud.firestore {
         (request.resource.data.type == 'sub-executive' &&
           get(/databases/$(database)/documents/config/portal).data.subExecOpen == true)
       );
-      allow read, update, delete: if request.auth != null;
+      allow read, update, delete: if isAdmin();
     }
-    
-    // Config: Public read (for portal status), authenticated write
+
+    // Portal Config: Public read, Admin write
     match /config/{configId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
   }
 }

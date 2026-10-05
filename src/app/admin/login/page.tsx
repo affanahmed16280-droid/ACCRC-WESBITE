@@ -64,7 +64,9 @@ export default function AdminLogin() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#ede7da] border border-[#cfc9bc] text-[#c94030] mb-3 shadow-xs">
             <Lock className="w-5 h-5" aria-hidden />
           </div>
-          <h1 className="text-3xl font-sans font-bold mb-1.5 text-black tracking-tight">ACCRC</h1>
+          <h1 className="text-xl font-bold mb-1.5 text-black tracking-tight">
+            Adamjee Cantonment College Robotics Club
+          </h1>
           <p className="text-black/80 font-mono text-xs uppercase tracking-widest font-semibold">
             Admin Access Portal
           </p>

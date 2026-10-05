@@ -5,16 +5,16 @@ import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { OnboardingModal } from '@/components/OnboardingModal';
+import { GuideModal } from '@/components/GuideModal';
 
 export function SiteChrome({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const isHome = pathname === '/';
   const isAdmin = pathname?.startsWith('/admin');
-  const [helpOpen, setHelpOpen] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   useEffect(() => {
-    const handleOpen = () => setHelpOpen(true);
+    const handleOpen = () => setIsGuideOpen(true);
     window.addEventListener('accrc:open-onboarding', handleOpen);
     return () => window.removeEventListener('accrc:open-onboarding', handleOpen);
   }, []);
@@ -27,7 +27,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
     return (
       <>
         {children}
-        <OnboardingModal forceOpen={helpOpen} onClose={() => setHelpOpen(false)} />
+        <GuideModal isOpen={isGuideOpen} setIsOpen={setIsGuideOpen} onClose={() => setIsGuideOpen(false)} />
       </>
     );
   }
@@ -35,10 +35,10 @@ export function SiteChrome({ children }: { children: ReactNode }) {
   // All other public pages: render full chrome + modal
   return (
     <>
-      <Navbar onHelpClick={() => setHelpOpen(true)} />
+      <Navbar onHelpClick={() => setIsGuideOpen(true)} />
       {children}
       <Footer />
-      <OnboardingModal forceOpen={helpOpen} onClose={() => setHelpOpen(false)} />
+      <GuideModal isOpen={isGuideOpen} setIsOpen={setIsGuideOpen} onClose={() => setIsGuideOpen(false)} />
     </>
   );
 }

@@ -159,8 +159,7 @@ export default function HomePage() {
             <em>WHAT&apos;S NEXT.</em>
           </h1>
           <p className="hero-copy">
-            ACC Robotics Club is a student-led community at Adamjee Cantonment
-            College where we build, learn, and compete together.
+            Adamjee Cantonment College Robotics Club is a student-led community where we build, learn, and compete together.
           </p>
           <div className="hero-actions">
             <a className="primary-button" href="#join">
@@ -181,7 +180,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="social-status" aria-label="Follow ACC Robotics Club">
+      <section className="social-status" aria-label="Follow Adamjee Cantonment College Robotics Club">
         <span className="mono muted">STAY TUNED</span>
         <div className="social-status-links">
           <a href={club.socials.facebook} target="_blank" rel="noopener noreferrer" aria-label="Visit ACCRC on Facebook">
@@ -372,10 +371,10 @@ export default function HomePage() {
           </a>
           <p className="footer-line">BUILD. LEARN. COMPETE.</p>
           <div className="socials">
-            <a href={club.socials.facebook} target="_blank" rel="noopener noreferrer" aria-label="ACC Robotics Club on Facebook">
+            <a href={club.socials.facebook} target="_blank" rel="noopener noreferrer" aria-label="Adamjee Cantonment College Robotics Club on Facebook">
               <FaFacebookF aria-hidden />
             </a>
-            <a href={club.socials.instagram} target="_blank" rel="noopener noreferrer" aria-label="ACC Robotics Club on Instagram">
+            <a href={club.socials.instagram} target="_blank" rel="noopener noreferrer" aria-label="Adamjee Cantonment College Robotics Club on Instagram">
               <FaInstagram aria-hidden />
             </a>
           </div>

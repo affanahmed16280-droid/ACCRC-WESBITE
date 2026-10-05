@@ -25,9 +25,17 @@ import { db } from "./firebase";
 export interface FirestoreEvent {
   id: string;
   name: string;
+  title?: string;
   description: string;
   date: Date;
   location: string;
+  isLaunched?: boolean;
+  paymentDetails?: {
+    provider: "bKash" | "Nagad";
+    number: string;
+    feeAmount: number;
+  };
+  rulesPdfUrl?: string;
   registrationOpensAt?: Date;
   registrationClosesAt?: Date;
   imageUrl?: string;
@@ -132,10 +140,14 @@ function parsePortalConfig(data: DocumentData | undefined): PortalConfig {
 function parseEvent(id: string, data: DocumentData): FirestoreEvent {
   return {
     id,
-    name: data.name || "",
+    name: data.name || data.title || "",
+    title: data.title || data.name || "",
     description: data.description || "",
     date: toDate(data.date),
     location: data.location || "",
+    isLaunched: data.isLaunched !== false,
+    paymentDetails: data.paymentDetails || undefined,
+    rulesPdfUrl: data.rulesPdfUrl || undefined,
     registrationOpensAt: toOptionalDate(data.registrationOpensAt),
     registrationClosesAt: toOptionalDate(data.registrationClosesAt),
     imageUrl: data.imageUrl || undefined,
@@ -174,7 +186,9 @@ function parseAchievement(id: string, data: DocumentData): FirestoreAchievement 
 export async function getEvents(): Promise<FirestoreEvent[]> {
   const q = query(collection(db, "events"), orderBy("date", "desc"));
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => parseEvent(d.id, d.data()));
+  return snapshot.docs
+    .map((d) => parseEvent(d.id, d.data()))
+    .filter((e) => e.isLaunched !== false);
 }
 
 export async function getEvent(id: string): Promise<FirestoreEvent | null> {
@@ -190,7 +204,9 @@ export function subscribeToEvents(
 ): Unsubscribe {
   const q = query(collection(db, "events"), orderBy("date", "desc"));
   return onSnapshot(q, (snapshot) => {
-    const events = snapshot.docs.map((d) => parseEvent(d.id, d.data()));
+    const events = snapshot.docs
+      .map((d) => parseEvent(d.id, d.data()))
+      .filter((e) => e.isLaunched !== false);
     callback(events);
   }, onError);
 }
@@ -399,6 +415,51 @@ export interface FestMember {
   email?: string;
 }
 
+export interface TeamFileSubmission {
+  id: string;
+  name: string;
+  url: string;
+  size: number;
+  uploadedAt: string;
+  fileType: string;
+}
+
+export interface FestConfig {
+  id?: string;
+  isLaunched: boolean;
+  registrationOpen: boolean;
+  festTitle: string;
+  festSubtitle: string;
+  festDates: string;
+  registrationDeadline: string;
+  venue: string;
+  prizePool: string;
+  bkashNumber: string;
+  bkashAccountType: 'Merchant' | 'Personal' | 'Rocket' | 'Nagad';
+  bkashInstructions: string;
+  closedMessage: string;
+  bannerNotice?: string;
+  rulesUrl?: string;
+  updatedAt?: Date;
+}
+
+export const DEFAULT_FEST_CONFIG: FestConfig = {
+  isLaunched: true,
+  registrationOpen: true,
+  festTitle: 'National Robotics & Tech Fest 2026',
+  festSubtitle: 'Ignite the Future. Build & Compete.',
+  festDates: 'November 20-22, 2026',
+  registrationDeadline: 'November 12, 2026',
+  venue: 'Adamjee Cantonment College, Dhaka',
+  prizePool: '৳ 1,50,000+',
+  bkashNumber: '01712345678',
+  bkashAccountType: 'Personal',
+  bkashInstructions: 'Send the exact registration fee to our bKash number. Put your Team Name in the reference note. Save the 10-character Transaction ID (TrxID) to complete registration.',
+  closedMessage: 'Registrations for National Robotics Fest are currently closed. Stay tuned for upcoming announcements.',
+  bannerNotice: 'Registrations are open for college and university teams across Bangladesh!',
+  rulesUrl: 'https://accrc.pages.dev/rules/fest-guide-2026.pdf',
+};
+
 export interface FestSegment {
   id: string;
   title: string;
@@ -412,12 +473,20 @@ export interface FestSegment {
   rulesText?: string;
   venue?: string;
   scheduleTime?: string;
+  customBkashNumber?: string;
+  customBkashType?: 'Merchant' | 'Personal' | 'Rocket' | 'Nagad';
+  guidelines?: string[];
+  registrationDeadline?: string;
   isOpen: boolean;
   createdAt: Date;
 }
 
 export interface FestRegistration {
   id?: string;
+  teamId?: string;
+  participantId?: string;
+  verificationHash?: string;
+  festId?: string;
   segmentId: string;
   segmentTitle: string;
   teamName: string;
@@ -429,8 +498,17 @@ export interface FestRegistration {
   members: FestMember[];
   transactionId?: string;
   paymentMethod?: string;
+  amountPaid?: number;
   status: 'pending' | 'verified' | 'rejected';
   notes?: string;
+  submittedFiles?: TeamFileSubmission[];
+  submissionUrl?: string;
+  eventId?: string;
+  paymentTrxId?: string;
+  checkInStatus?: boolean;
+  checkedIn?: boolean;
+  checkedInAt?: string | null;
+  checkInNotes?: string;
   createdAt?: Date;
 }
 
@@ -550,6 +628,10 @@ function parseFestSegment(id: string, data: DocumentData): FestSegment {
     rulesText: data.rulesText || '',
     venue: data.venue || '',
     scheduleTime: data.scheduleTime || '',
+    customBkashNumber: data.customBkashNumber || '',
+    customBkashType: data.customBkashType || 'Personal',
+    guidelines: Array.isArray(data.guidelines) ? data.guidelines : [],
+    registrationDeadline: data.registrationDeadline || '',
     isOpen: data.isOpen !== false,
     createdAt: toDate(data.createdAt),
   };
@@ -629,14 +711,127 @@ export async function deleteFestSegment(id: string): Promise<void> {
   await deleteDoc(doc(db, "fest_segments", id));
 }
 
+/* ─── Fest Configuration & Launcher ─── */
+
+function parseFestConfig(data: DocumentData | undefined): FestConfig {
+  return {
+    ...DEFAULT_FEST_CONFIG,
+    ...(data ?? {}),
+    isLaunched: data?.isLaunched !== false,
+    registrationOpen: data?.registrationOpen !== false,
+    updatedAt: data?.updatedAt ? toDate(data.updatedAt) : undefined,
+  };
+}
+
+export async function getFestConfig(): Promise<FestConfig> {
+  try {
+    const docRef = doc(db, "fest_settings", "global_config");
+    const snapshot = await getDoc(docRef);
+    if (!snapshot.exists()) {
+      return DEFAULT_FEST_CONFIG;
+    }
+    return parseFestConfig(snapshot.data());
+  } catch (error) {
+    console.error('Error fetching fest config:', error);
+    return DEFAULT_FEST_CONFIG;
+  }
+}
+
+export function subscribeToFestConfig(
+  callback: (config: FestConfig) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  const docRef = doc(db, "fest_settings", "global_config");
+  return onSnapshot(
+    docRef,
+    (snapshot) => {
+      if (!snapshot.exists()) {
+        callback(DEFAULT_FEST_CONFIG);
+        return;
+      }
+      callback(parseFestConfig(snapshot.data()));
+    },
+    (err) => {
+      console.warn('Realtime fest config notice:', err);
+      callback(DEFAULT_FEST_CONFIG);
+      onError?.(err);
+    }
+  );
+}
+
+export async function updateFestConfig(data: Partial<FestConfig>): Promise<void> {
+  const docRef = doc(db, "fest_settings", "global_config");
+  await setDoc(docRef, {
+    ...data,
+    updatedAt: Timestamp.now(),
+  }, { merge: true });
+}
+
+/* ─── Participant ID & Hash Helpers ─── */
+
+export function generateParticipantId(year = '26'): string {
+  // Deterministic 4-character uppercase alphanumeric UUID chunk: ACCRC-FEST26-TM-[UUID-4-chars]
+  const hex = '0123456789ABCDEF';
+  let uuid4 = '';
+  for (let i = 0; i < 4; i++) {
+    uuid4 += hex.charAt(Math.floor(Math.random() * hex.length));
+  }
+  return `ACCRC-FEST${year}-TM-${uuid4}`;
+}
+
+export function generateVerificationHash(participantId: string, teamName: string, leaderPhone: string): string {
+  const cleanSeed = `${participantId}:${teamName.trim().toUpperCase()}:${leaderPhone.replace(/\D/g, '')}:${Date.now().toString(36)}`;
+  let hash = 0;
+  for (let i = 0; i < cleanSeed.length; i++) {
+    hash = (hash << 5) - hash + cleanSeed.charCodeAt(i);
+    hash |= 0;
+  }
+  const hex = Math.abs(hash).toString(16).padStart(8, '0').toUpperCase();
+  const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `SEC-${hex}-${rand}`;
+}
+
 /* ─── Fest Registrations ─── */
 
-export async function submitFestRegistration(data: Omit<FestRegistration, "id" | "createdAt">): Promise<string> {
-  const docRef = await addDoc(collection(db, "fest_registrations"), {
+export async function submitFestRegistration(
+  data: Omit<FestRegistration, "id" | "createdAt">
+): Promise<{ id: string; participantId: string; verificationHash: string }> {
+  const participantId = data.participantId || generateParticipantId('26');
+  const verificationHash = data.verificationHash || generateVerificationHash(participantId, data.teamName, data.leaderPhone);
+
+  const payload = {
     ...data,
+    participantId,
+    verificationHash,
+    eventId: data.segmentId,
+    paymentTrxId: data.transactionId || '',
+    checkInStatus: false,
+    checkedIn: false,
+    checkedInAt: null,
+    submittedFiles: data.submittedFiles || [],
     createdAt: Timestamp.now(),
-  });
-  return docRef.id;
+  };
+
+  const docRef = await addDoc(collection(db, "fest_registrations"), payload);
+  const teamId = docRef.id;
+
+  // Sync to canonical registrations collection with document ID: teamId
+  try {
+    await setDoc(doc(db, "registrations", teamId), {
+      teamId,
+      participantId,
+      teamName: data.teamName,
+      eventId: data.segmentId,
+      paymentTrxId: data.transactionId || '',
+      members: data.members || [],
+      checkInStatus: false,
+      createdAt: Timestamp.now(),
+    }, { merge: true });
+  } catch (syncErr) {
+    console.warn("Notice syncing to registrations collection:", syncErr);
+  }
+
+  return { id: teamId, participantId, verificationHash };
 }
 
 export async function getFestRegistrations(filters?: { segmentId?: string; status?: string }): Promise<FestRegistration[]> {
@@ -649,12 +844,144 @@ export async function getFestRegistrations(filters?: { segmentId?: string; statu
     return snapshot.docs.map((d) => ({
       id: d.id,
       ...d.data(),
+      participantId: d.data().participantId || `ACCRC-FEST26-TM-${d.id.substring(0, 4).toUpperCase()}`,
+      verificationHash: d.data().verificationHash || `SEC-${d.id.substring(0, 8).toUpperCase()}`,
       createdAt: toDate(d.data().createdAt),
     } as FestRegistration));
   } catch (error) {
     console.error('Error fetching fest registrations:', error);
     return [];
   }
+}
+
+export async function getFestRegistrationById(id: string): Promise<FestRegistration | null> {
+  try {
+    const docRef = doc(db, "fest_registrations", id);
+    const snap = await getDoc(docRef);
+    if (!snap.exists()) return null;
+    const data = snap.data();
+    return {
+      id: snap.id,
+      ...data,
+      participantId: data.participantId || `ACCRC-FEST26-TM-${snap.id.substring(0, 4).toUpperCase()}`,
+      verificationHash: data.verificationHash || `SEC-${snap.id.substring(0, 8).toUpperCase()}`,
+      createdAt: toDate(data.createdAt),
+    } as FestRegistration;
+  } catch (err) {
+    console.error('Error fetching fest registration by id:', err);
+    return null;
+  }
+}
+
+export async function getFestRegistrationByParticipantId(participantId: string): Promise<FestRegistration | null> {
+  const cleanId = participantId.trim().toUpperCase();
+  try {
+    const q = query(
+      collection(db, "fest_registrations"),
+      where("participantId", "==", cleanId),
+      limit(1)
+    );
+    const snap = await getDocs(q);
+    if (snap.empty) {
+      // Fallback query by exact string
+      const q2 = query(
+        collection(db, "fest_registrations"),
+        where("participantId", "==", participantId.trim()),
+        limit(1)
+      );
+      const snap2 = await getDocs(q2);
+      if (snap2.empty) return null;
+      const d = snap2.docs[0];
+      const data = d.data();
+      return {
+        id: d.id,
+        ...data,
+        participantId: data.participantId || cleanId,
+        verificationHash: data.verificationHash || `SEC-${d.id.substring(0, 8).toUpperCase()}`,
+        createdAt: toDate(data.createdAt),
+      } as FestRegistration;
+    }
+    const docData = snap.docs[0];
+    const data = docData.data();
+    return {
+      id: docData.id,
+      ...data,
+      participantId: data.participantId || cleanId,
+      verificationHash: data.verificationHash || `SEC-${docData.id.substring(0, 8).toUpperCase()}`,
+      createdAt: toDate(data.createdAt),
+    } as FestRegistration;
+  } catch (err) {
+    console.error('Error querying fest registration by participantId:', err);
+    return null;
+  }
+}
+
+export async function updateFestRegistrationFiles(
+  id: string,
+  files: TeamFileSubmission[]
+): Promise<void> {
+  const docRef = doc(db, "fest_registrations", id);
+  const latestUrl = files.length > 0 ? files[files.length - 1].url : "";
+  await updateDoc(docRef, {
+    submittedFiles: files,
+    submissionUrl: latestUrl,
+    filesUpdatedAt: Timestamp.now(),
+  });
+
+  // Also update registrations collection
+  try {
+    const regDocRef = doc(db, "registrations", id);
+    await setDoc(regDocRef, {
+      submissionUrl: latestUrl,
+      filesUpdatedAt: Timestamp.now(),
+    }, { merge: true });
+  } catch (err) {
+    console.warn("Notice updating registrations submissionUrl:", err);
+  }
+}
+
+export async function checkInFestRegistration(
+  id: string,
+  organizerNotes?: string
+): Promise<{ success: boolean; message: string; checkedInAt: string }> {
+  const docRef = doc(db, "fest_registrations", id);
+  const snap = await getDoc(docRef);
+  if (!snap.exists()) {
+    throw new Error('Registration record not found');
+  }
+  const existing = snap.data();
+  if (existing.checkedIn || existing.checkInStatus) {
+    return {
+      success: false,
+      message: `Already checked in at ${existing.checkedInAt || 'an earlier scan'}.`,
+      checkedInAt: existing.checkedInAt,
+    };
+  }
+  const nowIso = new Date().toISOString();
+  await updateDoc(docRef, {
+    checkedIn: true,
+    checkInStatus: true,
+    checkedInAt: nowIso,
+    status: 'verified',
+    ...(organizerNotes ? { checkInNotes: organizerNotes } : {}),
+  });
+
+  // Sync to registrations collection
+  try {
+    const regDocRef = doc(db, "registrations", id);
+    await setDoc(regDocRef, {
+      checkInStatus: true,
+      checkedInAt: nowIso,
+    }, { merge: true });
+  } catch (syncErr) {
+    console.warn("Notice syncing checkInStatus to registrations:", syncErr);
+  }
+
+  return {
+    success: true,
+    message: 'Team successfully verified and checked in at entrance gate.',
+    checkedInAt: nowIso,
+  };
 }
 
 export async function updateFestRegistrationStatus(
