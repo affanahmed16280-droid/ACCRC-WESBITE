@@ -9,11 +9,11 @@ import { subscribeToPortalConfig, type PortalConfig } from "@/lib/firestore";
 const standardNavLinks = [
   { href: "/", label: "Home" },
   { href: "/events/", label: "Events" },
+  { href: "/fest/", label: "Fest" },
   { href: "/#achievements", label: "Achievements" },
   { href: "/membership/", label: "Membership" },
   { href: "/news/", label: "News" },
   { href: "/about/", label: "About" },
-  { href: "/admin/", label: "Portals" },
 ];
 
 export function Navbar({ onHelpClick }: { onHelpClick?: () => void } = {}) {

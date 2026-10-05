@@ -10,6 +10,7 @@ import {
   Send,
   Terminal,
   Loader2,
+  HelpCircle,
 } from 'lucide-react';
 import { FaFacebookF, FaInstagram } from 'react-icons/fa';
 import {
@@ -102,12 +103,26 @@ export default function HomePage() {
         <div className={`nav-links ${menuOpen ? 'open' : ''}`}>
           <a href="#mission" onClick={() => setMenuOpen(false)}>Mission</a>
           <a href="#events" onClick={() => setMenuOpen(false)}>Events</a>
+          <a href="/fest/" onClick={() => setMenuOpen(false)}>Fest</a>
           <a href="#achievements" onClick={() => setMenuOpen(false)}>Achievements</a>
           <a href="#news" onClick={() => setMenuOpen(false)}>Updates</a>
           <a href="#join" onClick={() => setMenuOpen(false)}>Join us</a>
           {activeLeadershipApplications.length > 0 && (
             <a href="/portal/" onClick={() => setMenuOpen(false)}>Leadership</a>
           )}
+          <button
+            type="button"
+            onClick={() => {
+              setMenuOpen(false);
+              window.dispatchEvent(new CustomEvent('accrc:open-onboarding'));
+            }}
+            className="flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-[#6b6258] hover:text-[#c94030] transition-colors py-2 md:py-0"
+            aria-label="How it works — open site guide"
+            title="How it works"
+          >
+            <HelpCircle size={16} aria-hidden />
+            <span>Guide</span>
+          </button>
           <a href="#join" className="mobile-drawer-cta" onClick={() => setMenuOpen(false)}>
             APPLY FOR MEMBERSHIP <ArrowRight size={16} aria-hidden />
           </a>

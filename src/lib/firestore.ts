@@ -389,3 +389,355 @@ export function subscribeToPortalConfig(callback: (config: PortalConfig) => void
 export async function updatePortalConfig(data: Partial<PortalConfig>): Promise<void> {
   await setDoc(doc(db, "config", "portal"), data, { merge: true });
 }
+
+/* ─── Fest Types ─── */
+
+export interface FestMember {
+  name: string;
+  institution?: string;
+  phone?: string;
+  email?: string;
+}
+
+export interface FestSegment {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  teamMin: number;
+  teamMax: number;
+  registrationFee: number;
+  prizePool?: string;
+  rulesUrl?: string;
+  rulesText?: string;
+  venue?: string;
+  scheduleTime?: string;
+  isOpen: boolean;
+  createdAt: Date;
+}
+
+export interface FestRegistration {
+  id?: string;
+  segmentId: string;
+  segmentTitle: string;
+  teamName: string;
+  institution: string;
+  leaderName: string;
+  leaderEmail: string;
+  leaderPhone: string;
+  leaderWhatsapp?: string;
+  members: FestMember[];
+  transactionId?: string;
+  paymentMethod?: string;
+  status: 'pending' | 'verified' | 'rejected';
+  notes?: string;
+  createdAt?: Date;
+}
+
+export interface FestScheduleItem {
+  id?: string;
+  day: string;
+  time: string;
+  segmentTitle: string;
+  stage: string;
+  venue: string;
+  status: 'upcoming' | 'ongoing' | 'completed';
+}
+
+export interface FestAnnouncement {
+  id?: string;
+  title: string;
+  body: string;
+  tag: 'Notice' | 'Result' | 'Schedule' | 'Urgent';
+  isLive: boolean;
+  createdAt: Date;
+}
+
+/* ─── Default Starter Segments ─── */
+
+export const DEFAULT_FEST_SEGMENTS: Omit<FestSegment, 'id' | 'createdAt'>[] = [
+  {
+    title: 'Autonomous Line Follower (LFR)',
+    category: 'Robotics',
+    description: 'High-speed autonomous line follower robots navigating complex curves, intersections, and sharp angles on a custom matte arena.',
+    teamMin: 1,
+    teamMax: 4,
+    registrationFee: 1000,
+    prizePool: '৳ 35,000',
+    rulesUrl: 'https://accrc.pages.dev/rules/lfr.pdf',
+    venue: 'College Gymnasium Arena A',
+    scheduleTime: 'Day 1 · 09:30 AM',
+    isOpen: true,
+  },
+  {
+    title: 'Robo Soccer Challenge',
+    category: 'Robotics',
+    description: 'Manual or wireless controlled combat-style robotic soccer matches with fast-paced dribbling and defense strategies.',
+    teamMin: 2,
+    teamMax: 4,
+    registrationFee: 1200,
+    prizePool: '৳ 30,000',
+    rulesUrl: 'https://accrc.pages.dev/rules/soccer.pdf',
+    venue: 'Auditorium Quad Field',
+    scheduleTime: 'Day 1 · 01:30 PM',
+    isOpen: true,
+  },
+  {
+    title: 'Project Showcase & Innovation Display',
+    category: 'Innovation',
+    description: 'Present hardware and IoT prototypes solving real-world challenges in agriculture, healthcare, automation, or clean energy.',
+    teamMin: 1,
+    teamMax: 3,
+    registrationFee: 800,
+    prizePool: '৳ 25,000',
+    rulesUrl: 'https://accrc.pages.dev/rules/project.pdf',
+    venue: 'Main Science Gallery Hall',
+    scheduleTime: 'Day 2 · 10:00 AM',
+    isOpen: true,
+  },
+  {
+    title: 'National Tech & Robotics Olympiad',
+    category: 'Olympiad',
+    description: 'Individual competitive test assessing electronics, microcontrollers, algorithms, and computational robotics principles.',
+    teamMin: 1,
+    teamMax: 1,
+    registrationFee: 300,
+    prizePool: '৳ 15,000',
+    rulesUrl: 'https://accrc.pages.dev/rules/olympiad.pdf',
+    venue: 'Hall Room 301-304',
+    scheduleTime: 'Day 2 · 09:00 AM',
+    isOpen: true,
+  },
+  {
+    title: 'CAD & 3D Mechanism Design',
+    category: 'Engineering',
+    description: 'Live 3-hour mechanical modeling sprint in SolidWorks/Fusion360 designing a precision robotic gripper or chassis.',
+    teamMin: 1,
+    teamMax: 2,
+    registrationFee: 500,
+    prizePool: '৳ 15,000',
+    venue: 'Advanced Computer Lab 2',
+    scheduleTime: 'Day 1 · 11:00 AM',
+    isOpen: true,
+  },
+  {
+    title: 'Speed Circuit & Soldering Sprint',
+    category: 'Hardware',
+    description: 'Precision circuit debugging and live high-speed soldering competition tested on real-time hardware diagnostics.',
+    teamMin: 1,
+    teamMax: 2,
+    registrationFee: 500,
+    prizePool: '৳ 12,000',
+    venue: 'Electronics Lab 1',
+    scheduleTime: 'Day 2 · 02:00 PM',
+    isOpen: true,
+  },
+];
+
+/* ─── Fest Segments ─── */
+
+function parseFestSegment(id: string, data: DocumentData): FestSegment {
+  return {
+    id,
+    title: data.title || '',
+    category: data.category || 'Robotics',
+    description: data.description || '',
+    teamMin: Number(data.teamMin) || 1,
+    teamMax: Number(data.teamMax) || 4,
+    registrationFee: Number(data.registrationFee) || 0,
+    prizePool: data.prizePool || '',
+    rulesUrl: data.rulesUrl || '',
+    rulesText: data.rulesText || '',
+    venue: data.venue || '',
+    scheduleTime: data.scheduleTime || '',
+    isOpen: data.isOpen !== false,
+    createdAt: toDate(data.createdAt),
+  };
+}
+
+export async function getFestSegments(): Promise<FestSegment[]> {
+  try {
+    const q = query(collection(db, "fest_segments"), orderBy("createdAt", "asc"));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) {
+      return DEFAULT_FEST_SEGMENTS.map((seg, i) => ({
+        ...seg,
+        id: `default-${i}`,
+        createdAt: new Date(),
+      }));
+    }
+    return snapshot.docs.map((d) => parseFestSegment(d.id, d.data()));
+  } catch (error) {
+    console.error('Error fetching fest segments:', error);
+    return DEFAULT_FEST_SEGMENTS.map((seg, i) => ({
+      ...seg,
+      id: `default-${i}`,
+      createdAt: new Date(),
+    }));
+  }
+}
+
+export function subscribeToFestSegments(
+  callback: (segments: FestSegment[]) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  const q = query(collection(db, "fest_segments"), orderBy("createdAt", "asc"));
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      if (snapshot.empty) {
+        callback(
+          DEFAULT_FEST_SEGMENTS.map((seg, i) => ({
+            ...seg,
+            id: `default-${i}`,
+            createdAt: new Date(),
+          }))
+        );
+        return;
+      }
+      callback(snapshot.docs.map((d) => parseFestSegment(d.id, d.data())));
+    },
+    (err) => {
+      console.warn('Realtime fest segments notice:', err);
+      callback(
+        DEFAULT_FEST_SEGMENTS.map((seg, i) => ({
+          ...seg,
+          id: `default-${i}`,
+          createdAt: new Date(),
+        }))
+      );
+      onError?.(err);
+    }
+  );
+}
+
+export async function createFestSegment(data: Omit<FestSegment, "id" | "createdAt">): Promise<string> {
+  const docRef = await addDoc(collection(db, "fest_segments"), {
+    ...data,
+    createdAt: Timestamp.now(),
+  });
+  return docRef.id;
+}
+
+export async function updateFestSegment(id: string, data: Partial<Omit<FestSegment, "id" | "createdAt">>): Promise<void> {
+  await updateDoc(doc(db, "fest_segments", id), {
+    ...data,
+  });
+}
+
+export async function deleteFestSegment(id: string): Promise<void> {
+  await deleteDoc(doc(db, "fest_segments", id));
+}
+
+/* ─── Fest Registrations ─── */
+
+export async function submitFestRegistration(data: Omit<FestRegistration, "id" | "createdAt">): Promise<string> {
+  const docRef = await addDoc(collection(db, "fest_registrations"), {
+    ...data,
+    createdAt: Timestamp.now(),
+  });
+  return docRef.id;
+}
+
+export async function getFestRegistrations(filters?: { segmentId?: string; status?: string }): Promise<FestRegistration[]> {
+  try {
+    const constraints: QueryConstraint[] = [orderBy("createdAt", "desc")];
+    if (filters?.segmentId) constraints.unshift(where("segmentId", "==", filters.segmentId));
+    if (filters?.status) constraints.unshift(where("status", "==", filters.status));
+    const q = query(collection(db, "fest_registrations"), ...constraints);
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((d) => ({
+      id: d.id,
+      ...d.data(),
+      createdAt: toDate(d.data().createdAt),
+    } as FestRegistration));
+  } catch (error) {
+    console.error('Error fetching fest registrations:', error);
+    return [];
+  }
+}
+
+export async function updateFestRegistrationStatus(
+  id: string,
+  status: FestRegistration["status"],
+  notes?: string
+): Promise<void> {
+  const payload: Record<string, unknown> = { status };
+  if (notes !== undefined) payload.notes = notes;
+  await updateDoc(doc(db, "fest_registrations", id), payload);
+}
+
+export async function deleteFestRegistration(id: string): Promise<void> {
+  await deleteDoc(doc(db, "fest_registrations", id));
+}
+
+/* ─── Fest Schedules ─── */
+
+export async function getFestSchedule(): Promise<FestScheduleItem[]> {
+  try {
+    const snapshot = await getDocs(collection(db, "fest_schedule"));
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as FestScheduleItem));
+  } catch (error) {
+    console.error('Error fetching fest schedule:', error);
+    return [];
+  }
+}
+
+export async function createFestScheduleItem(data: Omit<FestScheduleItem, "id">): Promise<string> {
+  const docRef = await addDoc(collection(db, "fest_schedule"), data);
+  return docRef.id;
+}
+
+export async function deleteFestScheduleItem(id: string): Promise<void> {
+  await deleteDoc(doc(db, "fest_schedule", id));
+}
+
+/* ─── Fest Announcements ─── */
+
+export async function getFestAnnouncements(): Promise<FestAnnouncement[]> {
+  try {
+    const q = query(collection(db, "fest_announcements"), orderBy("createdAt", "desc"));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((d) => ({
+      id: d.id,
+      ...d.data(),
+      createdAt: toDate(d.data().createdAt),
+    } as FestAnnouncement));
+  } catch (error) {
+    console.error('Error fetching fest announcements:', error);
+    return [];
+  }
+}
+
+export function subscribeToFestAnnouncements(
+  callback: (announcements: FestAnnouncement[]) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  const q = query(collection(db, "fest_announcements"), orderBy("createdAt", "desc"));
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      callback(
+        snapshot.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+          createdAt: toDate(d.data().createdAt),
+        } as FestAnnouncement))
+      );
+    },
+    onError
+  );
+}
+
+export async function createFestAnnouncement(data: Omit<FestAnnouncement, "id" | "createdAt">): Promise<string> {
+  const docRef = await addDoc(collection(db, "fest_announcements"), {
+    ...data,
+    createdAt: Timestamp.now(),
+  });
+  return docRef.id;
+}
+
+export async function deleteFestAnnouncement(id: string): Promise<void> {
+  await deleteDoc(doc(db, "fest_announcements", id));
+}
+

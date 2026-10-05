@@ -43,11 +43,11 @@ export function Footer() {
             <ul className="flex flex-col gap-2.5">
               {[
                 { href: "/events/", label: "Events" },
+                { href: "/fest/", label: "Fest" },
                 { href: "/#achievements", label: "Achievements" },
                 { href: "/membership/", label: "Membership" },
                 { href: "/news/", label: "News" },
                 { href: "/about/", label: "About" },
-                { href: "/admin/", label: "Portals" },
                 ...(leadershipApplicationsOpen ? [{ href: "/portal/", label: "Leadership" }] : []),
               ].map((link) => (
                 <li key={link.href}>

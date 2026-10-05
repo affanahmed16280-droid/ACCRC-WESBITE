@@ -1,6 +1,28 @@
 import type { Metadata } from "next";
+import { Hind_Siliguri, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteChrome } from '@/components/layout/SiteChrome';
+
+const hindSiliguri = Hind_Siliguri({
+  subsets: ["bengali", "latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-hind-siliguri",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-jetbrains-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://accrc.pages.dev"),
@@ -45,7 +67,7 @@ export default function RootLayout({
         <meta name="theme-color" content="black" media="(prefers-color-scheme: dark)" />
         <meta name="color-scheme" content="light" />
       </head>
-      <body className="antialiased">
+      <body className={`${hindSiliguri.variable} ${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         <SiteChrome>{children}</SiteChrome>
       </body>
     </html>

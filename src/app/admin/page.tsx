@@ -2,12 +2,18 @@
 
 import Link from 'next/link';
 import { signOut } from 'firebase/auth';
-import { ArrowUpRight, CalendarDays, Crown, Loader2, LogOut, Newspaper, ShieldCheck, Trophy, UserCheck, UsersRound } from 'lucide-react';
+import { ArrowUpRight, CalendarDays, Crown, Flame, Loader2, LogOut, Newspaper, ShieldCheck, Trophy, UserCheck, UsersRound } from 'lucide-react';
 import { useState } from 'react';
 import AdminGuard from '@/components/admin/AdminGuard';
 import { auth } from '@/lib/firebase';
 
 const portals = [
+  {
+    name: 'Fest Management Portal',
+    description: 'Manage National Robotics Fest segments, team registrations, event schedule, and announcements.',
+    href: '/admin/fest/',
+    icon: Flame,
+  },
   {
     name: 'Membership Requests',
     description: 'Review, manage, and process incoming club membership applications and student details.',

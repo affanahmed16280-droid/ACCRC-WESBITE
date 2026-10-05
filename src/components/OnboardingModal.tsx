@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { X, ChevronRight, ChevronLeft, Rocket, CalendarDays, UserCheck, ShieldCheck } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-const STORAGE_KEY = 'accrc_hasSeenOnboarding';
+const STORAGE_KEY = 'hasSeenOnboarding';
 
 interface Step {
   icon: React.ElementType;
@@ -18,28 +18,28 @@ const steps: Step[] = [
     icon: Rocket,
     title: 'Welcome to ACCRC',
     description:
-      'Adamjee Cantonment College Robotics Club — a student-led community where we build, compete, and push the boundaries of robotics and engineering.',
+      'Adamjee Cantonment College Robotics Club — a student-led robotics community where we innovate, build hardware prototypes, and compete nationally and globally.',
     accentLabel: '01 / INTRO',
   },
   {
     icon: CalendarDays,
-    title: 'Explore Events',
+    title: 'Events & National Fest',
     description:
-      'Browse upcoming competitions, workshops, and club gatherings on the Events page. Register directly from the event listing — no account required.',
-    accentLabel: '02 / EVENTS',
+      'Browse upcoming workshops, bootcamps, and National Robotics Fest segments. Teams can register directly online, inspect timetables, and follow live match results.',
+    accentLabel: '02 / EVENTS & FEST',
   },
   {
     icon: UserCheck,
-    title: 'Join the Club',
+    title: 'Membership & Leadership',
     description:
-      'Fill in the Membership form to apply for club membership. Leadership applications (Sub-Executive, Executive, Prefect) open seasonally — check the Portals link in the nav.',
-    accentLabel: '03 / MEMBERSHIP',
+      'Apply anytime through the Membership section. When recruitment opens, submit your application for Executive, Sub-Executive, or Prefect roles via the Leadership tab.',
+    accentLabel: '03 / GET INVOLVED',
   },
   {
     icon: ShieldCheck,
-    title: 'Stay Updated',
+    title: 'Stay Connected',
     description:
-      'Follow us on Facebook and Instagram for real-time announcements. Club news is also published on the News page — bookmark it!',
+      'Get instant announcements on Facebook and Instagram. Check the News tab for articles, club project highlights, and national achievement updates.',
     accentLabel: '04 / CONNECT',
   },
 ];
