@@ -25,7 +25,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
   // Admin pages: no site chrome at all
   if (isAdmin) return <>{children}</>;
 
-  // Home page: has its own inline Navbar/Footer — render banner + modal
+  // Home page: has its own inline Navbar/Footer — render banner + modal only
   if (isHome) {
     return (
       <div
@@ -44,7 +44,9 @@ export function SiteChrome({ children }: { children: ReactNode }) {
     );
   }
 
-  // All other public pages: render full chrome + top banner + flex layout + modal
+  // All other public pages: full chrome.
+  // Each page's own top padding (pt-24, pt-28 etc.) accounts for the fixed navbar height.
+  // SiteChrome only adds the dynamic banner height on top of that via paddingTop.
   return (
     <div
       className="min-h-screen flex flex-col relative"

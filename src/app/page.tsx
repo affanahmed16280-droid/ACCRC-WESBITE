@@ -88,7 +88,7 @@ export default function HomePage() {
   };
 
   return (
-    <main>
+    <main className="min-h-screen flex flex-col">
       {/* ═══ NAVBAR ═══ */}
       <nav className="nav">
         <a className="wordmark" href="#top" aria-label="ACCRC home">
@@ -359,7 +359,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══ FOOTER ═══ */}
-      <footer>
+      <footer className="mt-auto">
         <div className="footer-top">
           <a className="wordmark" href="#top" aria-label="Back to the top of ACCRC home">
             <img className="wordmark-logo" src="/accrc-logo.png" alt="ACCRC logo" />

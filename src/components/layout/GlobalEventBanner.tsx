@@ -146,8 +146,8 @@ export function GlobalEventBanner({ onHeightChange }: GlobalEventBannerProps) {
             {bannerItem.title}
           </span>
           {bannerItem.dateText && (
-            <span className="text-[#cfc9bc] font-mono text-[10px] sm:text-xs hidden sm:inline-flex items-center gap-1">
-              <CalendarDays size={12} className="text-[#c94030]" />
+            <span className="text-[#cfc9bc] font-mono text-[10px] sm:text-xs inline-flex items-center gap-1">
+              <CalendarDays size={12} className="text-[#c94030] shrink-0" />
               {bannerItem.dateText}
             </span>
           )}
