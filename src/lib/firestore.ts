@@ -415,15 +415,6 @@ export interface FestMember {
   email?: string;
 }
 
-export interface TeamFileSubmission {
-  id: string;
-  name: string;
-  url: string;
-  size: number;
-  uploadedAt: string;
-  fileType: string;
-}
-
 export interface FestConfig {
   id?: string;
   isLaunched: boolean;
@@ -477,6 +468,7 @@ export interface FestSegment {
   customBkashType?: 'Merchant' | 'Personal' | 'Rocket' | 'Nagad';
   guidelines?: string[];
   registrationDeadline?: string;
+  requiresSubmissionLink?: boolean;
   isOpen: boolean;
   createdAt: Date;
 }
@@ -501,8 +493,7 @@ export interface FestRegistration {
   amountPaid?: number;
   status: 'pending' | 'verified' | 'rejected';
   notes?: string;
-  submittedFiles?: TeamFileSubmission[];
-  submissionUrl?: string;
+  submissionLink?: string;
   eventId?: string;
   paymentTrxId?: string;
   checkInStatus?: boolean;
@@ -571,6 +562,7 @@ export const DEFAULT_FEST_SEGMENTS: Omit<FestSegment, 'id' | 'createdAt'>[] = [
     rulesUrl: 'https://accrc.pages.dev/rules/project.pdf',
     venue: 'Main Science Gallery Hall',
     scheduleTime: 'Day 2 · 10:00 AM',
+    requiresSubmissionLink: true,
     isOpen: true,
   },
   {
@@ -632,6 +624,7 @@ function parseFestSegment(id: string, data: DocumentData): FestSegment {
     customBkashType: data.customBkashType || 'Personal',
     guidelines: Array.isArray(data.guidelines) ? data.guidelines : [],
     registrationDeadline: data.registrationDeadline || '',
+    requiresSubmissionLink: data.requiresSubmissionLink === true,
     isOpen: data.isOpen !== false,
     createdAt: toDate(data.createdAt),
   };
@@ -827,65 +820,43 @@ export async function submitFestRegistration(
     paymentMethod: data.paymentMethod || 'bKash',
     amountPaid: typeof data.amountPaid === 'number' ? data.amountPaid : 0,
     status: data.status || 'pending',
+    submissionLink: data.submissionLink ? String(data.submissionLink).trim() : '',
     checkInStatus: false,
     checkedIn: false,
     checkedInAt: null,
-    submittedFiles: Array.isArray(data.submittedFiles) ? data.submittedFiles : [],
+    type: 'fest' as const,
     createdAt: Timestamp.now(),
   };
 
   // The primary write is awaited so a rejected Firestore request reaches the
   // form's error state instead of reporting a successful registration.
-  const docRef = await addDoc(collection(db, "fest_registrations"), payload);
+  const docRef = await addDoc(collection(db, "registrations"), payload);
   const teamId = docRef.id;
-
-  // Keep the existing private admin index in sync without making a successful
-  // public registration depend on that secondary write.
-  void setDoc(doc(db, "registrations", teamId), {
-    ...payload,
-    teamId,
-    type: 'fest',
-  }).catch(() => {
-    // Non-blocking sync notice
-  });
 
   return { id: teamId, participantId, verificationHash };
 }
 
 export async function getFestRegistrations(filters?: { segmentId?: string; status?: string }): Promise<FestRegistration[]> {
   try {
-    const constraints: QueryConstraint[] = [orderBy("createdAt", "desc")];
-    if (filters?.segmentId) constraints.unshift(where("segmentId", "==", filters.segmentId));
-    if (filters?.status) constraints.unshift(where("status", "==", filters.status));
-    const q = query(collection(db, "fest_registrations"), ...constraints);
-    const snapshot = await getDocs(q);
-
-    if (snapshot.empty) {
-      // Check fallback canonical registrations collection
-      try {
-        const fallbackQ = query(collection(db, "registrations"), where("type", "==", "fest"), orderBy("createdAt", "desc"));
-        const fallbackSnap = await getDocs(fallbackQ);
-        if (!fallbackSnap.empty) {
-          return fallbackSnap.docs.map((d) => ({
-            id: d.id,
-            ...d.data(),
-            participantId: d.data().participantId || `ACCRC-FEST26-TM-${d.id.substring(0, 4).toUpperCase()}`,
-            verificationHash: d.data().verificationHash || `SEC-${d.id.substring(0, 8).toUpperCase()}`,
-            createdAt: toDate(d.data().createdAt),
-          } as FestRegistration));
-        }
-      } catch {
-        // Fallback query error ignored
-      }
-    }
-
-    return snapshot.docs.map((d) => ({
-      id: d.id,
-      ...d.data(),
-      participantId: d.data().participantId || `ACCRC-FEST26-TM-${d.id.substring(0, 4).toUpperCase()}`,
-      verificationHash: d.data().verificationHash || `SEC-${d.id.substring(0, 8).toUpperCase()}`,
-      createdAt: toDate(d.data().createdAt),
-    } as FestRegistration));
+    const snapshot = await getDocs(collection(db, "registrations"));
+    return snapshot.docs
+      .filter((d) => {
+        const data = d.data();
+        return data.type === 'fest' &&
+          (!filters?.segmentId || data.segmentId === filters.segmentId) &&
+          (!filters?.status || data.status === filters.status);
+      })
+      .map((d) => {
+        const data = d.data();
+        return {
+          id: d.id,
+          ...data,
+          participantId: data.participantId || `ACCRC-FEST26-TM-${d.id.substring(0, 4).toUpperCase()}`,
+          verificationHash: data.verificationHash || `SEC-${d.id.substring(0, 8).toUpperCase()}`,
+          createdAt: toDate(data.createdAt),
+        } as FestRegistration;
+      })
+      .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
   } catch (error) {
     console.error('Error fetching fest registrations:', error);
     return [];
@@ -894,9 +865,9 @@ export async function getFestRegistrations(filters?: { segmentId?: string; statu
 
 export async function getFestRegistrationById(id: string): Promise<FestRegistration | null> {
   try {
-    const docRef = doc(db, "fest_registrations", id);
+    const docRef = doc(db, "registrations", id);
     const snap = await getDoc(docRef);
-    if (snap.exists()) {
+    if (snap.exists() && snap.data().type === 'fest') {
       const data = snap.data();
       return {
         id: snap.id,
@@ -907,12 +878,12 @@ export async function getFestRegistrationById(id: string): Promise<FestRegistrat
       } as FestRegistration;
     }
   } catch (err) {
-    console.warn('Notice checking fest_registrations by id:', err);
+    console.warn('Notice checking registrations by id:', err);
   }
 
-  // Fallback to registrations collection
+  // Legacy fallback for registrations created before the canonical collection.
   try {
-    const fallbackRef = doc(db, "registrations", id);
+    const fallbackRef = doc(db, "fest_registrations", id);
     const fallbackSnap = await getDoc(fallbackRef);
     if (fallbackSnap.exists()) {
       const data = fallbackSnap.data();
@@ -925,7 +896,7 @@ export async function getFestRegistrationById(id: string): Promise<FestRegistrat
       } as FestRegistration;
     }
   } catch (fallbackErr) {
-    console.warn('Notice checking registrations fallback by id:', fallbackErr);
+    console.warn('Notice checking legacy fest registration by id:', fallbackErr);
   }
 
   return null;
@@ -935,7 +906,8 @@ export async function getFestRegistrationByParticipantId(participantId: string):
   const cleanId = participantId.trim().toUpperCase();
   try {
     const q = query(
-      collection(db, "fest_registrations"),
+      collection(db, "registrations"),
+      where("type", "==", "fest"),
       where("participantId", "==", cleanId),
       limit(1)
     );
@@ -952,13 +924,13 @@ export async function getFestRegistrationByParticipantId(participantId: string):
       } as FestRegistration;
     }
   } catch (err) {
-    console.warn('Notice querying fest_registrations by participantId:', err);
+    console.warn('Notice querying registrations by participantId:', err);
   }
 
-  // Fallback to canonical registrations collection
+  // Legacy fallback for registrations created before the canonical collection.
   try {
     const fallbackQ = query(
-      collection(db, "registrations"),
+      collection(db, "fest_registrations"),
       where("participantId", "==", cleanId),
       limit(1)
     );
@@ -975,41 +947,17 @@ export async function getFestRegistrationByParticipantId(participantId: string):
       } as FestRegistration;
     }
   } catch (fallbackErr) {
-    console.warn('Notice querying registrations fallback by participantId:', fallbackErr);
+    console.warn('Notice querying legacy fest registrations by participantId:', fallbackErr);
   }
 
   return null;
-}
-
-export async function updateFestRegistrationFiles(
-  id: string,
-  files: TeamFileSubmission[]
-): Promise<void> {
-  const docRef = doc(db, "fest_registrations", id);
-  const latestUrl = files.length > 0 ? files[files.length - 1].url : "";
-  await updateDoc(docRef, {
-    submittedFiles: files,
-    submissionUrl: latestUrl,
-    filesUpdatedAt: Timestamp.now(),
-  });
-
-  // Also update registrations collection
-  try {
-    const regDocRef = doc(db, "registrations", id);
-    await setDoc(regDocRef, {
-      submissionUrl: latestUrl,
-      filesUpdatedAt: Timestamp.now(),
-    }, { merge: true });
-  } catch (err) {
-    console.warn("Notice updating registrations submissionUrl:", err);
-  }
 }
 
 export async function checkInFestRegistration(
   id: string,
   organizerNotes?: string
 ): Promise<{ success: boolean; message: string; checkedInAt: string }> {
-  const docRef = doc(db, "fest_registrations", id);
+  const docRef = doc(db, "registrations", id);
   const snap = await getDoc(docRef);
   if (!snap.exists()) {
     throw new Error('Registration record not found');
@@ -1031,17 +979,6 @@ export async function checkInFestRegistration(
     ...(organizerNotes ? { checkInNotes: organizerNotes } : {}),
   });
 
-  // Sync to registrations collection
-  try {
-    const regDocRef = doc(db, "registrations", id);
-    await setDoc(regDocRef, {
-      checkInStatus: true,
-      checkedInAt: nowIso,
-    }, { merge: true });
-  } catch (syncErr) {
-    console.warn("Notice syncing checkInStatus to registrations:", syncErr);
-  }
-
   return {
     success: true,
     message: 'Team successfully verified and checked in at entrance gate.',
@@ -1056,11 +993,11 @@ export async function updateFestRegistrationStatus(
 ): Promise<void> {
   const payload: Record<string, unknown> = { status };
   if (notes !== undefined) payload.notes = notes;
-  await updateDoc(doc(db, "fest_registrations", id), payload);
+  await updateDoc(doc(db, "registrations", id), payload);
 }
 
 export async function deleteFestRegistration(id: string): Promise<void> {
-  await deleteDoc(doc(db, "fest_registrations", id));
+  await deleteDoc(doc(db, "registrations", id));
 }
 
 /* ─── Fest Schedules ─── */

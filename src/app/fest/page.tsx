@@ -21,7 +21,6 @@ import {
   Plus,
   Trash2,
   Bell,
-  QrCode,
   CreditCard,
   FileText,
   HelpCircle,
@@ -43,8 +42,6 @@ import {
   type FestConfig,
   DEFAULT_FEST_CONFIG,
 } from '@/lib/firestore';
-import { ParticipantPassCard } from '@/components/fest/ParticipantPassCard';
-import { TeamSubmissionModule } from '@/components/fest/TeamSubmissionModule';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -55,16 +52,16 @@ const DEFAULT_GUIDELINES = [
     details: 'Complete team roster and send the exact entry fee to the designated bKash account. Keep the 10-character Transaction ID (TrxID) handy.',
   },
   {
-    step: 'Step 2: Participant Pass Download',
-    details: 'Receive your unique Participant ID and download your digital QR Code Pass Card. Keep a digital copy on your phone or print a physical badge.',
+    step: 'Step 2: Registration Confirmation',
+    details: 'Receive your unique Participant ID and retain it for registration support and on-site verification.',
   },
   {
-    step: 'Step 3: Abstract / File Upload',
-    details: 'Upload project abstracts, slide decks (PPTX/PDF), or code archives from your team dashboard prior to the submission deadline.',
+    step: 'Step 3: Presentation Link',
+    details: 'For applicable segments, provide a shareable Google Drive, slide deck, or video link during registration.',
   },
   {
     step: 'Step 4: On-Site Presentation',
-    details: 'Present your pass QR code at the Adamjee Cantonment College entrance gate for instant check-in, arena access, and official competitor kit collection.',
+    details: 'Present your Participant ID at the Adamjee Cantonment College entrance gate for verification and arena access.',
   },
 ];
 
@@ -94,6 +91,7 @@ export default function FestPage() {
   const [leaderWhatsapp, setLeaderWhatsapp] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'bKash' | 'Nagad' | 'Rocket'>('bKash');
   const [transactionId, setTransactionId] = useState('');
+  const [submissionLink, setSubmissionLink] = useState('');
   const [members, setMembers] = useState<FestMember[]>([]);
 
   useEffect(() => {
@@ -141,6 +139,7 @@ export default function FestPage() {
     setLeaderPhone('');
     setLeaderWhatsapp('');
     setTransactionId('');
+    setSubmissionLink('');
     setPaymentMethod(festConfig.bkashAccountType === 'Nagad' ? 'Nagad' : festConfig.bkashAccountType === 'Rocket' ? 'Rocket' : 'bKash');
     setMembers([]);
     setRegisteredTeam(null);
@@ -184,6 +183,11 @@ export default function FestPage() {
       return;
     }
 
+    if (selectedSegment.requiresSubmissionLink && !submissionLink.trim()) {
+      setRegError('Please provide a shareable Drive, presentation, or video link for this segment.');
+      return;
+    }
+
     setRegSubmitting(true);
     setRegError(null);
 
@@ -202,7 +206,7 @@ export default function FestPage() {
         paymentMethod: selectedSegment.registrationFee > 0 ? paymentMethod : 'Free',
         amountPaid: selectedSegment.registrationFee,
         status: 'pending',
-        submittedFiles: [],
+        submissionLink: submissionLink.trim(),
         checkedIn: false,
         checkedInAt: null,
       };
@@ -279,7 +283,7 @@ export default function FestPage() {
             <div className="flex flex-wrap items-center gap-3">
               <Link href="/fest/pass">
                 <Button className="font-mono text-xs uppercase tracking-wider inline-flex items-center gap-2">
-                  <QrCode size={15} /> Access My Team Pass & Submissions
+                  <FileText size={15} /> Find a Team Registration
                 </Button>
               </Link>
               {festConfig.rulesUrl && (
@@ -698,23 +702,25 @@ export default function FestPage() {
                   <h3 className="text-2xl font-black text-[#141210]">Team Registration Confirmed!</h3>
                   <p className="text-xs text-[#3a3530] max-w-lg mx-auto">
                     Your team <strong className="text-[#141210]">{registeredTeam.teamName}</strong> has been registered.
-                    Save your official QR Participant Pass below and upload your project files.
+                    Save your Participant ID for support and on-site verification.
                   </p>
                 </div>
 
-                {/* Render Pass Card */}
-                <ParticipantPassCard registration={registeredTeam} />
-
-                {/* Render File Submission Module */}
-                <div className="pt-4 border-t border-[#cfc9bc]">
-                  <TeamSubmissionModule
-                    registrationId={registeredTeam.id || ''}
-                    participantId={registeredTeam.participantId || ''}
-                    existingFiles={registeredTeam.submittedFiles || []}
-                    onFilesUpdated={(newFiles) => {
-                      setRegisteredTeam({ ...registeredTeam, submittedFiles: newFiles });
-                    }}
-                  />
+                <div className="border border-[#cfc9bc] bg-[#f6f0e7] p-5 text-center rounded">
+                  <span className="font-mono text-[10px] uppercase tracking-wider text-[#6b6258] block">Participant ID</span>
+                  <strong className="mt-1 block break-all font-mono text-lg text-[#c94030]">
+                    {registeredTeam.participantId}
+                  </strong>
+                  {registeredTeam.submissionLink && (
+                    <a
+                      href={registeredTeam.submissionLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center gap-1 text-xs font-mono font-bold text-[#c94030] hover:underline"
+                    >
+                      <ExternalLink size={13} /> Open submitted project link
+                    </a>
+                  )}
                 </div>
 
                 <div className="pt-4 flex justify-between items-center border-t border-[#cfc9bc]">
@@ -860,6 +866,26 @@ export default function FestPage() {
                     </div>
                   )}
 
+                  {selectedSegment.requiresSubmissionLink && (
+                    <div className="border-t border-[#cfc9bc] pt-3">
+                      <label className="text-xs font-mono font-bold uppercase text-[#141210] block mb-1" htmlFor="submission-link">
+                        Project / Presentation Link *
+                      </label>
+                      <p className="text-[11px] leading-relaxed text-[#6b6258] mb-2">
+                        Share a Google Drive folder, slide deck, GitHub repository, or YouTube/video link that organizers can open.
+                      </p>
+                      <Input
+                        id="submission-link"
+                        type="url"
+                        value={submissionLink}
+                        onChange={(e) => setSubmissionLink(e.target.value)}
+                        placeholder="https://drive.google.com/..."
+                        required
+                        className="text-[#141210] bg-[#f6f0e7]"
+                      />
+                    </div>
+                  )}
+
                   {/* Payment Verification with DYNAMIC bKash number */}
                   {selectedSegment.registrationFee > 0 && (
                     <div className="border-t border-[#cfc9bc] pt-3 bg-[#f6f0e7] p-4 border border-dashed rounded space-y-3">
@@ -927,7 +953,7 @@ export default function FestPage() {
                   ) : (
                     <Send size={16} className="mr-2" />
                   )}
-                  {regSubmitting ? 'Registering...' : 'Complete & Generate Pass'}
+                  {regSubmitting ? 'Registering...' : 'Complete Registration'}
                 </Button>
               </div>
             )}

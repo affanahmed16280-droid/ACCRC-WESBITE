@@ -7,8 +7,8 @@ import {
   ChevronLeft,
   Users,
   CreditCard,
-  QrCode,
-  UploadCloud,
+  BadgeCheck,
+  Link2,
   CheckCircle2,
   Rocket,
 } from 'lucide-react';
@@ -37,24 +37,24 @@ const steps: Step[] = [
     accentLabel: '02 / PAYMENT',
   },
   {
-    icon: QrCode,
-    title: 'Instant Participant ID & QR Pass',
+    icon: BadgeCheck,
+    title: 'Instant Participant ID',
     description:
-      'Receive an automatic unique ID (e.g. ACCRC-FEST26-TM-A1B2) and a dynamic digital QR Code Pass Card that you can save or download directly to your device.',
-    accentLabel: '03 / PASS GENERATION',
+      'Receive an automatic unique ID (e.g. ACCRC-FEST26-TM-A1B2) to use for registration lookup and on-site verification.',
+    accentLabel: '03 / CONFIRMATION',
   },
   {
-    icon: UploadCloud,
-    title: 'Project Files & Abstract Submission',
+    icon: Link2,
+    title: 'Presentation Link Submission',
     description:
-      'Upload and manage your project decks (PDF/PPTX), ZIP archives, or demo videos securely from your team dashboard prior to the submission deadline.',
-    accentLabel: '04 / FILE UPLOADS',
+      'Applicable segments collect a shareable Google Drive, slide deck, repository, or demo-video link directly in the registration form.',
+    accentLabel: '04 / PROJECT LINK',
   },
   {
     icon: CheckCircle2,
-    title: 'On-Site Entry & QR Gate Check-In',
+    title: 'On-Site Entry Verification',
     description:
-      'Bring your digital pass to Adamjee Cantonment College on fest day. Gate coordinators will scan your QR code for rapid on-site badge verification and arena check-in.',
+      'Bring your Participant ID to Adamjee Cantonment College on fest day for badge verification and arena check-in.',
     accentLabel: '05 / EVENT DAY',
   },
 ];

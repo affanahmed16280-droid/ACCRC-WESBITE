@@ -24,10 +24,8 @@ import {
   type FestScheduleItem,
   type FestAnnouncement,
   type FestConfig,
-  type TeamFileSubmission,
   DEFAULT_FEST_CONFIG,
 } from '@/lib/firestore';
-import { ParticipantPassCard } from '@/components/fest/ParticipantPassCard';
 import { QrCheckInScanner } from '@/components/fest/QrCheckInScanner';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -100,12 +98,6 @@ export default function AdminFest() {
   } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // View Pass Modal
-  const [previewPassTeam, setPreviewPassTeam] = useState<FestRegistration | null>(null);
-
-  // Inspect Team Files Modal
-  const [inspectFilesTeam, setInspectFilesTeam] = useState<FestRegistration | null>(null);
-
   // Segment create/edit form
   const [isSegmentFormOpen, setIsSegmentFormOpen] = useState(false);
   const [editingSegmentId, setEditingSegmentId] = useState<string | null>(null);
@@ -121,6 +113,7 @@ export default function AdminFest() {
     venue: '',
     scheduleTime: '',
     customBkashNumber: '',
+    requiresSubmissionLink: false,
     isOpen: true,
   });
 
@@ -255,6 +248,7 @@ export default function AdminFest() {
         venue: segmentFormData.venue.trim(),
         scheduleTime: segmentFormData.scheduleTime.trim(),
         customBkashNumber: segmentFormData.customBkashNumber.trim(),
+        requiresSubmissionLink: segmentFormData.requiresSubmissionLink,
         isOpen: segmentFormData.isOpen,
       };
 
@@ -284,6 +278,7 @@ export default function AdminFest() {
       venue: seg.venue || '',
       scheduleTime: seg.scheduleTime || '',
       customBkashNumber: seg.customBkashNumber || '',
+      requiresSubmissionLink: seg.requiresSubmissionLink === true,
       isOpen: seg.isOpen,
     });
     setEditingSegmentId(seg.id);
@@ -385,14 +380,12 @@ export default function AdminFest() {
       'Status',
       'Checked In',
       'Checked In At',
-      'Submitted Files Count',
-      'Submitted File URLs',
+      'Submission Link',
       'Registration Date',
     ];
 
     const rows = filteredRegistrations.map((r) => {
       const memberNames = r.members ? r.members.map((m) => m.name).join('; ') : '';
-      const fileUrls = r.submittedFiles ? r.submittedFiles.map((f) => f.url).join('; ') : '';
       return [
         `"${r.participantId || ''}"`,
         `"${(r.teamName || '').replace(/"/g, '""')}"`,
@@ -409,8 +402,7 @@ export default function AdminFest() {
         `"${r.status || 'pending'}"`,
         r.checkedIn ? 'YES' : 'NO',
         `"${r.checkedInAt || ''}"`,
-        r.submittedFiles?.length || 0,
-        `"${fileUrls.replace(/"/g, '""')}"`,
+        `"${(r.submissionLink || '').replace(/"/g, '""')}"`,
         `"${r.createdAt ? new Date(r.createdAt).toISOString() : ''}"`,
       ].join(',');
     });
@@ -555,7 +547,7 @@ export default function AdminFest() {
                 : 'border-transparent text-[#6b6258] hover:text-[#141210]'
             }`}
           >
-            <QrCode size={14} /> Gate QR Scanner
+            <QrCode size={14} /> Gate Check-In
           </button>
           <button
             onClick={() => setActiveTab('segments')}
@@ -720,29 +712,19 @@ export default function AdminFest() {
                         </td>
                         <td className="p-3">
                           <div className="flex flex-col gap-1.5 items-start">
-                            {reg.submittedFiles && reg.submittedFiles.length > 0 ? (
-                              <button
-                                type="button"
-                                onClick={() => setInspectFilesTeam(reg)}
-                                className="inline-flex items-center gap-1 px-2 py-0.5 bg-white border border-[#cfc9bc] hover:border-[#c94030] text-[#c94030] rounded font-bold text-[10px]"
-                              >
-                                <FileText size={11} />
-                                {reg.submittedFiles.length} file{reg.submittedFiles.length > 1 ? 's' : ''}
-                              </button>
-                            ) : (
-                              <span className="text-[#9a9088] text-[10px]">None</span>
-                            )}
-                            {(reg.submissionUrl || (reg.submittedFiles && reg.submittedFiles.length > 0 && reg.submittedFiles[0].url)) && (
+                            {reg.submissionLink ? (
                               <a
-                                href={reg.submissionUrl || reg.submittedFiles![0].url}
+                                href={reg.submissionLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#c94030] text-white hover:bg-[#a83228] rounded font-bold text-[10px] transition-colors"
-                                title="Open Submission URL"
+                                className="inline-flex max-w-[150px] items-center gap-1 px-2 py-1 bg-[#c94030] text-white hover:bg-[#a83228] rounded font-bold text-[10px] transition-colors break-all"
+                                title={reg.submissionLink}
                               >
                                 <ExternalLink size={10} />
-                                <span>Open URL</span>
+                                <span>Open project link</span>
                               </a>
+                            ) : (
+                              <span className="text-[#9a9088] text-[10px]">No link submitted</span>
                             )}
                           </div>
                         </td>
@@ -768,16 +750,6 @@ export default function AdminFest() {
                         </td>
                         <td className="p-3 text-right">
                           <div className="flex items-center justify-end gap-1">
-                            {/* View Pass Card */}
-                            <button
-                              type="button"
-                              onClick={() => setPreviewPassTeam(reg)}
-                              title="View & Print Official Pass"
-                              className="p-1.5 bg-[#f6f0e7] hover:bg-[#141210] hover:text-white border border-[#cfc9bc] rounded text-[#3a3530] transition-colors"
-                            >
-                              <QrCode size={13} />
-                            </button>
-
                             {/* Verify */}
                             {reg.status !== 'verified' && (
                               <button
@@ -1060,6 +1032,7 @@ export default function AdminFest() {
                     venue: '',
                     scheduleTime: '',
                     customBkashNumber: '',
+                    requiresSubmissionLink: false,
                     isOpen: true,
                   });
                   setIsSegmentFormOpen(true);
@@ -1195,72 +1168,6 @@ export default function AdminFest() {
           </div>
         )}
 
-        {/* ═══ PREVIEW PASS MODAL ═══ */}
-        {previewPassTeam && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-            <div className="bg-[#ede7da] border border-[#cfc9bc] w-full max-w-xl p-6 rounded relative my-auto shadow-2xl">
-              <button
-                onClick={() => setPreviewPassTeam(null)}
-                className="absolute top-4 right-4 text-[#6b6258] hover:text-[#141210]"
-              >
-                ✕
-              </button>
-              <ParticipantPassCard registration={previewPassTeam} />
-            </div>
-          </div>
-        )}
-
-        {/* ═══ INSPECT TEAM FILES MODAL ═══ */}
-        {inspectFilesTeam && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-            <div className="bg-[#ede7da] border border-[#cfc9bc] w-full max-w-md p-6 rounded relative shadow-2xl space-y-4">
-              <button
-                onClick={() => setInspectFilesTeam(null)}
-                className="absolute top-4 right-4 text-[#6b6258] hover:text-[#141210]"
-              >
-                ✕
-              </button>
-              <div>
-                <span className="font-mono text-xs font-bold text-[#c94030] uppercase">
-                  Project Submissions
-                </span>
-                <h3 className="text-lg font-bold text-[#141210]">{inspectFilesTeam.teamName}</h3>
-                <p className="text-xs font-mono text-[#6b6258]">
-                  ID: {inspectFilesTeam.participantId} · {inspectFilesTeam.segmentTitle}
-                </p>
-              </div>
-
-              <div className="divide-y divide-[#cfc9bc] bg-[#f6f0e7] border border-[#cfc9bc] rounded max-h-60 overflow-y-auto">
-                {inspectFilesTeam.submittedFiles && inspectFilesTeam.submittedFiles.length > 0 ? (
-                  inspectFilesTeam.submittedFiles.map((file) => (
-                    <div key={file.id} className="p-3 flex items-center justify-between text-xs">
-                      <div>
-                        <p className="font-bold text-[#141210] truncate max-w-[200px]" title={file.name}>
-                          {file.name}
-                        </p>
-                        <p className="text-[10px] font-mono text-[#6b6258]">
-                          {new Date(file.uploadedAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <a
-                        href={file.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#ede7da] hover:bg-[#141210] hover:text-white border border-[#cfc9bc] rounded text-[#3a3530] text-xs font-mono uppercase"
-                      >
-                        <span>Open</span>
-                        <ExternalLink size={12} />
-                      </a>
-                    </div>
-                  ))
-                ) : (
-                  <p className="p-4 text-xs font-mono text-[#6b6258] text-center">No files uploaded yet.</p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* ═══ SEGMENT FORM MODAL ═══ */}
         {isSegmentFormOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
@@ -1369,6 +1276,18 @@ export default function AdminFest() {
                   />
                   <label htmlFor="segIsOpen" className="font-mono text-xs">
                     Registration is currently open for this segment
+                  </label>
+                </div>
+                <div className="flex items-start gap-2 pt-1">
+                  <input
+                    type="checkbox"
+                    id="requiresSubmissionLink"
+                    checked={segmentFormData.requiresSubmissionLink}
+                    onChange={(e) => setSegmentFormData({ ...segmentFormData, requiresSubmissionLink: e.target.checked })}
+                    className="accent-[#c94030] mt-0.5"
+                  />
+                  <label htmlFor="requiresSubmissionLink" className="font-mono text-xs leading-relaxed">
+                    Require a Google Drive, presentation, repository, or video link during registration
                   </label>
                 </div>
                 <div className="flex justify-end gap-2 pt-3 border-t border-[#cfc9bc]">

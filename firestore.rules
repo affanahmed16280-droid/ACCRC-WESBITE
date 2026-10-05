@@ -34,13 +34,12 @@ service cloud.firestore {
     // Fest Registrations & Teams:
     // Anyone can create a team registration.
     // Public read so teams can retrieve their own pass by ID.
-    // Team can update their submittedFiles; Admin has full write access.
+    // Kept readable for legacy registrations created before the canonical
+    // registrations collection was introduced.
     match /fest_registrations/{regId} {
       allow read: if true;
       allow create: if true;
-      allow update: if isAdmin() || (
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['submittedFiles', 'filesUpdatedAt', 'submissionUrl'])
-      );
+      allow update: if isAdmin();
       allow delete: if isAdmin();
     }
 
@@ -62,12 +61,12 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
-    // Membership & General Event Registrations + Fest registration sync index.
-    // Public can CREATE (the fest sync writes a newly generated document ID).
-    // Only admins can read/update/delete.
+    // Membership, event, and fest registrations. Fest entries are public only
+    // for participant lookup; administrative mutations still require sign-in.
     match /registrations/{regId} {
       allow create: if true;
-      allow read, update, delete: if isAdmin();
+      allow read: if isAdmin() || resource.data.type == 'fest';
+      allow update, delete: if isAdmin();
     }
 
     // Leadership Applications (Executive, Prefect, Sub-Executive)

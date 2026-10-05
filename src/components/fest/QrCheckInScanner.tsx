@@ -369,25 +369,20 @@ export function QrCheckInScanner({ onCheckInSuccess }: { onCheckInSuccess?: () =
               </div>
             )}
 
-            {scannedTeam.submittedFiles && scannedTeam.submittedFiles.length > 0 && (
+            {scannedTeam.submissionLink && (
               <div className="sm:col-span-2 bg-[#ede7da] p-3 border border-[#cfc9bc] rounded">
                 <span className="text-[#6b6258] block uppercase text-[10px] mb-1">
-                  Project Submissions ({scannedTeam.submittedFiles.length})
+                  Project / Presentation Link
                 </span>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {scannedTeam.submittedFiles.map((f) => (
-                    <a
-                      key={f.id}
-                      href={f.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#f6f0e7] hover:bg-[#141210] hover:text-white border border-[#cfc9bc] rounded text-xs text-[#141210] transition-colors"
-                    >
-                      <span>{f.name}</span>
-                      <ExternalLink size={12} />
-                    </a>
-                  ))}
-                </div>
+                <a
+                  href={scannedTeam.submissionLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#f6f0e7] hover:bg-[#141210] hover:text-white border border-[#cfc9bc] rounded text-xs text-[#141210] transition-colors mt-1 break-all"
+                >
+                  <span>Open submitted project link</span>
+                  <ExternalLink size={12} />
+                </a>
               </div>
             )}
           </div>
