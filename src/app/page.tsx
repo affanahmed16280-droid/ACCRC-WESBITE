@@ -21,6 +21,7 @@ import {
 } from '@/lib/firestore';
 import { club } from '@/lib/club';
 import { AchievementsAndPanels } from '@/components/home/AchievementsAndPanels';
+import { EventBanner } from '@/components/home/EventBanner';
 
 /* ─── particle field data (60 dots) ─── */
 const particles = Array.from({ length: 60 }, (_, i) => ({
@@ -87,6 +88,7 @@ export default function HomePage() {
 
   return (
     <main>
+      <EventBanner events={events} />
       {/* ═══ NAVBAR ═══ */}
       <nav className="nav">
         <a className="wordmark" href="#top" aria-label="ACCRC home">
@@ -273,7 +275,7 @@ export default function HomePage() {
       {/* ═══ JOIN ═══ */}
       <section className="join-section" id="join">
         <div className="join-intro">
-          <p className="eyebrow accent">OPEN CALL / 2026\u201327</p>
+          <p className="eyebrow accent">OPEN CALL / 2026–27</p>
           <h2>
             YOUR NEXT<br />
             <span>BUILD STARTS HERE.</span>

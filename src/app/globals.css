@@ -1452,3 +1452,120 @@ footer:not(.site-footer) {
   html { scroll-behavior: auto; }
   .primary-button, .outline-button, .text-button { transition: none; }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   EVENT BANNER (dismissable sticky announcement strip)
+   ───────────────────────────────────────────────────────────── */
+.event-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;          /* above .nav (z-index: 50) */
+  display: flex;
+  align-items: stretch;
+  background: #141210;
+  border-bottom: 1px solid rgba(201,64,48,0.5);
+  min-height: 44px;
+  animation: bannerSlideDown 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes bannerSlideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+.event-banner-inner {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1.5rem;
+  color: #f6f0e7;
+  text-decoration: none;
+  min-width: 0;
+  transition: background 160ms ease;
+}
+
+.event-banner-inner:hover,
+.event-banner-inner:focus-visible {
+  background: rgba(201,64,48,0.12);
+  outline: none;
+}
+
+.event-banner-inner > svg {
+  color: #c94030;
+  flex: 0 0 auto;
+}
+
+.event-banner-text {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.65rem;
+  min-width: 0;
+}
+
+.event-banner-label {
+  color: #c94030;
+  font: 700 0.72rem/1 'JetBrains Mono', 'Courier New', monospace;
+  letter-spacing: 0.12em;
+  flex: 0 0 auto;
+}
+
+.event-banner-name {
+  color: #f6f0e7;
+  font-size: 0.875rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.event-banner-date {
+  color: #9c9490;
+  font: 400 0.75rem/1 'JetBrains Mono', 'Courier New', monospace;
+  flex: 0 0 auto;
+}
+
+.event-banner-cta {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #c94030;
+  font: 700 0.72rem/1 'JetBrains Mono', 'Courier New', monospace;
+  letter-spacing: 0.1em;
+  margin-left: auto;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.event-banner-close {
+  background: transparent;
+  border: none;
+  color: #9c9490;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+  transition: color 160ms ease;
+  flex: 0 0 auto;
+}
+
+.event-banner-close:hover,
+.event-banner-close:focus-visible {
+  color: #f6f0e7;
+  outline: none;
+}
+
+/* When the event banner is present, push the nav down so it doesn't overlap */
+main:has(.event-banner) .nav {
+  top: 44px;
+}
+
+@media (max-width: 600px) {
+  .event-banner-cta { display: none; }
+  .event-banner-date { display: none; }
+}
+

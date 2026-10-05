@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { getNewsPosts, type FirestoreNews } from '@/lib/firestore';
+import { getNewsPosts, subscribeToEvents, type FirestoreNews, type FirestoreEvent } from '@/lib/firestore';
 import { NewsCard } from '@/components/news/NewsCard';
 import { SectionReveal } from '@/components/ui/SectionReveal';
+import { EventBanner } from '@/components/home/EventBanner';
 
 export default function NewsPage() {
   const [news, setNews] = useState<FirestoreNews[]>([]);
+  const [events, setEvents] = useState<FirestoreEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,12 +24,17 @@ export default function NewsPage() {
         setLoading(false);
       }
     }
-    
     fetchNews();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToEvents(setEvents);
+    return () => unsubscribe();
   }, []);
 
   return (
     <main className="pt-24 section-padding container-content min-h-screen">
+      <EventBanner events={events} />
       <SectionReveal>
         <div className="mb-12">
           <div className="mono-label text-[#c94030] mb-2">NEWS & UPDATES</div>

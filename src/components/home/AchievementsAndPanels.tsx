@@ -181,6 +181,18 @@ const panels: Record<PanelKey, PanelData> = {
         imageUrl: '/leadership/committee-26/photo_6170079490235634224_y.jpg',
         imageFrame: 'square',
       },
+      {
+        name: 'Shara Elahe',
+        designation: 'Secretary of Content Writing',
+        imageUrl: '/leadership/committee-26/shara-elahe.jpg',
+        imageFrame: 'square',
+      },
+      {
+        name: 'Nabila Nawar',
+        designation: 'Public Relations Officer',
+        imageUrl: '/leadership/committee-26/nabila-nawar.jpg',
+        imageFrame: 'square',
+      },
     ],
     moderators: [
       {
@@ -399,7 +411,7 @@ const panels: Record<PanelKey, PanelData> = {
     ],
   },
   '2024': {
-    label: "Executive Committee '24",
+    label: "Advisor Panel '24",
     eyebrow: 'LEADERSHIP ARCHIVE',
     description: '',
     achievements: [
@@ -482,6 +494,7 @@ const leadershipPanels = (Object.entries(panels) as Array<[PanelKey, PanelData]>
 
 export function AchievementsAndPanels() {
   const [adminAchievements, setAdminAchievements] = useState<FirestoreAchievement[]>([]);
+  const [visibleCount, setVisibleCount] = useState(8);
 
   useEffect(() => {
     return subscribeToAchievements(setAdminAchievements, (error) => {
@@ -517,7 +530,15 @@ export function AchievementsAndPanels() {
             </div>
             <span>{achievements.length} published</span>
           </div>
-          {achievements.length > 0 ? <AchievementGrid achievements={achievements} /> : <EmptyState label="achievement records" />}
+          {achievements.length > 0 ? (
+            <AchievementGrid
+              achievements={achievements}
+              visibleCount={visibleCount}
+              onLoadMore={() => setVisibleCount((c) => c + 8)}
+            />
+          ) : (
+            <EmptyState label="achievement records" />
+          )}
 
           <div className={styles.leadershipArchive} aria-label="Leadership archive">
             {leadershipPanels.map(([key, panel]) => (
@@ -568,26 +589,50 @@ export function AchievementsAndPanels() {
   );
 }
 
-function AchievementGrid({ achievements }: { achievements: Array<Achievement | FirestoreAchievement> }) {
+function AchievementGrid({
+  achievements,
+  visibleCount,
+  onLoadMore,
+}: {
+  achievements: Array<Achievement | FirestoreAchievement>;
+  visibleCount: number;
+  onLoadMore: () => void;
+}) {
+  const visible = achievements.slice(0, visibleCount);
+  const hasMore = visibleCount < achievements.length;
+
   return (
-    <div className={styles.achievementGrid}>
-      {achievements.map((achievement, index) => (
-        <article className={styles.achievementCard} key={`${'id' in achievement ? achievement.id : 'built-in'}-${achievement.title}-${achievement.recipients}`}>
-          <div className={styles.awardIcon} aria-hidden="true">
-            {index % 2 === 0 ? <Trophy /> : <Medal />}
-          </div>
-          <div className={styles.achievementBody}>
-            <div className={styles.cardMeta}>
-              <span className={achievement.level === 'Global' ? styles.global : styles.national}>{achievement.level}</span>
-              <time dateTime={String(achievement.year)}>{achievement.year}</time>
+    <>
+      <div className={styles.achievementGrid}>
+        {visible.map((achievement, index) => (
+          <article className={styles.achievementCard} key={`${'id' in achievement ? achievement.id : 'built-in'}-${achievement.title}-${achievement.recipients}`}>
+            <div className={styles.awardIcon} aria-hidden="true">
+              {index % 2 === 0 ? <Trophy /> : <Medal />}
             </div>
-            <h5>{achievement.title}</h5>
-            <p className={styles.recipients}>{achievement.recipients}</p>
-            <p className={styles.competition}>{achievement.competition}</p>
-          </div>
-        </article>
-      ))}
-    </div>
+            <div className={styles.achievementBody}>
+              <div className={styles.cardMeta}>
+                <span className={achievement.level === 'Global' ? styles.global : styles.national}>{achievement.level}</span>
+                <time dateTime={String(achievement.year)}>{achievement.year}</time>
+              </div>
+              <h5>{achievement.title}</h5>
+              <p className={styles.recipients}>{achievement.recipients}</p>
+              <p className={styles.competition}>{achievement.competition}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+      {hasMore && (
+        <div className={styles.loadMoreWrap}>
+          <button
+            className={styles.loadMoreBtn}
+            onClick={onLoadMore}
+            aria-label={`Load more achievements (${achievements.length - visibleCount} remaining)`}
+          >
+            LOAD MORE <span className={styles.loadMoreCount}>+{achievements.length - visibleCount}</span>
+          </button>
+        </div>
+      )}
+    </>
   );
 }
 

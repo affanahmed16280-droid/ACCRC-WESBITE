@@ -338,6 +338,48 @@
 .emptyState p { font-size: 0.95rem; margin: 0; }
 .emptyState code { color: #c94030; font: 0.82rem "Courier New", monospace; }
 
+.loadMoreWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.loadMoreBtn {
+  align-items: center;
+  background: transparent;
+  border: 1.5px solid #cfc9bc;
+  color: #141210;
+  cursor: pointer;
+  display: inline-flex;
+  font: 700 0.82rem/1 "Courier New", monospace;
+  gap: 0.55rem;
+  letter-spacing: 0.12em;
+  padding: 0.85rem 2.2rem;
+  transition: border-color 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.loadMoreBtn:hover,
+.loadMoreBtn:focus-visible {
+  background: #c94030;
+  border-color: #c94030;
+  color: #fff;
+  outline: none;
+}
+
+.loadMoreCount {
+  background: rgba(201,64,48,0.12);
+  border-radius: 2px;
+  color: #c94030;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.35rem;
+}
+
+.loadMoreBtn:hover .loadMoreCount,
+.loadMoreBtn:focus-visible .loadMoreCount {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
 @media (max-width: 1040px) {
   .memberGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .founderGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
