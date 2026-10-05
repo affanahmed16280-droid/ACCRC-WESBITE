@@ -124,7 +124,7 @@ export default function AdminAchievements() {
   return (
     <AdminGuard>
       <main className="container-content min-h-screen pb-16 pt-24 text-[#141210]">
-        <Link href="/admin/" className="inline-flex items-center font-mono text-sm text-secondary hover:text-[#c94030]">
+        <Link href="/admin/" className="inline-flex items-center font-mono text-sm text-[#6b6258] hover:text-[#c94030]">
           <ChevronLeft className="mr-1 h-4 w-4" aria-hidden /> Back to Dashboard
         </Link>
 
@@ -132,7 +132,7 @@ export default function AdminAchievements() {
           <div>
             <p className="font-mono text-xs uppercase tracking-widest text-[#c94030]">Public website content</p>
             <h1 className="mt-2 text-3xl font-bold tracking-tight">Manage Achievements</h1>
-            <p className="mt-2 max-w-2xl text-secondary">Entries publish immediately in the matching year on the homepage.</p>
+            <p className="mt-2 max-w-2xl text-[#3a3530]">Entries publish immediately in the matching year on the homepage.</p>
           </div>
           <Button onClick={() => { setFormOpen(true); setError(null); }}>
             <Plus className="mr-2 h-4 w-4" aria-hidden /> Add achievement
@@ -172,7 +172,7 @@ export default function AdminAchievements() {
           <div className="border border-dashed border-[#cfc9bc] bg-[#ede7da] px-6 py-14 text-center">
             <Trophy className="mx-auto h-8 w-8 text-[#c94030]" aria-hidden />
             <h2 className="mt-4 text-xl font-bold">No live achievements yet</h2>
-            <p className="mt-2 text-secondary">Use “Add achievement” to publish the first one.</p>
+            <p className="mt-2 text-[#6b6258]">Use “Add achievement” to publish the first one.</p>
           </div>
         ) : (
           <div className="space-y-3" aria-label="Published achievements">
@@ -181,11 +181,11 @@ export default function AdminAchievements() {
                 <div>
                   <div className="flex flex-wrap items-center gap-2 font-mono text-xs uppercase tracking-wider">
                     <span className="border border-[#c94030]/50 px-2 py-1 text-[#c94030]">{achievement.level}</span>
-                    <span className="text-secondary">{achievement.year}</span>
+                    <span className="text-[#6b6258]">{achievement.year}</span>
                   </div>
                   <h2 className="mt-3 text-lg font-bold">{achievement.title}</h2>
                   <p className="mt-1 font-medium text-[#141210]">{achievement.recipients}</p>
-                  <p className="mt-1 text-sm text-secondary">{achievement.competition}</p>
+                  <p className="mt-1 text-sm text-[#5a524a]">{achievement.competition}</p>
                 </div>
                 <div className="flex shrink-0 gap-2">
                   <Button variant="secondary" size="sm" onClick={() => startEdit(achievement)} aria-label={`Edit ${achievement.title}`}><Edit2 className="h-4 w-4" aria-hidden /></Button>
