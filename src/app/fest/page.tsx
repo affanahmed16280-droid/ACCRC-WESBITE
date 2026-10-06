@@ -349,7 +349,7 @@ export default function FestPage() {
         <div className="flex border-b border-[#cfc9bc] gap-2 overflow-x-auto">
           <button
             onClick={() => setActiveTab('segments')}
-            className={`px-5 py-3 font-mono text-xs uppercase tracking-wider font-bold transition-all border-b-2 flex items-center gap-1.5 ${
+            className={`shrink-0 whitespace-nowrap px-4 sm:px-5 py-3 font-mono text-xs uppercase tracking-wider font-bold transition-all border-b-2 flex items-center gap-1.5 ${
               activeTab === 'segments'
                 ? 'border-[#c94030] text-[#c94030] bg-[#ede7da]'
                 : 'border-transparent text-[#6b6258] hover:text-[#141210]'
@@ -359,7 +359,7 @@ export default function FestPage() {
           </button>
           <button
             onClick={() => setActiveTab('guidelines')}
-            className={`px-5 py-3 font-mono text-xs uppercase tracking-wider font-bold transition-all border-b-2 flex items-center gap-1.5 ${
+            className={`shrink-0 whitespace-nowrap px-4 sm:px-5 py-3 font-mono text-xs uppercase tracking-wider font-bold transition-all border-b-2 flex items-center gap-1.5 ${
               activeTab === 'guidelines'
                 ? 'border-[#c94030] text-[#c94030] bg-[#ede7da]'
                 : 'border-transparent text-[#6b6258] hover:text-[#141210]'
@@ -369,7 +369,7 @@ export default function FestPage() {
           </button>
           <button
             onClick={() => setActiveTab('schedule')}
-            className={`px-5 py-3 font-mono text-xs uppercase tracking-wider font-bold transition-all border-b-2 flex items-center gap-1.5 ${
+            className={`shrink-0 whitespace-nowrap px-4 sm:px-5 py-3 font-mono text-xs uppercase tracking-wider font-bold transition-all border-b-2 flex items-center gap-1.5 ${
               activeTab === 'schedule'
                 ? 'border-[#c94030] text-[#c94030] bg-[#ede7da]'
                 : 'border-transparent text-[#6b6258] hover:text-[#141210]'
@@ -379,7 +379,7 @@ export default function FestPage() {
           </button>
           <button
             onClick={() => setActiveTab('announcements')}
-            className={`px-5 py-3 font-mono text-xs uppercase tracking-wider font-bold transition-all border-b-2 flex items-center gap-1.5 ${
+            className={`shrink-0 whitespace-nowrap px-4 sm:px-5 py-3 font-mono text-xs uppercase tracking-wider font-bold transition-all border-b-2 flex items-center gap-1.5 ${
               activeTab === 'announcements'
                 ? 'border-[#c94030] text-[#c94030] bg-[#ede7da]'
                 : 'border-transparent text-[#6b6258] hover:text-[#141210]'
