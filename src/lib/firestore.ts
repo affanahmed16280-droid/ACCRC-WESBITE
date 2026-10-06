@@ -482,6 +482,7 @@ export interface FestRegistration {
   segmentId: string;
   segmentTitle: string;
   teamName: string;
+  teamNameSearch?: string;
   institution: string;
   leaderName: string;
   leaderEmail: string;
@@ -815,6 +816,7 @@ export async function submitFestRegistration(
     segmentId: data.segmentId.trim(),
     segmentTitle: data.segmentTitle.trim(),
     teamName: data.teamName.trim(),
+    teamNameSearch: data.teamName.trim().toLocaleLowerCase(),
     institution: data.institution.trim(),
     leaderName: data.leaderName.trim(),
     leaderEmail: data.leaderEmail.trim(),
@@ -954,6 +956,48 @@ export async function getFestRegistrationByParticipantId(participantId: string):
     }
   } catch (fallbackErr) {
     console.warn('Notice querying legacy fest registrations by participantId:', fallbackErr);
+  }
+
+  return null;
+}
+
+export async function findFestRegistration(searchValue: string): Promise<FestRegistration | null> {
+  const value = searchValue.trim();
+  if (!value) return null;
+
+  const registrationCollection = collection(db, "registrations");
+  const normalizedValue = value.toUpperCase();
+  const lookups: Array<{ field: string; value: string }> = [
+    { field: "participantId", value: normalizedValue },
+    { field: "transactionId", value: normalizedValue },
+    { field: "paymentTrxId", value: normalizedValue },
+    { field: "teamNameSearch", value: value.toLocaleLowerCase() },
+    { field: "teamName", value },
+  ];
+
+  for (const lookup of lookups) {
+    const result = await getDocs(query(
+      registrationCollection,
+      where("type", "==", "fest"),
+      where(lookup.field, "==", lookup.value),
+      limit(1)
+    ));
+
+    if (!result.empty) {
+      const registration = result.docs[0];
+      const data = registration.data();
+      return {
+        id: registration.id,
+        ...data,
+        participantId: data.participantId || `ACCRC-FEST26-TM-${registration.id.substring(0, 4).toUpperCase()}`,
+        verificationHash: data.verificationHash || `SEC-${registration.id.substring(0, 8).toUpperCase()}`,
+        createdAt: toDate(data.createdAt),
+      } as FestRegistration;
+    }
+  }
+
+  if (value.length > 15) {
+    return getFestRegistrationById(value);
   }
 
   return null;

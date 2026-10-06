@@ -385,6 +385,9 @@ export default function HomePage() {
           </div>
         </div>
         <div className="footer-bottom mono">
+          <a href={`mailto:${club.officialEmail}`} className="hover:text-[#c94030] transition-colors">
+            {club.officialEmail}
+          </a>
           <span>ADAMJEE CANTONMENT COLLEGE &middot; DHAKA, BD</span>
           <span>&copy; 2026 ACCRC</span>
           <span>BUILT BY THE CLUB</span>

@@ -4,8 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
-  getFestRegistrationById,
-  getFestRegistrationByParticipantId,
+  findFestRegistration,
   type FestRegistration,
 } from '@/lib/firestore';
 import { Button } from '@/components/ui/Button';
@@ -26,15 +25,15 @@ function TeamRegistrationContent() {
   const loadTeam = async (idToSearch: string) => {
     if (!idToSearch.trim()) return;
     setLoading(true);
+    setTeam(null);
     setError(null);
 
     try {
-      let found = await getFestRegistrationByParticipantId(idToSearch.trim());
-      if (!found && idToSearch.length > 15) found = await getFestRegistrationById(idToSearch.trim());
+      const found = await findFestRegistration(idToSearch);
 
       if (!found) {
         setTeam(null);
-        setError(`No registration was found for "${idToSearch}". Please check the Participant ID.`);
+        setError(`No registration matched "${idToSearch}". Check the Participant ID, team name, or payment transaction ID and try again.`);
       } else {
         setTeam(found);
       }
@@ -46,16 +45,16 @@ function TeamRegistrationContent() {
   };
 
   return (
-    <div className="container-content min-h-screen flex flex-col pt-28 pb-10 max-w-4xl mx-auto">
+    <div className="container-content min-h-screen flex flex-col px-4 pt-24 pb-10 sm:px-0 sm:pt-28 max-w-4xl mx-auto">
       <Link href="/fest" className="inline-flex w-fit items-center gap-1.5 text-xs font-mono font-bold uppercase text-[#6b6258] hover:text-[#c94030] transition-colors">
         <ChevronLeft size={16} /> Back to Fest Competitions
       </Link>
 
       <div className="mt-6 mb-8 border-b border-[#cfc9bc] pb-6">
         <span className="font-mono text-xs uppercase tracking-widest text-[#c94030] font-bold block mb-1">ACCRC Fest</span>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-[#141210] break-words">Team Registration Lookup</h1>
+        <h1 className="text-[clamp(1.75rem,7vw,2.5rem)] font-extrabold text-[#141210] break-words">Team Registration Lookup</h1>
         <p className="text-sm leading-relaxed text-[#3a3530] mt-2 max-w-2xl">
-          Enter the Participant ID from your confirmation to review your team registration and submitted presentation link.
+          Paste your Participant ID, team name, or payment transaction ID to check your registration and verification status.
         </p>
       </div>
 
@@ -64,24 +63,27 @@ function TeamRegistrationContent() {
           event.preventDefault();
           void loadTeam(inputValue);
         }}
-        className="mb-8 bg-[#ede7da] p-4 border border-[#cfc9bc] rounded"
+        className="mb-8 bg-[#ede7da] p-4 sm:p-5 border border-[#cfc9bc] rounded"
       >
-        <label className="block text-xs font-mono font-bold uppercase text-[#141210] mb-2" htmlFor="participant-id">
-          Participant ID
+        <label className="block text-xs font-mono font-bold uppercase text-[#141210] mb-2" htmlFor="registration-search">
+          Participant ID, team name, or payment transaction ID
         </label>
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#6b6258] absolute left-3 top-3" />
+            <Search className="w-4 h-4 text-[#6b6258] absolute left-3 top-3.5" aria-hidden />
             <input
-              id="participant-id"
+              id="registration-search"
               type="text"
-              placeholder="e.g. ACCRC-FEST26-TM-ABC123DEF456"
+              placeholder="Paste your ID, team name, or TrxID"
               value={inputValue}
               onChange={(event) => setInputValue(event.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm font-mono uppercase bg-[#f6f0e7] border border-[#cfc9bc] rounded text-[#141210] placeholder:text-[#9a9088]"
+              autoComplete="off"
+              autoCapitalize="none"
+              spellCheck={false}
+              className="w-full min-w-0 pl-9 pr-3 py-3 text-base sm:text-sm bg-[#f6f0e7] border border-[#cfc9bc] rounded text-[#141210] placeholder:text-[#9a9088]"
             />
           </div>
-          <Button type="submit" disabled={loading || !inputValue.trim()} className="font-mono text-xs uppercase tracking-wider shrink-0">
+          <Button type="submit" disabled={loading || !inputValue.trim()} className="w-full sm:w-auto font-mono text-xs uppercase tracking-wider shrink-0">
             {loading ? <Loader2 size={16} className="animate-spin mr-1" /> : <Search size={16} className="mr-1" />}
             Find Team
           </Button>
@@ -91,32 +93,46 @@ function TeamRegistrationContent() {
       {error && (
         <div className="mb-8 p-4 bg-[#c72c2c]/10 border border-[#c72c2c]/20 text-[#c72c2c] text-xs font-mono rounded flex items-center gap-2">
           <AlertCircle size={18} className="shrink-0" />
-          <span>{error}</span>
+          <span className="min-w-0 break-words">{error}</span>
         </div>
       )}
 
       {team && (
-        <section className="flex-grow border border-[#cfc9bc] bg-[#ede7da] p-5 sm:p-8 rounded space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-[#cfc9bc] pb-5">
-            <div>
+        <section className="flex-grow min-w-0 border border-[#cfc9bc] bg-[#ede7da] p-4 sm:p-8 rounded space-y-5 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 border-b border-[#cfc9bc] pb-5">
+            <div className="min-w-0">
               <span className="font-mono text-[10px] uppercase tracking-wider text-[#c94030] font-bold">Registered Team</span>
-              <h2 className="text-2xl font-bold text-[#141210] mt-1 break-words">{team.teamName}</h2>
-              <p className="text-sm text-[#6b6258] mt-1">{team.segmentTitle} · {team.institution}</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-[#141210] mt-1 break-words">{team.teamName}</h2>
+              <p className="text-sm text-[#6b6258] mt-1 break-words">{team.segmentTitle} · {team.institution}</p>
             </div>
-            <span className="inline-flex w-fit px-2.5 py-1 rounded border border-[#cfc9bc] bg-[#f6f0e7] text-xs font-mono text-[#3a3530] uppercase">
-              {team.status}
+            <span className={`inline-flex w-fit px-2.5 py-1 rounded border text-xs font-mono font-bold uppercase ${
+              team.status === 'verified'
+                ? 'border-emerald-700/30 bg-emerald-50 text-emerald-800'
+                : team.status === 'rejected'
+                  ? 'border-red-700/30 bg-red-50 text-red-800'
+                  : 'border-amber-700/30 bg-amber-50 text-amber-900'
+            }`}>
+              {team.status === 'verified'
+                ? 'Verified'
+                : team.status === 'rejected'
+                  ? 'Rejected · Not verified'
+                  : 'Pending · Not verified'}
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
             <div className="bg-[#f6f0e7] border border-[#cfc9bc] p-4 rounded">
               <span className="font-mono text-[10px] uppercase text-[#6b6258]">Participant ID</span>
               <strong className="mt-1 block font-mono break-all text-[#c94030]">{team.participantId}</strong>
             </div>
             <div className="bg-[#f6f0e7] border border-[#cfc9bc] p-4 rounded">
               <span className="font-mono text-[10px] uppercase text-[#6b6258]">Team Leader</span>
-              <strong className="mt-1 block text-[#141210]">{team.leaderName}</strong>
-              <span className="block text-xs text-[#6b6258] mt-1 break-words">{team.leaderEmail}</span>
+              <strong className="mt-1 block break-words text-[#141210]">{team.leaderName}</strong>
+              <span className="block text-xs text-[#6b6258] mt-1 break-all">{team.leaderEmail}</span>
+            </div>
+            <div className="bg-[#f6f0e7] border border-[#cfc9bc] p-4 rounded sm:col-span-2">
+              <span className="font-mono text-[10px] uppercase text-[#6b6258]">Payment transaction ID</span>
+              <strong className="mt-1 block font-mono break-all text-[#141210]">{team.transactionId || team.paymentTrxId || 'Not provided'}</strong>
             </div>
           </div>
 
