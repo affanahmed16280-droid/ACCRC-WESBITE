@@ -4,12 +4,16 @@
 import React, { useState, useEffect } from "react";
 import { Menu, X, HelpCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { subscribeToPortalConfig, type PortalConfig } from "@/lib/firestore";
+import {
+  subscribeToFestConfig,
+  subscribeToPortalConfig,
+  type FestConfig,
+  type PortalConfig,
+} from "@/lib/firestore";
 
 const standardNavLinks = [
   { href: "/", label: "Home" },
   { href: "/events/", label: "Events" },
-  { href: "/fest/", label: "Fest" },
   { href: "/#achievements", label: "Achievements" },
   { href: "/membership/", label: "Membership" },
   { href: "/news/", label: "News" },
@@ -25,6 +29,7 @@ export function Navbar({
 } = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [festConfig, setFestConfig] = useState<FestConfig | null>(null);
   const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
 
   useEffect(() => {
@@ -39,14 +44,23 @@ export function Navbar({
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
-  useEffect(() => subscribeToPortalConfig(setPortalConfig), []);
+  useEffect(() => {
+    const unsubscribeFest = subscribeToFestConfig(setFestConfig);
+    const unsubscribePortal = subscribeToPortalConfig(setPortalConfig);
+    return () => {
+      unsubscribeFest();
+      unsubscribePortal();
+    };
+  }, []);
 
   const leadershipApplicationsOpen = Boolean(
     portalConfig?.execOpen || portalConfig?.prefectOpen || portalConfig?.subExecOpen
   );
-  const navLinks = leadershipApplicationsOpen
-    ? [...standardNavLinks, { href: "/portal/", label: "Leadership" }]
-    : standardNavLinks;
+  const navLinks = [
+    ...standardNavLinks,
+    ...(festConfig?.isLaunched !== false ? [{ href: "/fest/", label: "Fest" }] : []),
+    ...(leadershipApplicationsOpen ? [{ href: "/portal/", label: "Leadership" }] : []),
+  ];
 
   return (
     <header

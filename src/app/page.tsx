@@ -16,8 +16,10 @@ import { FaFacebookF, FaInstagram } from 'react-icons/fa';
 import {
   submitRegistration,
   subscribeToEvents,
+  subscribeToFestConfig,
   subscribeToPortalConfig,
   type FirestoreEvent,
+  type FestConfig,
   type PortalConfig,
 } from '@/lib/firestore';
 import { club } from '@/lib/club';
@@ -39,14 +41,17 @@ export default function HomePage() {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   const [events, setEvents] = useState<FirestoreEvent[]>([]);
+  const [festConfig, setFestConfig] = useState<FestConfig | null>(null);
   const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
 
   useEffect(() => {
     const unsubscribeEvents = subscribeToEvents(setEvents);
+    const unsubscribeFest = subscribeToFestConfig(setFestConfig);
     const unsubscribePortal = subscribeToPortalConfig(setPortalConfig);
 
     return () => {
       unsubscribeEvents();
+      unsubscribeFest();
       unsubscribePortal();
     };
   }, []);
@@ -102,7 +107,9 @@ export default function HomePage() {
         <div className={`nav-links ${menuOpen ? 'open' : ''}`}>
           <a href="#mission" onClick={() => setMenuOpen(false)}>Mission</a>
           <a href="#events" onClick={() => setMenuOpen(false)}>Events</a>
-          <a href="/fest/" onClick={() => setMenuOpen(false)}>Fest</a>
+          {festConfig?.isLaunched !== false && (
+            <a href="/fest/" onClick={() => setMenuOpen(false)}>Fest</a>
+          )}
           <a href="#achievements" onClick={() => setMenuOpen(false)}>Achievements</a>
           <a href="#news" onClick={() => setMenuOpen(false)}>Updates</a>
           <a href="#join" onClick={() => setMenuOpen(false)}>Join us</a>

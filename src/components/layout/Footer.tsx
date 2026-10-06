@@ -4,14 +4,27 @@
 import { useEffect, useState } from "react";
 import { MapPin, Mail } from "lucide-react";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
-import { subscribeToPortalConfig, type PortalConfig } from "@/lib/firestore";
+import {
+  subscribeToFestConfig,
+  subscribeToPortalConfig,
+  type FestConfig,
+  type PortalConfig,
+} from "@/lib/firestore";
 import { club } from "@/lib/club";
 
 export function Footer() {
   const [currentYear, setCurrentYear] = useState<number | null>(null);
+  const [festConfig, setFestConfig] = useState<FestConfig | null>(null);
   const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
 
-  useEffect(() => subscribeToPortalConfig(setPortalConfig), []);
+  useEffect(() => {
+    const unsubscribeFest = subscribeToFestConfig(setFestConfig);
+    const unsubscribePortal = subscribeToPortalConfig(setPortalConfig);
+    return () => {
+      unsubscribeFest();
+      unsubscribePortal();
+    };
+  }, []);
   useEffect(() => { setCurrentYear(new Date().getFullYear()); }, []);
 
   const leadershipApplicationsOpen = Boolean(
@@ -43,7 +56,7 @@ export function Footer() {
             <ul className="flex flex-col gap-2.5">
               {[
                 { href: "/events/", label: "Events" },
-                { href: "/fest/", label: "Fest" },
+                ...(festConfig?.isLaunched !== false ? [{ href: "/fest/", label: "Fest" }] : []),
                 { href: "/#achievements", label: "Achievements" },
                 { href: "/membership/", label: "Membership" },
                 { href: "/news/", label: "News" },
