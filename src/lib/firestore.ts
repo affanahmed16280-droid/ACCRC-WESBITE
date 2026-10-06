@@ -707,11 +707,18 @@ export async function deleteFestSegment(id: string): Promise<void> {
 /* ─── Fest Configuration & Launcher ─── */
 
 function parseFestConfig(data: DocumentData | undefined): FestConfig {
+  const isLaunched = data?.isLaunched;
+  const registrationOpen = data?.registrationOpen;
+
   return {
     ...DEFAULT_FEST_CONFIG,
     ...(data ?? {}),
-    isLaunched: data?.isLaunched !== false,
-    registrationOpen: data?.registrationOpen !== false,
+    isLaunched: isLaunched === undefined
+      ? DEFAULT_FEST_CONFIG.isLaunched
+      : isLaunched === true || (typeof isLaunched === 'string' && isLaunched.toLowerCase() === 'true'),
+    registrationOpen: registrationOpen === undefined
+      ? DEFAULT_FEST_CONFIG.registrationOpen
+      : registrationOpen === true || (typeof registrationOpen === 'string' && registrationOpen.toLowerCase() === 'true'),
     updatedAt: data?.updatedAt ? toDate(data.updatedAt) : undefined,
   };
 }
@@ -746,7 +753,6 @@ export function subscribeToFestConfig(
     },
     (err) => {
       console.warn('Realtime fest config notice:', err);
-      callback(DEFAULT_FEST_CONFIG);
       onError?.(err);
     }
   );
@@ -1069,4 +1075,3 @@ export async function createFestAnnouncement(data: Omit<FestAnnouncement, "id" |
 export async function deleteFestAnnouncement(id: string): Promise<void> {
   await deleteDoc(doc(db, "fest_announcements", id));
 }
-

@@ -46,7 +46,9 @@ export default function HomePage() {
 
   useEffect(() => {
     const unsubscribeEvents = subscribeToEvents(setEvents);
-    const unsubscribeFest = subscribeToFestConfig(setFestConfig);
+    const unsubscribeFest = subscribeToFestConfig(setFestConfig, (error) => {
+      console.warn('Unable to read fest visibility for homepage navigation:', error);
+    });
     const unsubscribePortal = subscribeToPortalConfig(setPortalConfig);
 
     return () => {
@@ -107,7 +109,7 @@ export default function HomePage() {
         <div className={`nav-links ${menuOpen ? 'open' : ''}`}>
           <a href="#mission" onClick={() => setMenuOpen(false)}>Mission</a>
           <a href="#events" onClick={() => setMenuOpen(false)}>Events</a>
-          {festConfig?.isLaunched !== false && (
+          {festConfig?.isLaunched === true && (
             <a href="/fest/" onClick={() => setMenuOpen(false)}>Fest</a>
           )}
           <a href="#achievements" onClick={() => setMenuOpen(false)}>Achievements</a>

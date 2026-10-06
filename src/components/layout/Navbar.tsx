@@ -45,7 +45,9 @@ export function Navbar({
   }, [isOpen]);
 
   useEffect(() => {
-    const unsubscribeFest = subscribeToFestConfig(setFestConfig);
+    const unsubscribeFest = subscribeToFestConfig(setFestConfig, (error) => {
+      console.warn('Unable to read fest visibility for site navigation:', error);
+    });
     const unsubscribePortal = subscribeToPortalConfig(setPortalConfig);
     return () => {
       unsubscribeFest();
@@ -58,7 +60,7 @@ export function Navbar({
   );
   const navLinks = [
     ...standardNavLinks,
-    ...(festConfig?.isLaunched !== false ? [{ href: "/fest/", label: "Fest" }] : []),
+    ...(festConfig?.isLaunched === true ? [{ href: "/fest/", label: "Fest" }] : []),
     ...(leadershipApplicationsOpen ? [{ href: "/portal/", label: "Leadership" }] : []),
   ];
 

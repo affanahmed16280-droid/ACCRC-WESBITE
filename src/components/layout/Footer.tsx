@@ -18,7 +18,9 @@ export function Footer() {
   const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
 
   useEffect(() => {
-    const unsubscribeFest = subscribeToFestConfig(setFestConfig);
+    const unsubscribeFest = subscribeToFestConfig(setFestConfig, (error) => {
+      console.warn('Unable to read fest visibility for footer navigation:', error);
+    });
     const unsubscribePortal = subscribeToPortalConfig(setPortalConfig);
     return () => {
       unsubscribeFest();
@@ -56,7 +58,7 @@ export function Footer() {
             <ul className="flex flex-col gap-2.5">
               {[
                 { href: "/events/", label: "Events" },
-                ...(festConfig?.isLaunched !== false ? [{ href: "/fest/", label: "Fest" }] : []),
+                ...(festConfig?.isLaunched === true ? [{ href: "/fest/", label: "Fest" }] : []),
                 { href: "/#achievements", label: "Achievements" },
                 { href: "/membership/", label: "Membership" },
                 { href: "/news/", label: "News" },
