@@ -6,7 +6,7 @@ import AdminGuard from '@/components/admin/AdminGuard';
 import { getPortalConfig, updatePortalConfig, getApplications, getRegistrations, deleteApplication, deleteRegistration, PortalConfig, Application, Registration } from '@/lib/firestore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { ChevronLeft, Plus, X, ChevronDown, ChevronUp, Loader2, Trash2 } from 'lucide-react';
+import { ChevronLeft, Plus, X, ChevronDown, ChevronUp, Loader2, Search, Trash2 } from 'lucide-react';
 import { DeleteModal } from '@/components/admin/DeleteModal';
 
 export default function AdminPortal() {
@@ -17,6 +17,7 @@ export default function AdminPortal() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'sub-executive' | 'executive' | 'prefect' | 'membership'>('sub-executive');
   const [expandedAppId, setExpandedAppId] = useState<string | null>(null);
+  const [recordSearch, setRecordSearch] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; type: 'application' | 'membership' } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [configSaving, setConfigSaving] = useState<string | null>(null);
@@ -140,28 +141,51 @@ export default function AdminPortal() {
     if (!deleteTarget) return;
     const deletedRecord = deleteTarget;
     setIsDeleting(true);
-    if (deletedRecord.type === 'application') {
-      setApplications((prev) => prev.filter((application) => application.id !== deletedRecord.id));
-    } else {
-      setMemberships((prev) => prev.filter((membership) => membership.id !== deletedRecord.id));
-    }
+    setError(null);
     try {
       if (deletedRecord.type === 'application') {
         await deleteApplication(deletedRecord.id);
+        setApplications((prev) => prev.filter((application) => application.id !== deletedRecord.id));
       } else {
         await deleteRegistration(deletedRecord.id);
+        setMemberships((prev) => prev.filter((membership) => membership.id !== deletedRecord.id));
       }
       setDeleteTarget(null);
-    } catch (err: any) {
-      await fetchData();
-      setError(err.message || 'Failed to delete record');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to delete record');
       setDeleteTarget(null);
     } finally {
       setIsDeleting(false);
     }
   };
 
-  const filteredApps = applications.filter(a => a.type === activeTab);
+  const searchTerm = recordSearch.trim().toLocaleLowerCase();
+  const filteredApps = applications.filter((application) =>
+    application.type === activeTab &&
+    [
+      application.name,
+      application.email,
+      application.whatsapp,
+      application.idNumber,
+      application.section,
+      application.roleApplyingFor,
+      application.pastExperience,
+      application.visionStatement,
+    ].some((value) => String(value ?? '').toLocaleLowerCase().includes(searchTerm))
+  );
+  const filteredMemberships = memberships.filter((membership) =>
+    [
+      membership.name,
+      membership.email,
+      membership.whatsapp,
+      membership.collegeId,
+      membership.rollNumber,
+      membership.classSection,
+      membership.motivation,
+      membership.areaOfInterest,
+      membership.bloodGroup,
+    ].some((value) => String(value ?? '').toLocaleLowerCase().includes(searchTerm))
+  );
 
   return (
     <AdminGuard>
@@ -378,11 +402,28 @@ export default function AdminPortal() {
               </div>
 
               <div className="p-4 sm:p-6">
+                <div className="relative mb-5 max-w-lg">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-[#6b6258]" aria-hidden />
+                  <Input
+                    type="search"
+                    value={recordSearch}
+                    onChange={(event) => setRecordSearch(event.target.value)}
+                    placeholder={activeTab === 'membership'
+                      ? 'Search name, email, WhatsApp, college ID...'
+                      : 'Search name, email, ID, section, role...'}
+                    aria-label={activeTab === 'membership' ? 'Search membership requests' : 'Search applications'}
+                    className="w-full bg-[#f6f0e7] pl-9 text-[#141210]"
+                  />
+                </div>
                 {(activeTab === 'sub-executive' || activeTab === 'executive' || activeTab === 'prefect') && (
                   filteredApps.length === 0 ? (
                     <div className="py-14 text-center border border-dashed border-[#cfc9bc] rounded bg-[#f6f0e7]">
-                      <p className="font-bold text-[#141210] text-base">No applications received yet.</p>
-                      <p className="mt-1 text-sm text-[#3a3530]">Applications submitted through the public portal will appear here.</p>
+                      <p className="font-bold text-[#141210] text-base">
+                        {searchTerm ? 'No matching applications found.' : 'No applications received yet.'}
+                      </p>
+                      <p className="mt-1 text-sm text-[#3a3530]">
+                        {searchTerm ? 'Try a different name, email, ID, section, or role.' : 'Applications submitted through the public portal will appear here.'}
+                      </p>
                     </div>
                   ) : (
                     <div className="overflow-x-auto">
@@ -471,10 +512,14 @@ export default function AdminPortal() {
                 )}
 
                 {activeTab === 'membership' && (
-                  memberships.length === 0 ? (
+                  filteredMemberships.length === 0 ? (
                     <div className="py-14 text-center border border-dashed border-[#cfc9bc] rounded bg-[#f6f0e7]">
-                      <p className="font-bold text-[#141210] text-base">No membership requests received yet.</p>
-                      <p className="mt-1 text-sm text-[#3a3530]">Membership applications submitted by students will appear here.</p>
+                      <p className="font-bold text-[#141210] text-base">
+                        {searchTerm ? 'No matching membership requests found.' : 'No membership requests received yet.'}
+                      </p>
+                      <p className="mt-1 text-sm text-[#3a3530]">
+                        {searchTerm ? 'Try a different name, email, WhatsApp number, or college ID.' : 'Membership applications submitted by students will appear here.'}
+                      </p>
                     </div>
                   ) : (
                     <div className="overflow-x-auto">
@@ -491,7 +536,7 @@ export default function AdminPortal() {
                           </tr>
                         </thead>
                         <tbody>
-                          {memberships.map(mem => (
+                          {filteredMemberships.map(mem => (
                             <tr key={mem.id} className="border-b border-[#cfc9bc] hover:bg-[#e6dfd1]/60 transition-colors">
                               <td className="px-4 py-3 font-bold text-[#141210]">{mem.name}</td>
                               <td className="px-4 py-3 text-[#3a3530]">{mem.email}</td>

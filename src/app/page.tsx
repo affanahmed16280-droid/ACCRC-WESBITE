@@ -363,10 +363,7 @@ export default function HomePage() {
         <div className="footer-top">
           <a className="wordmark" href="#top" aria-label="Back to the top of ACCRC home">
             <img className="wordmark-logo" src="/accrc-logo.png" alt="ACCRC logo" />
-            <span>
-              ACCRC
-              <small>ADAMJEE CANTONMENT COLLEGE<br />ROBOTICS CLUB</small>
-            </span>
+            <span className="footer-wordmark-name">Adamjee Cantonment College Robotics Club</span>
           </a>
           <p className="footer-line">BUILD. LEARN. COMPETE.</p>
           <div className="socials">

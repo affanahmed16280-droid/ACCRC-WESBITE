@@ -280,40 +280,47 @@ export default function FestPage() {
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <Link href="/fest/pass">
-                <Button className="font-mono text-xs uppercase tracking-wider inline-flex items-center gap-2">
-                  <FileText size={15} /> Find a Team Registration
-                </Button>
-              </Link>
-              {festConfig.rulesUrl && (
-                <a
-                  href={festConfig.rulesUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 font-mono text-xs uppercase tracking-wider font-bold border border-[#cfc9bc] bg-[#f6f0e7] hover:border-[#141210] text-[#3a3530] transition-colors rounded-sm"
-                >
-                  <Download size={15} /> Download Official Guidelines
-                </a>
-              )}
-            </div>
+            {festConfig.isLaunched && (
+              <div className="flex flex-wrap items-center gap-3">
+                <Link href="/fest/pass">
+                  <Button className="font-mono text-xs uppercase tracking-wider inline-flex items-center gap-2">
+                    <FileText size={15} /> Find a Team Registration
+                  </Button>
+                </Link>
+                {festConfig.rulesUrl && (
+                  <a
+                    href={festConfig.rulesUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 font-mono text-xs uppercase tracking-wider font-bold border border-[#cfc9bc] bg-[#f6f0e7] hover:border-[#141210] text-[#3a3530] transition-colors rounded-sm"
+                  >
+                    <Download size={15} /> Download Official Guidelines
+                  </a>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </section>
 
-      {/* ═══ LAUNCH / REGISTRATION STATUS BANNER ═══ */}
-      {!festConfig.isLaunched && (
-        <section className="container-content mb-8">
-          <div className="border border-amber-300 bg-amber-50 p-4 flex items-center gap-3 text-amber-900 font-mono text-xs">
-            <Clock className="w-5 h-5 text-amber-700 shrink-0" />
-            <div>
-              <strong>Fest Portal Coming Soon:</strong> Adamjee Cantonment College Robotics Club will launch full fest registrations shortly. Stay tuned for dates and arena challenges!
-            </div>
+      {!festConfig.isLaunched ? (
+        <section className="container-content mb-12">
+          <div className="border border-amber-300 bg-amber-50 p-8 text-center text-amber-950 sm:p-12">
+            <Clock className="mx-auto mb-4 h-10 w-10 text-amber-700" aria-hidden />
+            <h2 className="text-2xl font-bold">Fest Portal Coming Soon</h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed">
+              {festConfig.festTitle} has not launched yet. Please check back for competition details, announcements, and registration.
+            </p>
+            {festConfig.festDates && (
+              <p className="mt-4 font-mono text-xs font-bold uppercase tracking-wider text-amber-900">
+                {festConfig.festDates}
+              </p>
+            )}
           </div>
         </section>
-      )}
-
-      {festConfig.isLaunched && !festConfig.registrationOpen && (
+      ) : (
+        <>
+      {!festConfig.registrationOpen && (
         <section className="container-content mb-8">
           <div className="border border-[#c72c2c]/30 bg-[#c72c2c]/10 p-4 flex items-center gap-3 text-[#c72c2c] font-mono text-xs">
             <ShieldAlert className="w-5 h-5 text-[#c72c2c] shrink-0" />
@@ -665,9 +672,11 @@ export default function FestPage() {
           )}
         </section>
       )}
+        </>
+      )}
 
       {/* ═══ REGISTRATION MODAL ═══ */}
-      {selectedSegment && (
+      {selectedSegment && festConfig.isLaunched && (
         <div className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm overflow-hidden sm:p-4">
           <div className="bg-[#ede7da] border border-[#cfc9bc] w-full sm:max-w-3xl max-h-[100dvh] sm:max-h-[90vh] flex flex-col relative shadow-2xl sm:rounded">
             {/* Close button */}

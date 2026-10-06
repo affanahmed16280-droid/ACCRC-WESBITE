@@ -474,11 +474,25 @@ export default function AdminFest() {
               <h1 className="text-3xl font-extrabold text-[#141210]">Fest Management & Launcher</h1>
             </div>
             <p className="text-xs text-[#3a3530]">
-              Toggle portal registrations, configure bKash payments, manage teams, inspect project files, and scan entry passes.
+              Toggle public fest visibility, configure registrations and payments, manage teams, and scan entry passes.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              type="button"
+              onClick={handleToggleLaunch}
+              disabled={loading || configSaving}
+              aria-pressed={festConfig.isLaunched}
+              aria-label={festConfig.isLaunched ? 'Turn fest portal off' : 'Turn fest portal on'}
+              className="bg-[#ede7da] border border-[#cfc9bc] px-3.5 py-2 text-left rounded disabled:cursor-wait disabled:opacity-60"
+            >
+              <span className="font-mono text-[10px] text-[#6b6258] uppercase block">Fest Portal</span>
+              <span className={`inline-flex items-center gap-1.5 text-sm font-bold ${festConfig.isLaunched ? 'text-emerald-700' : 'text-[#6b6258]'}`}>
+                {festConfig.isLaunched ? <ToggleRight size={17} aria-hidden /> : <ToggleLeft size={17} aria-hidden />}
+                {loading ? 'Loading...' : festConfig.isLaunched ? 'Public' : 'Coming Soon'}
+              </span>
+            </button>
             <div className="bg-[#ede7da] border border-[#cfc9bc] px-3.5 py-2 text-center rounded">
               <span className="font-mono text-[10px] text-[#6b6258] uppercase block">Total Teams</span>
               <strong className="text-base font-bold text-[#141210]">{registrations.length}</strong>
@@ -537,7 +551,7 @@ export default function AdminFest() {
                 : 'border-transparent text-[#6b6258] hover:text-[#141210]'
             }`}
           >
-            <Settings size={14} /> Launcher & bKash Controls
+            <Settings size={14} /> Fest Status & Payment Settings
           </button>
           <button
             onClick={() => setActiveTab('scanner')}
@@ -812,29 +826,7 @@ export default function AdminFest() {
             </div>
 
             {/* Master Toggles */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#f6f0e7] p-4 border border-[#cfc9bc] rounded">
-              <div className="flex items-center justify-between p-3 bg-[#ede7da] border border-[#cfc9bc] rounded">
-                <div>
-                  <span className="font-bold text-sm text-[#141210] block">Fest Portal Status</span>
-                  <span className="text-[11px] text-[#6b6258] font-mono">
-                    {festConfig.isLaunched ? 'Launched & Public' : 'Unlaunched (Coming Soon mode)'}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleToggleLaunch}
-                  disabled={configSaving}
-                  className="p-1 text-[#c94030] disabled:opacity-50 transition-opacity"
-                  aria-label="Toggle fest portal launch"
-                >
-                  {festConfig.isLaunched ? (
-                    <ToggleRight className="w-8 h-8 text-emerald-600" />
-                  ) : (
-                    <ToggleLeft className="w-8 h-8 text-[#9a9088]" />
-                  )}
-                </button>
-              </div>
-
+            <div className="grid grid-cols-1 gap-4 bg-[#f6f0e7] p-4 border border-[#cfc9bc] rounded">
               <div className="flex items-center justify-between p-3 bg-[#ede7da] border border-[#cfc9bc] rounded">
                 <div>
                   <span className="font-bold text-sm text-[#141210] block">Registration Window</span>
