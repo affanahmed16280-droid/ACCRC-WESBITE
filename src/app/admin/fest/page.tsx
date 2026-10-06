@@ -56,6 +56,17 @@ import {
   ToggleRight,
 } from 'lucide-react';
 
+function getFestConfigWriteError(error: unknown, fallback: string): string {
+  if (
+    error instanceof Error &&
+    'code' in error &&
+    error.code === 'permission-denied'
+  ) {
+    return 'Firestore denied this settings change. Deploy the repository firestore.rules to the app’s Firebase project and confirm you are signed in with an admin account.';
+  }
+  return error instanceof Error ? error.message : fallback;
+}
+
 export default function AdminFest() {
   const [activeTab, setActiveTab] = useState<
     'launcher' | 'registrations' | 'scanner' | 'segments' | 'schedule' | 'announcements'
@@ -178,7 +189,7 @@ export default function AdminFest() {
       setSaveSuccess(`Fest portal ${nextVal ? 'launched & public' : 'set to Unlaunched (Coming Soon mode)'}`);
       setTimeout(() => setSaveSuccess(null), 3500);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to update launch status');
+      setError(getFestConfigWriteError(err, 'Failed to update launch status'));
       setFestConfig((prev) => ({ ...prev, isLaunched: !nextVal }));
     } finally {
       setConfigSaving(false);
@@ -196,7 +207,7 @@ export default function AdminFest() {
       setSaveSuccess(`Fest registrations ${nextVal ? 'opened for teams' : 'closed'}`);
       setTimeout(() => setSaveSuccess(null), 3500);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to update registration status');
+      setError(getFestConfigWriteError(err, 'Failed to update registration status'));
       setFestConfig((prev) => ({ ...prev, registrationOpen: !nextVal }));
     } finally {
       setConfigSaving(false);
@@ -214,7 +225,7 @@ export default function AdminFest() {
       setSaveSuccess('Fest launcher configuration successfully updated!');
       setTimeout(() => setSaveSuccess(null), 4000);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to update fest configuration');
+      setError(getFestConfigWriteError(err, 'Failed to update fest configuration'));
     } finally {
       setConfigSaving(false);
     }

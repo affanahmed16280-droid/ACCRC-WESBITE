@@ -10,7 +10,7 @@ service cloud.firestore {
     // Fest Global Settings & Launcher Toggles: Public read, Admin write
     match /fest_settings/{settingId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create, update: if isAdmin();
     }
 
     // Fest Segments & Competitions: Public read, Admin write

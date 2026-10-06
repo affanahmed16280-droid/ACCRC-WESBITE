@@ -29,7 +29,7 @@ The access token is used only by `functions/api/facebook-events.ts`; it is never
 
 ## Firebase security rule update
 
-Deploy the updated `firestore.rules` to Firebase before launch. It keeps membership registration public while rejecting Executive, Prefect, and Sub-Executive submissions when their respective portal toggle is off.
+Deploy the repository's Firestore rules with `firebase deploy --only firestore:rules --project <firebase-project-id>`. The signed-in admin account can update fest settings; unauthenticated visitors can still read the public fest configuration. The rules also keep membership registration public while rejecting Executive, Prefect, and Sub-Executive submissions when their respective portal toggle is off.
 
 ## Deploy to Cloudflare Pages
 
