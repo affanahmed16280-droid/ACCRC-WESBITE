@@ -191,6 +191,16 @@ export async function getEvents(): Promise<FirestoreEvent[]> {
     .filter((e) => e.isLaunched !== false);
 }
 
+/**
+ * Admin-only: Returns ALL events regardless of isLaunched status,
+ * so the admin portal can see and manage unlaunched events too.
+ */
+export async function getAllEvents(): Promise<FirestoreEvent[]> {
+  const q = query(collection(db, "events"), orderBy("date", "desc"));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => parseEvent(d.id, d.data()));
+}
+
 export async function getEvent(id: string): Promise<FirestoreEvent | null> {
   const docRef = doc(db, "events", id);
   const snapshot = await getDoc(docRef);
@@ -208,6 +218,19 @@ export function subscribeToEvents(
       .map((d) => parseEvent(d.id, d.data()))
       .filter((e) => e.isLaunched !== false);
     callback(events);
+  }, onError);
+}
+
+/**
+ * Admin-only realtime subscription: Returns ALL events regardless of isLaunched.
+ */
+export function subscribeToAllEvents(
+  callback: (events: FirestoreEvent[]) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  const q = query(collection(db, "events"), orderBy("date", "desc"));
+  return onSnapshot(q, (snapshot) => {
+    callback(snapshot.docs.map((d) => parseEvent(d.id, d.data())));
   }, onError);
 }
 
@@ -346,12 +369,29 @@ export async function submitRegistration(data: Omit<Registration, "id" | "create
 }
 
 export async function getRegistrations(filters?: { type?: string; eventId?: string }): Promise<Registration[]> {
-  const constraints: QueryConstraint[] = [orderBy("createdAt", "desc")];
-  if (filters?.type) constraints.unshift(where("type", "==", filters.type));
-  if (filters?.eventId) constraints.unshift(where("eventId", "==", filters.eventId));
-  const q = query(collection(db, "registrations"), ...constraints);
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => ({ id: d.id, ...d.data(), createdAt: toDate(d.data().createdAt) } as Registration));
+  // Attempt the indexed query first. If the composite index is missing or
+  // Firestore returns an error, we fall back to fetching all registrations
+  // and filtering client-side so the admin portal never silently returns empty.
+  try {
+    const constraints: QueryConstraint[] = [orderBy("createdAt", "desc")];
+    if (filters?.type) constraints.unshift(where("type", "==", filters.type));
+    if (filters?.eventId) constraints.unshift(where("eventId", "==", filters.eventId));
+    const q = query(collection(db, "registrations"), ...constraints);
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data(), createdAt: toDate(d.data().createdAt) } as Registration));
+  } catch (indexError) {
+    // Fallback: fetch all and filter in-memory (works even without composite indexes)
+    console.warn("getRegistrations: falling back to client-side filtering.", indexError);
+    const snapshot = await getDocs(collection(db, "registrations"));
+    return snapshot.docs
+      .map((d) => ({ id: d.id, ...d.data(), createdAt: toDate(d.data().createdAt) } as Registration))
+      .filter((r) => {
+        if (filters?.type && r.type !== filters.type) return false;
+        if (filters?.eventId && r.eventId !== filters.eventId) return false;
+        return true;
+      })
+      .sort((a, b) => (b.createdAt?.getTime?.() ?? 0) - (a.createdAt?.getTime?.() ?? 0));
+  }
 }
 
 export async function deleteRegistration(id: string): Promise<void> {

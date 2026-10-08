@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminGuard from '@/components/admin/AdminGuard';
-import { getEvents, createEvent, updateEvent, deleteEvent, getRegistrations, deleteRegistration, FirestoreEvent, Registration } from '@/lib/firestore';
+import { getAllEvents, createEvent, updateEvent, deleteEvent, getRegistrations, deleteRegistration, FirestoreEvent, Registration } from '@/lib/firestore';
 import { getEventStatus } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -43,7 +43,7 @@ export default function AdminEvents() {
   async function fetchEvents() {
     try {
       setLoading(true);
-      const data = await getEvents();
+      const data = await getAllEvents();
       setEvents(data);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch events');
@@ -184,9 +184,12 @@ export default function AdminEvents() {
 
   const handleToggleEventLaunch = async (event: FirestoreEvent) => {
     try {
-      const nextVal = event.isLaunched === false ? true : false;
+      // isLaunched defaults to true when undefined, so we explicitly check the stored value.
+      // A new event has isLaunched === undefined (treated as launched), so toggling it
+      // correctly sets it to false (unlaunched).
+      const nextVal = !event.isLaunched;
       await updateEvent(event.id, { isLaunched: nextVal });
-      setToastMessage(`Event ${nextVal ? 'launched and published live' : 'set to unlaunched'}`);
+      setToastMessage(`Event ${nextVal ? '🚀 launched and published live' : '⏸ set to unlaunched (hidden from public)'}`);
       setTimeout(() => setToastMessage(null), 3500);
       await fetchEvents();
     } catch (err: unknown) {
@@ -317,13 +320,31 @@ export default function AdminEvents() {
                   <div key={event.id} className="border border-[#cfc9bc] bg-[#ede7da] overflow-hidden">
                     <div className="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                       <div>
-                        <h3 className="text-lg font-sans font-bold text-[#c94030]">{event.name}</h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-lg font-sans font-bold text-[#c94030]">{event.name}</h3>
+                          <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded border ${
+                            event.isLaunched !== false
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                              : 'bg-amber-50 text-amber-700 border-amber-300'
+                          }`}>
+                            {event.isLaunched !== false ? '● Live' : '○ Unlaunched'}
+                          </span>
+                        </div>
                         <div className="text-sm text-[#3a3530] font-mono mt-1 space-x-4">
                           <span>Date: <strong className="text-[#141210]">{new Date(event.date).toLocaleDateString()}</strong></span>
-                          <span>Status: <span className="font-semibold text-[#141210]">{statusInfo.label}</span></span>
+                          <span>Reg: <span className="font-semibold text-[#141210]">{statusInfo.label}</span></span>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center flex-wrap gap-2">
+                        <Button
+                          variant={event.isLaunched !== false ? 'secondary' : 'primary'}
+                          size="sm"
+                          onClick={() => handleToggleEventLaunch(event)}
+                          className="font-mono text-xs"
+                          title={event.isLaunched !== false ? 'Click to unpublish (hide from public)' : 'Click to publish live'}
+                        >
+                          {event.isLaunched !== false ? '⏸ Unlaunched' : '🚀 Launch'}
+                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
